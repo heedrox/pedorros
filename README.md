@@ -33,6 +33,20 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Distribución según tabla** del PRODUCT_BRIEF (4-16 jugadores)
 - **Prevención de loops** - no recalcula si roles ya existen
 
+### 🎵 Funcionalidad DISIMULAR con Contador y Sonidos
+- **Contador visual prominente** de 5, 4, 3, 2, 1, 0 en pantalla completa
+- **Ocultación del contenido principal** durante la secuencia de DISIMULAR
+- **Estado "DISIMULANDO"** después del contador con animaciones dramáticas
+- **Web Audio API nativa** con timing preciso de 5 segundos
+- **Precarga automática para iOS** al hacer click en DISIMULAR
+- **Sistema de sonidos inteligente** basado en Firebase
+- **Lógica de sonidos** según rol del jugador (pedito, pedorro, neutral)
+- **Reproducción automática** de sonidos después del contador
+- **Integración completa** con campos `nextSounds`, `peditos` y `pedorro`
+- **Experiencia inmersiva** con contador a pantalla completa
+- **Fallback robusto** a HTML5 Audio si Web Audio API falla
+- **Compatibilidad total con iOS** sin problemas de autoplay
+
 ### 🔗 Sistema de URLs Inteligente
 - **Formato de URL**: `index.html?/g/CODIGO/p/NUMERO_JUGADOR/TOTAL_JUGADORES`
 - **Ejemplo**: `index.html?/g/galerna/p/1/5` → Jugador 1 de 5, código "galerna"
@@ -53,11 +67,12 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Reglas de seguridad** configuradas para acceso autenticado
 
 ### 🧪 Suite de Tests Unitarios
-- **37 tests pasando** con cobertura completa
+- **53 tests pasando** con cobertura completa
 - **Tests de funcionalidad pura** (inmutabilidad, predictibilidad)
 - **Tests de edge cases** (URLs inválidas, casos límite)
 - **Tests de validación de regex** (caracteres especiales, espacios)
 - **Tests de cálculo de roles** (distribución, sonidos, mezcla de arrays)
+- **Tests de funcionalidad DISIMULAR** (lógica de sonidos, roles, inmutabilidad)
 - **Configuración Jest** con soporte para módulos ES6
 
 ## 🚀 Tecnologías Utilizadas
@@ -89,7 +104,8 @@ pedorro/
 ├── test/                        # Tests unitarios
 │   └── unit/                    # Tests de funciones del core
 │       ├── parseGameURL.test.js # Tests para parseGameURL
-│       └── gameRoles.test.js    # Tests para cálculo de roles y sonidos
+│       ├── gameRoles.test.js    # Tests para cálculo de roles y sonidos
+│       └── disimular.test.js    # Tests para funcionalidad DISIMULAR
 ├── docs/                        # Documentación del proyecto
 │   ├── PRODUCT_BRIEF.md         # Especificación del producto
 │   └── features/                # Planes técnicos de funcionalidades
@@ -201,6 +217,15 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - `generateNextSounds(roles, totalPlayers)` - Genera diccionario de sonidos para cada jugador
 - `shuffleArray(array)` - Mezcla array usando algoritmo Fisher-Yates (inmutable)
 
+### Funcionalidad DISIMULAR
+- `getPlayerRole(peditos, pedorro, playerNumber)` - Determina rol del jugador (pedito, pedorro, neutral)
+- `determineSoundForPlayer(nextSounds, peditos, pedorro, playerNumber)` - Lógica de selección de sonido
+- `handleDisimularClick(gameState)` - Maneja click del botón DISIMULAR con estado inmutable
+- `createAudioContext()` - Crea y gestiona contexto de Web Audio API
+- `playSoundWebAudio(soundFileName, delayMs)` - Reproduce sonido con timing preciso usando Web Audio API
+- `playSoundHTML5(soundFileName)` - Fallback a HTML5 Audio si Web Audio API falla
+- `preloadAudioForIOS()` - Precarga audio para compatibilidad con iOS
+
 ### Utilidades
 - `isValidGameState()` - Valida estructura del estado
 - `getPlayerInfo()` - Obtiene información del jugador
@@ -214,7 +239,8 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - **shuffleArray**: 4 tests (mezcla, inmutabilidad, casos edge)
 - **calculateGameRoles**: 8 tests (distribución, validación, aleatoriedad)
 - **generateNextSounds**: 3 tests (generación, validación, rangos)
-- **Total**: 37 tests con cobertura completa
+- **Funcionalidad DISIMULAR**: 16 tests (lógica de sonidos, roles, inmutabilidad)
+- **Total**: 53 tests con cobertura completa
 
 ### Casos de Test Cubiertos
 - ✅ URLs con diferentes formatos y códigos
@@ -229,10 +255,22 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 
 ## 🚧 Próximas Funcionalidades
 
-### Fase 3: Funcionalidad del Botón DISIMULAR
-- [ ] Sistema de audio y temporizador de 5 segundos
-- [ ] Reproducción de sonidos de pedorros y peditos
-- [ ] Sincronización local entre dispositivos
+### ✅ **COMPLETADO - Fase 3: Funcionalidad del Botón DISIMULAR**
+- [x] Sistema de audio y temporizador de 5 segundos
+- [x] Contador visual prominente de 5, 4, 3, 2, 1, 0 en pantalla completa
+- [x] Ocultación del contenido principal durante la secuencia de DISIMULAR
+- [x] Estado "DISIMULANDO" después del contador con animaciones dramáticas
+- [x] Web Audio API nativa con timing preciso de 5 segundos
+- [x] Precarga automática para iOS al hacer click en DISIMULAR
+- [x] Reproducción automática de sonidos según rol del jugador
+- [x] Lógica inteligente de sonidos basada en Firebase
+- [x] Integración completa con campos `nextSounds`, `peditos` y `pedorro`
+- [x] Fallback robusto a HTML5 Audio si Web Audio API falla
+- [x] Compatibilidad total con iOS sin problemas de autoplay
+- [x] Tests unitarios completos (16 nuevos tests)
+- [x] Arquitectura inmutable y funcional
+- [x] Scripts de preparación de juegos de prueba
+- [x] Experiencia inmersiva con contador a pantalla completa
 
 ### Fase 4: Estados del Juego
 - [ ] Transición a estado ACUSE

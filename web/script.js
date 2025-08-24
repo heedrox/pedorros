@@ -16,6 +16,8 @@ import {
     getResetGameState,
     calculateGameRoles,
     generateNextSounds,
+    determineSoundForPlayer,
+    getPlayerRole,
     AUTH_STATES
 } from './lib.js';
 
@@ -28,7 +30,9 @@ import {
 import {
     resetGameState,
     setupGameStateListener,
-    updateGameRoles
+    updateGameRoles,
+    getNextSounds,
+    getGameRoles
 } from './firebase-database.js';
 
 // Estado de autenticación (separado del estado del juego)
@@ -243,16 +247,18 @@ const initializeGame = () => {
     // Event listener para el botón DISIMULAR
     const disimularButton = document.getElementById('disimular-btn');
     if (disimularButton) {
-        disimularButton.addEventListener('click', () => {
+        disimularButton.addEventListener('click', async () => {
             console.log('Botón DISIMULAR clickeado');
             console.log('Estado actual:', gameState.state);
             console.log('Ronda actual:', gameState.round);
             console.log('Código de juego:', gameState.gameCode);
             console.log('Jugador:', gameState.playerNumber, 'de', gameState.totalPlayers);
             
-            // TODO: En futuras implementaciones, aquí irá la lógica del juego
-            // Por ahora solo mostramos que funciona
-            alert('¡Botón DISIMULAR funcionando! (Funcionalidad pendiente de implementar)');
+            // Precargar audio inmediatamente para iOS (Web Audio API)
+            await preloadAudioForIOS();
+            
+            // Iniciar secuencia de DISIMULAR
+            startDisimularSequence();
             
             // Actualizar estado (inmutable)
             gameState = handleDisimularClick(gameState);
@@ -415,3 +421,273 @@ window.addEventListener('pagehide', () => {
         gameStateListenerCleanup = null;
     }
 });
+
+// Función para iniciar la secuencia de DISIMULAR
+const startDisimularSequence = async () => {
+    const disimularButton = document.getElementById('disimular-btn');
+    const disimularContainer = document.getElementById('disimular-container');
+    const countdownDisplay = document.getElementById('countdown-display');
+    const disimulandoDisplay = document.getElementById('disimulando-display');
+    const mainContent = document.querySelector('.main-content');
+    
+    if (!disimularButton || !disimularContainer || !countdownDisplay || !disimulandoDisplay || !mainContent) {
+        console.error('Elementos de DISIMULAR no encontrados');
+        return;
+    }
+    
+    // Deshabilitar botón durante la secuencia
+    disimularButton.disabled = true;
+    disimularButton.style.opacity = '0.5';
+    
+    // Ocultar main-content y mostrar contenedor de contador
+    mainContent.style.display = 'none';
+    disimularContainer.style.display = 'flex';
+    
+    // Asegurar que "DISIMULANDO" esté oculto al inicio
+    disimulandoDisplay.style.display = 'none';
+    
+    // PROGRAMAR SONIDO INMEDIATAMENTE al inicio del contador
+    // Esto asegura que se reproduzca exactamente después de 5 segundos
+    await playSound();
+    
+    // Iniciar contador: 5, 4, 3, 2, 1
+    const countdownNumbers = [5, 4, 3, 2, 1, 0];
+    
+    // Mostrar el primer número inmediatamente
+    countdownDisplay.textContent = countdownNumbers[0];
+    countdownDisplay.style.display = 'flex';
+    
+    for (let i = 1; i < countdownNumbers.length; i++) {
+        // Esperar 1 segundo antes del siguiente número
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        countdownDisplay.textContent = countdownNumbers[i];
+        // countdownDisplay ya está visible, no necesitamos cambiar display
+    }
+    
+    // Ocultar contador y mostrar "DISIMULANDO"
+    countdownDisplay.style.display = 'none';
+    disimulandoDisplay.style.display = 'flex';
+    
+    // El sonido ya está programado para reproducirse automáticamente
+    // No necesitamos llamar a playSound() aquí
+    
+    // Esperar 2 segundos mostrando "DISIMULANDO"
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Ocultar contador y mostrar main-content nuevamente
+    disimularContainer.style.display = 'none';
+    mainContent.style.display = 'block';
+    
+    // Rehabilitar botón
+    disimularButton.disabled = false;
+    disimularButton.style.opacity = '1';
+    
+    console.log('Secuencia de DISIMULAR completada');
+};
+
+// Función para crear y gestionar el contexto de audio
+const createAudioContext = () => {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) {
+        console.warn('Web Audio API no soportada, usando HTML5 Audio como fallback');
+        return null;
+    }
+    
+    const audioContext = new AudioContext();
+    
+    // En iOS, el contexto puede estar suspendido inicialmente
+    if (audioContext.state === 'suspended') {
+        console.log('Contexto de audio suspendido, resumiendo...');
+        audioContext.resume().catch(error => {
+            console.warn('No se pudo resumir el contexto de audio:', error);
+        });
+    }
+    
+    return audioContext;
+};
+
+// Función para precargar audio en iOS (Web Audio API)
+const preloadAudioForIOS = async () => {
+    // Solo precargar si es iOS y Web Audio API está disponible
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (!isIOS) {
+        console.log('No es iOS, saltando precarga de audio');
+        return;
+    }
+    
+    try {
+        console.log('iOS detectado: Precargando audio para Web Audio API...');
+        const audioContext = createAudioContext();
+        if (!audioContext) {
+            console.warn('Web Audio API no disponible en iOS, usando HTML5 Audio');
+            return;
+        }
+        
+        // Asegurar que el contexto esté ejecutándose
+        if (audioContext.state === 'suspended') {
+            await audioContext.resume();
+            console.log('Contexto de audio iOS resumido exitosamente');
+        }
+        
+        // Precargar un archivo de audio pequeño para activar el contexto
+        const response = await fetch('sounds/neutral.mp3');
+        const arrayBuffer = await response.arrayBuffer();
+        await audioContext.decodeAudioData(arrayBuffer);
+        
+        console.log('Audio precargado exitosamente en iOS');
+        
+    } catch (error) {
+        console.warn('Error al precargar audio en iOS:', error);
+        console.log('Continuando con HTML5 Audio como fallback');
+    }
+};
+
+// Función para reproducir sonido usando Web Audio API
+const playSoundWebAudio = async (soundFileName, delayMs = 0) => {
+    const audioContext = createAudioContext();
+    if (!audioContext) {
+        throw new Error('Web Audio API no disponible');
+    }
+    
+    try {
+        // Asegurar que el contexto esté ejecutándose
+        if (audioContext.state === 'suspended') {
+            await audioContext.resume();
+        }
+        
+        // Cargar el archivo de audio
+        const response = await fetch(`sounds/${soundFileName}`);
+        if (!response.ok) {
+            throw new Error(`Error al cargar audio: ${response.status}`);
+        }
+        
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        
+        // Crear fuente de audio
+        const source = audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(audioContext.destination);
+        
+        // Configurar volumen
+        const gainNode = audioContext.createGain();
+        gainNode.gain.value = 1.0;
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Reproducir con timing preciso
+        if (delayMs > 0) {
+            // Usar el timing del contexto de audio para mayor precisión
+            const startTime = audioContext.currentTime + (delayMs / 1000);
+            source.start(startTime);
+            console.log(`Audio programado para reproducirse en ${delayMs}ms`);
+        } else {
+            source.start(0);
+            console.log('Audio reproducido inmediatamente');
+        }
+        
+        // Limpiar recursos cuando termine
+        source.onended = () => {
+            source.disconnect();
+            gainNode.disconnect();
+        };
+        
+        return true;
+        
+    } catch (error) {
+        console.error('Error con Web Audio API:', error);
+        throw error;
+    }
+};
+
+// Función para reproducir sonido usando HTML5 Audio (fallback)
+const playSoundHTML5 = async (soundFileName) => {
+    const audioElement = document.getElementById('game-audio');
+    if (!audioElement) {
+        throw new Error('Elemento de audio HTML5 no encontrado');
+    }
+    
+    try {
+        // Cambiar la fuente del audio
+        audioElement.src = `sounds/${soundFileName}`;
+        
+        // Precargar y reproducir
+        audioElement.load();
+        
+        // Reproducir con manejo de errores
+        try {
+            await audioElement.play();
+            console.log('Sonido HTML5 reproducido exitosamente');
+            return true;
+        } catch (playError) {
+            console.error('Error al reproducir sonido HTML5:', playError);
+            // Fallback: intentar reproducir sin await
+            audioElement.play().catch(error => {
+                console.error('Error en fallback de reproducción HTML5:', error);
+            });
+            return false;
+        }
+    } catch (error) {
+        console.error('Error con HTML5 Audio:', error);
+        throw error;
+    }
+};
+
+// Función principal para reproducir el sonido correspondiente al jugador
+const playSound = async () => {
+    try {
+        if (!gameState || !gameState.gameCode) {
+            console.error('Estado del juego no disponible para reproducir sonido');
+            return;
+        }
+        
+        // Obtener datos de Firebase
+        const [nextSounds, gameRoles] = await Promise.all([
+            getNextSounds(gameState.gameCode),
+            getGameRoles(gameState.gameCode)
+        ]);
+        
+        console.log('NextSounds obtenidos:', nextSounds);
+        console.log('Roles del juego obtenidos:', gameRoles);
+        
+        // Determinar qué sonido reproducir
+        const soundFileName = determineSoundForPlayer(
+            nextSounds,
+            gameRoles.peditos,
+            gameRoles.pedorro,
+            gameState.playerNumber
+        );
+        
+        console.log(`Reproduciendo sonido: ${soundFileName} para jugador ${gameState.playerNumber}`);
+        
+        // Intentar usar Web Audio API primero, con fallback a HTML5
+        try {
+            // Web Audio API con timing preciso de 5 segundos
+            // El sonido se programa para reproducirse exactamente después del contador
+            await playSoundWebAudio(soundFileName, 5000);
+            console.log('Sonido programado exitosamente con Web Audio API para reproducirse en 5 segundos');
+        } catch (webAudioError) {
+            console.warn('Web Audio API falló, usando HTML5 Audio como fallback:', webAudioError);
+            
+            // Fallback a HTML5 Audio
+            try {
+                await playSoundHTML5(soundFileName);
+                console.log('Sonido reproducido exitosamente con HTML5 Audio');
+            } catch (html5Error) {
+                console.error('HTML5 Audio también falló:', html5Error);
+                
+                // Último fallback: sonido neutral
+                try {
+                    await playSoundHTML5('neutral.mp3');
+                    console.log('Sonido neutral reproducido como último fallback');
+                } catch (finalError) {
+                    console.error('Todos los métodos de audio fallaron:', finalError);
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error al reproducir sonido:', error);
+    }
+};

@@ -7,6 +7,7 @@
     "dev": "live-server web --port=3000 --open=/index.html",
     "start": "live-server web --port=3000",
     "build": "echo 'Build completed'",
+    "prepare-test": "node scripts/quick-test.cjs",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

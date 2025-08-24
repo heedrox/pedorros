@@ -32,6 +32,14 @@
         <!-- Pantalla del Juego (oculta por defecto) -->
         <div id="game-screen" class="screen">
             <div id="start-screen" class="screen active">
+                <!-- Contenedor para contador y estado DISIMULANDO (fuera del main-content) -->
+                <div id="disimular-container" class="disimular-container" style="display: none;">
+                    <div id="countdown-display" class="countdown-display"></div>
+                    <div id="disimulando-display" class="disimulando-display" style="display: none;">
+                        DISIMULANDO
+                    </div>
+                </div>
+                
                 <div class="main-content">
                     <div class="game-info">
                         <p class="round-info">Ronda <span id="current-round">1</span> de 5</p>
@@ -49,6 +57,11 @@
                         <p>¡Basándote solo en los sonidos!</p>
                     </div>
                 </div>
+                
+                <!-- Elemento de audio para reproducción de sonidos -->
+                <audio id="game-audio" preload="auto">
+                    <source src="sounds/neutral.mp3" type="audio/mpeg">
+                </audio>
             </div>
         </div>
     </div>

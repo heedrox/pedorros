@@ -78,15 +78,6 @@ export const updateRound = (currentState, newRound) => ({
     round: newRound
 });
 
-// Función pura para manejar el click del botón DISIMULAR
-export const handleDisimularClick = (gameState) => {
-    const { state, round, gameCode, playerNumber, totalPlayers } = gameState;
-    
-    // TODO: En futuras implementaciones, aquí irá la lógica del juego
-    // Por ahora solo retorna el mismo estado (inmutable)
-    return gameState;
-};
-
 // Función pura para validar si un estado es válido
 export const isValidGameState = (gameState) => {
     return gameState && 
@@ -242,4 +233,64 @@ export const generateNextSounds = (roles, totalPlayers) => {
     nextSounds[roles.pedorro] = pedorroSound;
     
     return nextSounds;
+};
+
+// Función pura para determinar el rol del jugador actual
+export const getPlayerRole = (peditos, pedorro, playerNumber) => {
+    if (!Array.isArray(peditos) || typeof pedorro !== 'number' || typeof playerNumber !== 'number') {
+        return 'neutral';
+    }
+    
+    if (peditos.includes(playerNumber)) {
+        return 'pedito';
+    }
+    
+    if (pedorro === playerNumber) {
+        return 'pedorro';
+    }
+    
+    return 'neutral';
+};
+
+// Función pura para determinar qué sonido reproducir para un jugador
+export const determineSoundForPlayer = (nextSounds, peditos, pedorro, playerNumber) => {
+    // Validar parámetros de entrada
+    if (!nextSounds || typeof nextSounds !== 'object' || 
+        !Array.isArray(peditos) || typeof pedorro !== 'number' || 
+        typeof playerNumber !== 'number') {
+        return 'neutral.mp3';
+    }
+    
+    // Obtener el valor de nextSounds para este jugador
+    const soundValue = nextSounds[playerNumber];
+    
+    // Si es null, reproducir sonido neutral
+    if (soundValue === null) {
+        return 'neutral.mp3';
+    }
+    
+    // Si es un número, determinar el tipo de sonido según el rol
+    if (typeof soundValue === 'number' && soundValue >= 1 && soundValue <= 5) {
+        const playerRole = getPlayerRole(peditos, pedorro, playerNumber);
+        
+        if (playerRole === 'pedito') {
+            return `pedito-${soundValue}.mp3`;
+        } else if (playerRole === 'pedorro') {
+            return `pedorro-${soundValue}.mp3`;
+        }
+    }
+    
+    // Fallback a sonido neutral
+    return 'neutral.mp3';
+};
+
+// Función pura para manejar el click del botón DISIMULAR (actualizada)
+export const handleDisimularClick = (gameState) => {
+    const { state, round, gameCode, playerNumber, totalPlayers } = gameState;
+    
+    // Retornar nuevo estado con flag de disimulando
+    return {
+        ...gameState,
+        isDisimulando: true
+    };
 };

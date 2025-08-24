@@ -4,7 +4,7 @@
  */
 
 import { database } from './firebase-config.js';
-import { ref, set, onValue, update, off } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { ref, set, onValue, update, off, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
 /**
  * Obtiene la referencia a la base de datos
@@ -135,6 +135,66 @@ export const updateGameRoles = async (gameCode, roles, nextSounds) => {
             success: false,
             error: error.message,
             gameCode
+        };
+    }
+};
+
+/**
+ * Obtiene el diccionario de sonidos para el juego actual
+ * @param {string} gameCode - Código del juego
+ * @returns {Promise<Object>} Diccionario de sonidos por jugador
+ */
+export const getNextSounds = async (gameCode) => {
+    try {
+        if (!gameCode || typeof gameCode !== 'string') {
+            throw new Error('Código de juego inválido');
+        }
+
+        const gameRef = ref(database, `pedorros-game/${gameCode}/nextSounds`);
+        const snapshot = await get(gameRef);
+        
+        if (snapshot.exists()) {
+            return snapshot.val();
+        } else {
+            return {};
+        }
+    } catch (error) {
+        console.error('Error al obtener nextSounds:', error);
+        return {};
+    }
+};
+
+/**
+ * Obtiene los roles actuales del juego (peditos y pedorro)
+ * @param {string} gameCode - Código del juego
+ * @returns {Promise<Object>} Objeto con peditos y pedorro
+ */
+export const getGameRoles = async (gameCode) => {
+    try {
+        if (!gameCode || typeof gameCode !== 'string') {
+            throw new Error('Código de juego inválido');
+        }
+
+        const gameRef = ref(database, `pedorros-game/${gameCode}`);
+        const snapshot = await get(gameRef);
+        
+        if (snapshot.exists()) {
+            const gameData = snapshot.val();
+            return {
+                peditos: gameData.peditos || [],
+                pedorro: gameData.pedorro || null
+            };
+        } else {
+            return {
+                peditos: [],
+                pedorro: null
+            };
+        }
+    } catch (error) {
+        console.error('Error al obtener roles del juego:', error);
+        return {
+            peditos: [],
+            pedorro: null
         };
     }
 };
