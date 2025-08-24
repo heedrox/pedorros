@@ -66,7 +66,7 @@ export const initializeGameState = (url) => {
     if (parsedURL.success) {
         return createGameState('START', 1, parsedURL.gameCode, parsedURL.playerNumber, parsedURL.totalPlayers);
     } else {
-        return createGameState('START', 1, 'dev', 1, 4);
+        alert('wrong url, please check')
     }
 };
 

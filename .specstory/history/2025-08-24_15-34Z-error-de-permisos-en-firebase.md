@@ -186,3 +186,227 @@ console.log('Intentando escribir en:', path);
 
 ---
 
+_**User**_
+
+ah, me pone esto:
+
+logger.ts:117 [2025-08-24T15:43:24.831Z]  @firebase/database: FIREBASE WARNING: update at /pedorros-game/dev failed: permission_denied 
+defaultLogHandler	@	logger.ts:117
+warn	@	logger.ts:209
+warn	@	util.ts:189
+(anónimo)	@	Repo.ts:636
+(anónimo)	@	PersistentConnection.ts:628
+onDataMessage_	@	PersistentConnection.ts:653
+onDataMessage_	@	Connection.ts:325
+onPrimaryMessageReceived_	@	Connection.ts:318
+(anónimo)	@	Connection.ts:211
+appendFrame_	@	WebSocketConnection.ts:308
+handleIncomingFrame	@	WebSocketConnection.ts:362
+mySock.onmessage	@	WebSocketConnection.ts:225
+
+---
+
+_**Assistant**_
+
+¡Perfecto! 🎯 Ahora veo el problema claramente. El error muestra que está intentando escribir en `/pedorros-game/dev` y falla por permisos.
+
+## �� Análisis del Error
+
+El warning de Firebase muestra:
+```
+update at /pedorros-game/dev failed: permission_denied
+```
+
+Esto significa que:
+1. **Tu app está intentando crear/escribir** en un juego con código `dev`
+2. **Las reglas de Firebase están bloqueando** esa operación
+3. **El problema está en las reglas**, no en la configuración
+
+## 🛠️ Solución: Verificar Reglas de Firebase
+
+Ve a tu **Firebase Console** y verifica que las reglas estén así:
+
+```json
+{
+  "rules": {
+    "pedorros-game": {
+      "$gameCode": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    }
+  }
+}
+```
+
+## �� Posibles Problemas en las Reglas
+
+### 1. **Reglas Muy Restrictivas**
+Si tienes algo como:
+```json
+".write": "auth != null && $gameCode == 'galerna'"
+```
+Solo permitirá escribir en `galerna`, no en `dev`.
+
+### 2. **Reglas Anidadas Incorrectas**
+Asegúrate de que no haya reglas adicionales que bloqueen escritura.
+
+### 3. **Reglas por Defecto**
+Verifica que no tengas reglas como:
+```json
+".write": false
+```
+
+## 🧪 Verificación Rápida
+
+En Firebase Console:
+1. **Realtime Database → Rules**
+2. **Copia y pega las reglas actuales**
+3. **Compara con las reglas recomendadas**
+
+## 🔧 Debug Adicional
+
+Si las reglas están bien, añade este log temporal en tu código:
+
+```javascript
+// Antes de la operación que falla
+console.log('Intentando escribir en:', `/pedorros-game/${gameCode}`);
+console.log('Usuario autenticado:', firebase.auth().currentUser?.uid);
+```
+
+## 📋 Checklist de Verificación
+
+- [ ] **Reglas de Firebase** permiten escritura en cualquier `$gameCode`
+- [ ] **Usuario está autenticado** correctamente
+- [ ] **No hay reglas adicionales** que bloqueen escritura
+- [ ] **Las reglas están publicadas** y activas
+
+¿Puedes verificar las reglas actuales en Firebase Console y compartirlas? Eso nos dirá exactamente qué está bloqueando la escritura.
+
+---
+
+_**User**_
+
+pero se supone que deberia ser galerna, de donde saca dev?
+
+---
+
+_**Assistant**_
+
+¡Excelente pregunta! 🤔 Si tu app está configurada para usar `galerna` como código de juego, pero está intentando escribir en `dev`, hay algo en el código que está generando ese valor.
+
+## �� Vamos a Investigar el Código
+
+Necesito revisar tu código para ver de dónde viene `dev`. Déjame buscar en los archivos relevantes:
+
+
+---
+
+<details>
+            <summary>Grep search for "dev" • **4** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///Users/jordimarti/Development/pedorro/web/lib.js` | L69 | `return createGameState('START', 1, 'dev', 1, 4);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L234 | `playerButton.addEventListener('click', () => handlePlayerButtonClick(i));` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L415 | `disimularButton.addEventListener('click', async () => {` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L436 | `reiniciarButton.addEventListener('click', async () => {` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L475 | `acusarButton.addEventListener('click', async () => {` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L587 | `accederButton.addEventListener('click', handleLogin);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L595 | `document.addEventListener('DOMContentLoaded', initializeApp);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L598 | `window.addEventListener('beforeunload', () => {` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L607 | `window.addEventListener('pagehide', () => {` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L960 | `investigarButton.addEventListener('click', handleInvestigarClick);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L234 | `playerButton.addEventListener('click', () => handlePlayerButtonClick(i));` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L415 | `disimularButton.addEventListener('click', async () => {` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L436 | `reiniciarButton.addEventListener('click', async () => {` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L475 | `acusarButton.addEventListener('click', async () => {` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L587 | `accederButton.addEventListener('click', handleLogin);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L595 | `document.addEventListener('DOMContentLoaded', initializeApp);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L598 | `window.addEventListener('beforeunload', () => {` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L607 | `window.addEventListener('pagehide', () => {` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L960 | `investigarButton.addEventListener('click', handleInvestigarClick);` |
+| `file:///Users/jordimarti/Development/pedorro/web/lib.js` | L69 | `return createGameState('START', 1, 'dev', 1, 4);` |
+
+</details>
+
+---
+
+¡Ahí está! 🎯 Encontré el problema en `web/lib.js` línea 68:
+
+```javascript
+return createGameState('START', 1, 'dev', 1, 4);
+```
+
+## 🔍 Análisis del Problema
+
+Tu código tiene **valores hardcodeados** para desarrollo:
+- **Código del juego**: `'dev'` (en lugar de `'galerna'`)
+- **Jugador**: `1`
+- **Total jugadores**: `4`
+
+## 🛠️ Solución: Usar Valores Reales de la URL
+
+Necesito ver cómo se está llamando esta función. Déjame revisar el contexto:
+
+
+---
+
+Read file: web/lib.js
+
+---
+
+¡Perfecto! Ahora veo el problema completo. ��
+
+## 🔍 El Problema Está Aquí
+
+En la función `initializeGameState` (líneas 62-70):
+
+```javascript
+export const initializeGameState = (url) => {
+    const parsedURL = parseGameURL(url);
+    
+    if (parsedURL.success) {
+        return createGameState('START', 1, parsedURL.gameCode, parsedURL.playerNumber, parsedURL.totalPlayers);
+    } else {
+        return createGameState('START', 1, 'dev', 1, 4); // ← AQUÍ ESTÁ 'dev'
+    }
+};
+```
+
+## �� ¿Por Qué Pasa Esto?
+
+1. **En desarrollo local**: La URL funciona correctamente, se parsea bien
+2. **En producción**: La URL falla al parsearse, cae en el `else` y usa `'dev'`
+3. **Firebase bloquea** porque `'dev'` no está en las reglas permitidas
+
+## ��️ Solución: Cambiar el Fallback
+
+Cambia `'dev'` por `'galerna'` en el fallback:
+
+```javascript:web/lib.js
+// ... existing code ...
+export const initializeGameState = (url) => {
+    const parsedURL = parseGameURL(url);
+    
+    if (parsedURL.success) {
+        return createGameState('START', 1, parsedURL.gameCode, parsedURL.playerNumber, parsedURL.totalPlayers);
+    } else {
+        return createGameState('START', 1, 'galerna', 1, 4); // Cambiar 'dev' por 'galerna'
+    }
+};
+// ... existing code ...
+```
+
+## 🔍 ¿Por Qué Falla el Parsing en Producción?
+
+También deberías investigar por qué `parseGameURL(url)` falla en producción. Posibles causas:
+
+1. **URL malformada** en el hosting
+2. **Problema con el routing** del hosting
+3. **Diferencia en cómo se construye** la URL entre desarrollo y producción
+
+¿Puedes verificar qué URL se está generando en producción vs desarrollo?
+
+---
+
