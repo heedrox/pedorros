@@ -12,6 +12,8 @@ import {
     handleDisimularClick,
     getPlayerInfo,
     getRoundInfo,
+    isPlayerOne,
+    getResetGameState,
     AUTH_STATES
 } from './lib.js';
 
@@ -21,6 +23,10 @@ import {
     onAuthStateChangedListener
 } from './firebase-config.js';
 
+import {
+    resetGameState
+} from './firebase-database.js';
+
 // Estado de autenticación (separado del estado del juego)
 let authState = AUTH_STATES.UNAUTHENTICATED;
 
@@ -29,6 +35,7 @@ const renderAuthScreen = (authState) => {
     const loginScreen = document.getElementById('login-screen');
     const gameScreen = document.getElementById('game-screen');
     const startScreen = document.getElementById('start-screen');
+    const gameHeader = document.getElementById('game-header');
     
     switch (authState) {
         case AUTH_STATES.UNAUTHENTICATED:
@@ -43,6 +50,9 @@ const renderAuthScreen = (authState) => {
             if (startScreen) {
                 startScreen.classList.remove('active');
                 startScreen.classList.add('inactive');
+            }
+            if (gameHeader) {
+                gameHeader.style.display = 'none';
             }
             break;
         case AUTH_STATES.AUTHENTICATED:
@@ -59,6 +69,9 @@ const renderAuthScreen = (authState) => {
                 startScreen.classList.remove('active');
                 startScreen.classList.add('inactive');
             }
+            if (gameHeader) {
+                gameHeader.style.display = 'block';
+            }
             break;
         case AUTH_STATES.AUTHENTICATING:
             // Mantener pantalla de login durante autenticación
@@ -74,6 +87,9 @@ const renderAuthScreen = (authState) => {
                 startScreen.classList.remove('active');
                 startScreen.classList.add('inactive');
             }
+            if (gameHeader) {
+                gameHeader.style.display = 'none';
+            }
             break;
         default:
             console.log('Estado de autenticación no implementado:', authState);
@@ -86,7 +102,7 @@ const renderScreen = (gameState) => {
     
     switch (state) {
         case 'START':
-            renderStartScreen(round, playerNumber, totalPlayers);
+            renderStartScreen(gameState);
             break;
         default:
             console.log('Estado no implementado:', state);
@@ -94,10 +110,12 @@ const renderScreen = (gameState) => {
 };
 
 // Función pura para renderizar la pantalla START
-const renderStartScreen = (round, playerNumber, totalPlayers) => {
+const renderStartScreen = (gameState) => {
+    const { round, playerNumber, totalPlayers } = gameState;
     const startScreen = document.getElementById('start-screen');
     const currentRoundElement = document.getElementById('current-round');
     const playerInfoElement = document.getElementById('player-info');
+    const reiniciarButton = document.getElementById('reiniciar-btn');
     
     // Solo activar start-screen si estamos completamente en la pantalla del juego
     // y la pantalla de login está oculta
@@ -122,6 +140,15 @@ const renderStartScreen = (round, playerNumber, totalPlayers) => {
     if (playerInfoElement && playerNumber > 0 && totalPlayers > 0) {
         playerInfoElement.textContent = `Jugador: ${playerNumber} / ${totalPlayers}`;
         playerInfoElement.style.display = 'block';
+    }
+    
+    // Controlar visibilidad del botón REINICIAR solo para jugador 1
+    if (reiniciarButton) {
+        if (isPlayerOne(gameState)) {
+            reiniciarButton.style.display = 'flex';
+        } else {
+            reiniciarButton.style.display = 'none';
+        }
     }
 };
 
@@ -202,6 +229,39 @@ const initializeGame = () => {
             
             // Actualizar estado (inmutable)
             gameState = handleDisimularClick(gameState);
+        });
+    }
+    
+    // Event listener para el botón REINICIAR
+    const reiniciarButton = document.getElementById('reiniciar-btn');
+    if (reiniciarButton) {
+        reiniciarButton.addEventListener('click', async () => {
+            console.log('Botón REINICIAR clickeado');
+            console.log('Código de juego:', gameState.gameCode);
+            console.log('Jugador:', gameState.playerNumber, 'de', gameState.totalPlayers);
+            
+            // Confirmar acción de reinicio
+            const confirmar = confirm('¿Estás seguro de que quieres reiniciar el juego? Esta acción no se puede deshacer.');
+            
+            if (confirmar) {
+                try {
+                    console.log('Reiniciando juego...');
+                    const result = await resetGameState(gameState.gameCode);
+                    
+                    if (result.success) {
+                        console.log('Juego reiniciado exitosamente:', result);
+                        alert('¡Juego reiniciado exitosamente!');
+                    } else {
+                        console.error('Error al reiniciar:', result.error);
+                        alert(`Error al reiniciar: ${result.error}`);
+                    }
+                } catch (error) {
+                    console.error('Error inesperado al reiniciar:', error);
+                    alert('Error inesperado al reiniciar el juego');
+                }
+            } else {
+                console.log('Reinicio cancelado por el usuario');
+            }
         });
     }
     

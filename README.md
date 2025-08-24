@@ -11,11 +11,19 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 ## ✨ Funcionalidades Implementadas
 
 ### 🎯 Pantalla de Estado START
-- **Interfaz visual completa** con temática marrón
+- **Interfaz visual completa** con temática marrón clara
 - **Botón DISIMULAR prominente** y centrado
 - **Información de ronda** (Ronda X de 5)
 - **Identificación de jugador** (Jugador X / Y)
 - **Diseño responsive** optimizado para dispositivos móviles
+
+### 🔄 Sistema de Reinicio del Juego
+- **Botón REINICIAR** exclusivo para el jugador 1 (director del juego)
+- **Posicionamiento superior derecho** del header
+- **Integración con Firebase Realtime Database**
+- **Guardado de estado de reinicio** en `/pedorros-game/{CODIGO_JUEGO}`
+- **Confirmación del usuario** antes de ejecutar reinicio
+- **Feedback visual** de éxito o error de la operación
 
 ### 🔗 Sistema de URLs Inteligente
 - **Formato de URL**: `index.html?/g/CODIGO/p/NUMERO_JUGADOR/TOTAL_JUGADORES`
@@ -29,6 +37,12 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Funciones puras** sin side effects
 - **Estado inmutable** usando spread operator
 - **Programación funcional** sin variables globales mutables
+
+### 🗄️ Integración Firebase
+- **Autenticación anónima** para acceso al juego
+- **Realtime Database** para persistencia de estado
+- **Sincronización en tiempo real** del estado del juego
+- **Reglas de seguridad** configuradas para acceso autenticado
 
 ### 🧪 Suite de Tests Unitarios
 - **22 tests pasando** con cobertura completa
@@ -44,6 +58,15 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Servidor de desarrollo**: live-server
 - **Entorno**: Node.js 20 (usar `nvm use 20`)
 - **Arquitectura**: Funcional e inmutable
+- **🎨 Estilos**: Guía oficial de colores documentada en sección UI
+- **🗄️ Base de datos**: Firebase Realtime Database
+- **🔐 Autenticación**: Firebase Auth (anónima)
+
+### ⚠️ Importante para Desarrolladores
+- **NO modificar la paleta de colores** sin consultar la guía de estilos
+- **Mantener coherencia visual** en todos los elementos
+- **Respetar la temática marrón** establecida
+- **Configurar reglas de Firebase** para acceso autenticado
 
 ## 📁 Estructura del Proyecto
 
@@ -69,6 +92,25 @@ pedorro/
 ### Prerrequisitos
 - Node.js 20.x (usar `nvm use 20`)
 - npm
+- Proyecto Firebase configurado
+
+### Configuración de Firebase
+1. **Crear proyecto** en [Firebase Console](https://console.firebase.google.com/)
+2. **Habilitar Authentication** con login anónimo
+3. **Habilitar Realtime Database** (no Firestore)
+4. **Configurar reglas** en `database.rules.json`:
+```json
+{
+  "rules": {
+    "pedorros-game": {
+      "$gameCode": {
+        ".read": "auth != null",
+        ".write": "auth != null && $gameCode == 'galerna'"
+      }
+    }
+  }
+}
+```
 
 ### Instalación
 ```bash
@@ -101,13 +143,31 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 
 ## 🎨 Características de la UI
 
-### Paleta de Colores (Temática Marrón)
-- **Color principal**: `#8B4513` (Saddle Brown)
-- **Color secundario**: `#A0522D` (Sienna)
-- **Color claro**: `#DEB887` (Burlywood)
-- **Color oscuro**: `#654321` (Dark Brown)
-- **Color de acento**: `#D2691E` (Chocolate)
-- **Fondo**: Gradiente de marrones claros
+### 🎨 GUÍA DE ESTILOS OFICIAL - NO MODIFICAR
+
+**⚠️ IMPORTANTE: Esta es la paleta de colores oficial de PEDORROS. NO modificar estos colores sin autorización explícita.**
+
+#### Paleta de Colores Principal (Temática Marrón Clara)
+- **Color principal**: `#8B4513` (Saddle Brown) - **NO CAMBIAR**
+- **Color secundario**: `#A0522D` (Sienna) - **NO CAMBIAR**
+- **Color claro**: `#CD853F` (Sandy Brown) - **NO CAMBIAR**
+- **Color oscuro**: `#654321` (Dark Brown) - **NO CAMBIAR**
+- **Color de acento**: `#CD853F` (Sandy Brown) - **NO CAMBIAR**
+- **Fondo principal**: `linear-gradient(135deg, #8B4513, #A0522D, #CD853F)` - **NO CAMBIAR**
+
+#### Colores de Elementos Específicos
+- **Header del juego**: `linear-gradient(135deg, #654321, #8B4513)` - **NO CAMBIAR**
+- **Botón DISIMULAR**: `linear-gradient(135deg, #8B4513, #A0522D)` - **NO CAMBIAR**
+- **Botón REINICIAR**: `linear-gradient(135deg, #CD853F, #A0522D)` - **NO CAMBIAR**
+- **Contenido principal**: `rgba(255, 255, 255, 0.1)` - **NO CAMBIAR**
+
+#### Reglas de Diseño
+1. **NUNCA cambiar el fondo principal** del body
+2. **MANTENER la temática marrón clara** en todos los elementos
+3. **PRESERVAR la coherencia visual** entre header y contenido
+4. **NO introducir colores claros** que rompan la estética
+5. **MANTENER el toque cálido y marrón claro** establecido
+6. **NO usar colores dorados** - solo marrones
 
 ### Diseño Responsive
 - **Mobile-first approach**
@@ -161,10 +221,17 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - [ ] Sistema de votación y acusaciones
 - [ ] Estado RESULTS con puntuaciones
 
-### Fase 4: Integración Firebase
-- [ ] Sincronización en tiempo real
-- [ ] Base de datos para estado del juego
-- [ ] Sistema de roles y distribución
+### Fase 4: Sincronización Avanzada
+- [ ] Sincronización en tiempo real del estado del juego
+- [ ] Sistema de roles y distribución automática
+- [ ] Persistencia de ranking entre sesiones
+
+### ✅ **COMPLETADO - Fase 1: Sistema de Reinicio**
+- [x] Botón REINICIAR para jugador 1
+- [x] Integración con Firebase Realtime Database
+- [x] Guardado de estado de reinicio
+- [x] Sistema de autenticación anónima
+- [x] Arquitectura funcional e inmutable
 
 ## 📚 Documentación Adicional
 

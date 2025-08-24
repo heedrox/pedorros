@@ -123,3 +123,22 @@ export const getRoundInfo = (gameState) => {
         isLastRound: gameState.round >= 5
     };
 };
+
+// Función pura para validar si es el jugador 1 (director del juego)
+export const isPlayerOne = (gameState) => {
+    if (!isValidGameState(gameState)) {
+        return false;
+    }
+    
+    return gameState.playerNumber === 1;
+};
+
+// Función pura para generar el estado de reinicio del juego
+export const getResetGameState = () => ({
+    ranking: {},
+    lastResult: null,
+    numRound: 1,
+    state: "START",
+    nextSounds: {},
+    pedorroSound: null
+});

@@ -4,7 +4,7 @@
  */
 
 // Obtener Firebase desde la variable global
-const { initializeApp, getAuth, signInAnonymously, onAuthStateChanged } = window.Firebase;
+const { initializeApp, getAuth, signInAnonymously, onAuthStateChanged, getDatabase } = window.Firebase;
 
 // Configuración de Firebase para el proyecto "the-anomaly-897ce"
 const firebaseConfig = {
@@ -21,6 +21,7 @@ const firebaseConfig = {
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const database = getDatabase(app);
 
 // Función para hacer login anónimo
 export const signInAnonymouslyUser = async () => {
@@ -69,4 +70,4 @@ export const onAuthStateChangedListener = (callback) => {
 };
 
 // Exportar instancia de auth para uso directo si es necesario
-export { auth };
+export { auth, database };

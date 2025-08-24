@@ -7,6 +7,17 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Header del juego (fuera de #app para estar completamente arriba) -->
+    <div id="game-header" class="game-header" style="display: none;">
+        <div class="header">
+            <h1 class="game-title">PEDORROS</h1>
+            <p class="game-subtitle">♪ Quién se ha echado un pedo... ♪</p>
+            <button id="reiniciar-btn" class="reiniciar-button" style="display: none;">
+                REINICIAR
+            </button>
+        </div>
+    </div>
+
     <div id="app">
         <!-- Pantalla de Login (visible por defecto) -->
         <div id="login-screen" class="screen active">
@@ -21,11 +32,6 @@
         <!-- Pantalla del Juego (oculta por defecto) -->
         <div id="game-screen" class="screen">
             <div id="start-screen" class="screen active">
-                <div class="header">
-                    <h1 class="game-title">PEDORROS</h1>
-                    <p class="game-subtitle">El juego de detective social</p>
-                </div>
-                
                 <div class="main-content">
                     <div class="game-info">
                         <p class="round-info">Ronda <span id="current-round">1</span> de 5</p>
@@ -55,9 +61,12 @@
             signInAnonymously, 
             onAuthStateChanged 
         } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { 
+            getDatabase 
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
         
         // Hacer Firebase disponible globalmente
-        window.Firebase = { initializeApp, getAuth, signInAnonymously, onAuthStateChanged };
+        window.Firebase = { initializeApp, getAuth, signInAnonymously, onAuthStateChanged, getDatabase };
     </script>
     
     <script type="module" src="script.js"></script>
