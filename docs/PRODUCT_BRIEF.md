@@ -26,6 +26,7 @@ PEDORROS es una aplicación móvil de fiesta multijugador que simula un juego de
 - **Liderazgo distribuido**: El jugador 1 actúa como director de juego mientras participa
 - **Identificación numérica**: Los jugadores se identifican con números del 1 al total de participantes
 - **Sin límite de tiempo**: Las acusaciones no tienen restricción temporal
+- **Paleta de colores**: Tonos marrones como tema principal de la aplicación
 
 ### Sistema de Puntuación
 - Puntos por acertar peditos individuales
