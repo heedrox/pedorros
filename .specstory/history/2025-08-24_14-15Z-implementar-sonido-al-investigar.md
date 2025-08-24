@@ -1532,3 +1532,92 @@ La funcionalidad está completamente implementada, testeada y documentada, sigui
 
 ---
 
+_**User**_
+
+commit & push
+
+---
+
+_**Assistant**_
+
+Perfecto! Voy a hacer commit y push de la nueva funcionalidad implementada. Primero voy a verificar el estado del repositorio y luego hacer el commit con un mensaje descriptivo.
+
+
+---
+
+```bash
+git status
+```
+
+```
+(base) ➜  pedorro git:(main) ✗ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   README.md
+        deleted:    scripts/README.md
+        modified:   web/script.js
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        .cursor/commands/code-it.md
+        .specstory/history/2025-08-24_14-15Z-implementar-sonido-al-investigar.md
+        docs/features/0007_PLAN.md
+        test/unit/introPedorro.test.js
+
+no changes added to commit (use "git add" and/or "git commit -a")
+(base) ?➜  pedorro git:(main) ?✗
+```
+
+---
+
+Ahora voy a agregar todos los archivos relevantes para la nueva funcionalidad:
+
+
+---
+
+```bash
+git add README.md web/script.js docs/features/0007_PLAN.md test/unit/introPedorro.test.js
+```
+
+```
+(base) ➜  pedorro git:(main) ✗ git add README.md web/script.js docs/features/0007_PLAN.md test/unit/introPed
+orro.test.js
+```
+
+---
+
+Ahora voy a hacer el commit con un mensaje descriptivo que siga las convenciones del proyecto:
+
+
+---
+
+```bash
+git commit -m "feat: implementar secuencia de sonidos intro + pedorro antes del botón INVESTIGAR
+
+- Nueva funcionalidad para jugador 1: reproduce intro.mp3 + sonido del pedorro desde Firebase
+- Timing preciso: 3s (intro) + sonido pedorro + 1.5s antes del botón INVESTIGAR
+- Fallback robusto a HTML5 Audio si Web Audio API falla
+- Integración completa con Firebase para obtener valor del pedorro dinámicamente
+- 16 nuevos tests unitarios con cobertura completa de casos edge
+- Mantiene compatibilidad total y no afecta funcionalidades existentes
+- Documentación actualizada en README y plan técnico 0007_PLAN.md"
+```
+
+```
+<n actualizada en README y plan técnico 0007_PLAN.md"
+[main a73a148] feat: implementar secuencia de sonidos intro + pedorro antes del botón INVESTIGAR
+ 4 files changed, 419 insertions(+), 2 deletions(-)
+ create mode 100644 docs/features/0007_PLAN.md
+ create mode 100644 test/unit/introPedorro.test.js
+```
+
+---
+
+
+
+---
+
