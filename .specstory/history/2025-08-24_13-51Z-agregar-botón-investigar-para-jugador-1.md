@@ -1261,11 +1261,309 @@ Lines added: 10, lines removed: undefined
 
 ---
 
+<details><summary>Edit file: README.md</summary>
+
+Actualizar la sección de funciones del Core para incluir la nueva función updateGameState
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -76,4 +76,5 @@
+  - **Sincronización en tiempo real** del estado del juego
+  - **Reglas de seguridad** configuradas para acceso autenticado
++ - **Actualización de estado** del juego con `updateGameState()`
+  
+  ### 🧪 Suite de Tests Unitarios
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+Actualizar la sección de cobertura de tests para incluir los nuevos tests de investigar
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -252,5 +252,6 @@
+  - **generateNextSounds**: 3 tests (generación, validación, rangos)
+  - **Funcionalidad DISIMULAR**: 16 tests (lógica de sonidos, roles, inmutabilidad)
+- - **Total**: 53 tests con cobertura completa
++ - **Funcionalidad INVESTIGAR**: 13 tests (botón, permisos, cambio de estado)
++ - **Total**: 66 tests con cobertura completa
+  
+  ### Casos de Test Cubiertos
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+Actualizar la sección de casos de test cubiertos para incluir la funcionalidad de investigar
+
+**Chunk 1**
+Lines added: 3, lines removed: undefined
+
+```diff
+@@ -265,4 +265,7 @@
+  - ✅ Mezcla de arrays con preservación de inmutabilidad
+  - ✅ Validación de rangos y tipos de entrada
++ - ✅ Funcionalidad de investigar con permisos de jugador 1
++ - ✅ Cambio de estado del juego a ACUSE
++ - ✅ Validación de elementos del DOM para investigar
+  
+  ## 🚧 Próximas Funcionalidades
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+Actualizar la sección de próximas funcionalidades para marcar como completada la transición a estado ACUSE
+
+**Chunk 1**
+Lines added: 9, lines removed: 23
+
+```diff
+@@ -271,30 +271,16 @@
+  ## 🚧 Próximas Funcionalidades
+  
+- ### ✅ **COMPLETADO - Fase 3: Funcionalidad del Botón DISIMULAR**
+- - [x] Sistema de audio y temporizador de 5 segundos
+- - [x] Contador visual prominente de 5, 4, 3, 2, 1, 0 en pantalla completa
+- - [x] Ocultación del contenido principal durante la secuencia de DISIMULAR
+- - [x] Estado "DISIMULANDO" después del contador con animaciones dramáticas
+- - [x] Web Audio API nativa con timing preciso de 5 segundos
+- - [x] Precarga automática para iOS al hacer click en DISIMULAR
+- - [x] Reproducción automática de sonidos según rol del jugador
+- - [x] Lógica inteligente de sonidos basada en Firebase
+- - [x] Integración completa con campos `nextSounds`, `peditos` y `pedorro`
+- - [x] Fallback robusto a HTML5 Audio si Web Audio API falla
+- - [x] Compatibilidad total con iOS sin problemas de autoplay
+- - [x] Tests unitarios completos (16 nuevos tests)
+- - [x] Arquitectura inmutable y funcional
+- - [x] Scripts de preparación de juegos de prueba
+- - [x] Experiencia inmersiva con contador a pantalla completa
++ ### ✅ **COMPLETADO - Fase 4: Transición a Estado ACUSE**
++ - [x] Botón de investigar después de secuencia DISIMULAR
++ - [x] Permisos exclusivos para jugador 1 (director del juego)
++ - [x] Actualización de estado del juego a "ACUSE" en Firebase
++ - [x] Interfaz diferenciada para jugador 1 vs otros jugadores
++ - [x] Tests unitarios completos (13 nuevos tests)
++ - [x] Diseño responsive y temática visual consistente
++ - [x] Integración con arquitectura existente sin regresiones
+  
+- ### Fase 4: Estados del Juego
+- - [ ] Transición a estado ACUSE
++ ### Fase 5: Sistema de Votación y Acusaciones
+  - [ ] Sistema de votación y acusaciones
+  - [ ] Estado RESULTS con puntuaciones
+- 
+- ### Fase 5: Sincronización Avanzada
+- - [ ] Sincronización en tiempo real del estado del juego
+- - [ ] Sistema de roles y distribución automática
+- - [ ] Persistencia de ranking entre sesiones
+  
+  ### ✅ **COMPLETADO - Fase 1: Sistema de Reinicio**
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+Agregar la Fase 3 completada y reorganizar las fases correctamente
+
+**Chunk 1**
+Lines added: 22, lines removed: undefined
+
+```diff
+@@ -279,8 +279,30 @@
+  - [x] Diseño responsive y temática visual consistente
+  - [x] Integración con arquitectura existente sin regresiones
++ 
++ ### ✅ **COMPLETADO - Fase 3: Funcionalidad del Botón DISIMULAR**
++ - [x] Sistema de audio y temporizador de 5 segundos
++ - [x] Contador visual prominente de 5, 4, 3, 2, 1, 0 en pantalla completa
++ - [x] Ocultación del contenido principal durante la secuencia de DISIMULAR
++ - [x] Estado "DISIMULANDO" después del contador con animaciones dramáticas
++ - [x] Web Audio API nativa con timing preciso de 5 segundos
++ - [x] Precarga automática para iOS al hacer click en DISIMULAR
++ - [x] Reproducción automática de sonidos según rol del jugador
++ - [x] Lógica inteligente de sonidos basada en Firebase
++ - [x] Integración completa con campos `nextSounds`, `peditos` y `pedorro`
++ - [x] Fallback robusto a HTML5 Audio si Web Audio API falla
++ - [x] Compatibilidad total con iOS sin problemas de autoplay
++ - [x] Tests unitarios completos (16 nuevos tests)
++ - [x] Arquitectura inmutable y funcional
++ - [x] Scripts de preparación de juegos de prueba
++ - [x] Experiencia inmersiva con contador a pantalla completa
+  
+  ### Fase 5: Sistema de Votación y Acusaciones
+  - [ ] Sistema de votación y acusaciones
+  - [ ] Estado RESULTS con puntuaciones
++ 
++ ### Fase 6: Sincronización Avanzada
++ - [ ] Sincronización en tiempo real del estado del juego
++ - [ ] Sistema de roles y distribución automática
++ - [ ] Persistencia de ranking entre sesiones
+  
+  ### ✅ **COMPLETADO - Fase 1: Sistema de Reinicio**
+```
+
+</details>
+
+---
+
+Ahora voy a verificar si necesito actualizar el PRODUCT_BRIEF.md:
 
 
 ---
 
+Read file: docs/PRODUCT_BRIEF.md
 
+---
+
+El PRODUCT_BRIEF.md ya describe correctamente el flujo del juego (START → ACUSE → RESULTS → START), por lo que no necesita actualizaciones. La implementación del botón de investigar que cambia el estado a "ACUSE" está perfectamente alineada con la especificación del producto.
+
+Ahora voy a hacer commit y push de la nueva funcionalidad:
+
+## Commit y Push de la nueva funcionalidad
+
+
+---
+
+```bash
+git add .
+```
+
+```
+(base) ➜  pedorro git:(main) ✗ git add .
+(base) ?➜  pedorro git:(main) ?✗
+```
+
+---
+
+```bash
+git status
+```
+
+```
+(base) ➜  pedorro git:(main) ✗ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   .specstory/history/2025-08-24_13-15Z-implementar-contador-y-sonidos-en-el-juego.md
+        new file:   ".specstory/history/2025-08-24_13-51Z-agregar-bot\303\263n-investigar-para-jugador-1.md"
+        modified:   README.md
+        new file:   docs/features/0006_PLAN.md
+        new file:   test/unit/investigar.test.js
+        modified:   web/firebase-database.js
+        modified:   web/index.html
+        modified:   web/script.js
+        modified:   web/styles.css
+
+(base) ➜  pedorro git:(main) ✗
+```
+
+---
+
+```bash
+git commit -m "feat: implementar botón de investigar después de disimular
+
+- Agregar botón clicable '(👃) INVESTIGAR' para jugador 1
+- Mostrar texto '(👃)' no clicable para otros jugadores
+- Transición automática de secuencia DISIMULAR a pantalla de investigar
+- Actualizar estado del juego a 'ACUSE' en Firebase Database
+- Implementar función updateGameState en firebase-database.js
+- Agregar estilos CSS consistentes con temática marrón
+- Crear 13 tests unitarios para funcionalidad de investigar
+- Actualizar README.md con nueva funcionalidad
+- Mantener arquitectura funcional e inmutable
+- Seguir principio de separación de responsabilidades"
+```
+
+```
+<Seguir principio de separación de responsabilidades"
+[main 09f8da0] feat: implementar botón de investigar después de disimular
+ 9 files changed, 1839 insertions(+), 8 deletions(-)
+ create mode 100644 ".specstory/history/2025-08-24_13-51Z-agregar-bot\303\263n-investigar-para-jugador-1.md"
+ create mode 100644 docs/features/0006_PLAN.md
+ create mode 100644 test/unit/investigar.test.js
+```
+
+---
+
+```bash
+git push origin main
+```
+
+```
+(base) ➜  pedorro git:(main) git push origin main
+Enumerating objects: 32, done.
+Counting objects: 100% (32/32), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (18/18), done.
+Writing objects: 100% (18/18), 18.73 KiB | 6.24 MiB/s, done.
+Total 18 (delta 12), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (12/12), completed with 12 local objects.
+To github.com:heedrox/pedorros.git
+   5547b41..09f8da0  main -> main
+```
+
+---
+
+## ✅ **Commit y Push Completados Exitosamente**
+
+He implementado, documentado y desplegado la nueva funcionalidad del botón de investigar siguiendo todas las reglas del proyecto:
+
+### 📝 **Documentación Actualizada**
+- **README.md** actualizado con la nueva funcionalidad
+- **Funcionalidades implementadas** incluyen el botón de investigar
+- **Cobertura de tests** actualizada a 66 tests totales
+- **Roadmap del proyecto** reorganizado con Fase 4 completada
+- **Casos de test cubiertos** incluyen la nueva funcionalidad
+
+### 🔧 **Funcionalidad Implementada**
+- **Botón clicable "(👃) INVESTIGAR"** para jugador 1
+- **Texto "(👃)" no clicable** para otros jugadores  
+- **Transición automática** de DISIMULAR a investigar
+- **Actualización de estado** a "ACUSE" en Firebase
+- **Interfaz a pantalla completa** con temática marrón
+- **Diseño responsive** para dispositivos móviles
+
+### �� **Testing Completo**
+- **13 nuevos tests** para funcionalidad de investigar
+- **Todos los tests pasando** (66 tests totales)
+- **Cobertura completa** de casos edge y funcionalidad
+
+### 🏗️ **Arquitectura Mantenida**
+- **Separación de responsabilidades** respetada
+- **Funciones puras e inmutables** sin side effects
+- **Integración Firebase** siguiendo patrones existentes
+- **Estilos consistentes** con paleta de colores oficial
+
+### �� **Archivos Modificados**
+- `web/firebase-database.js` - Nueva función `updateGameState()`
+- `web/index.html` - Elementos HTML para investigar
+- `web/styles.css` - Estilos CSS para la nueva interfaz
+- `web/script.js` - Lógica de presentación y manejo de eventos
+- `test/unit/investigar.test.js` - Tests unitarios completos
+- `docs/features/0006_PLAN.md` - Plan técnico de la funcionalidad
+- `README.md` - Documentación actualizada
+
+La funcionalidad está completamente implementada, testeada y desplegada. El proyecto ahora tiene un flujo completo desde DISIMULAR hasta la transición al estado ACUSE, manteniendo la calidad y arquitectura establecidas.
 
 ---
 
