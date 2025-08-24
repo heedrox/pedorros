@@ -1,0 +1,229 @@
+/* Variables de colores - Temática marrón */
+:root {
+    --primary-brown: #8B4513;
+    --secondary-brown: #A0522D;
+    --light-brown: #DEB887;
+    --dark-brown: #654321;
+    --accent-brown: #D2691E;
+    --background-brown: #F5DEB3;
+    --text-dark: #2F1B14;
+    --text-light: #8B7355;
+    --white: #FFFFFF;
+    --shadow: rgba(139, 69, 19, 0.3);
+}
+
+/* Reset y estilos base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, var(--background-brown) 0%, var(--light-brown) 100%);
+    min-height: 100vh;
+    color: var(--text-dark);
+    overflow-x: hidden;
+}
+
+/* Contenedor principal */
+#app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Pantallas */
+.screen {
+    display: none;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-top: 20px;
+}
+
+.game-title {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--primary-brown);
+    text-shadow: 2px 2px 4px var(--shadow);
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+}
+
+.game-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-light);
+    font-style: italic;
+}
+
+/* Contenido principal */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+}
+
+/* Información de ronda */
+.game-info {
+    text-align: center;
+}
+
+.round-info {
+    font-size: 1.5rem;
+    color: var(--secondary-brown);
+    font-weight: 600;
+    background: var(--white);
+    padding: 15px 30px;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px var(--shadow);
+    border: 2px solid var(--light-brown);
+    margin-bottom: 15px;
+}
+
+.player-info {
+    font-size: 1.3rem;
+    color: var(--dark-brown);
+    font-weight: 500;
+    background: var(--light-brown);
+    padding: 10px 25px;
+    border-radius: 20px;
+    box-shadow: 0 3px 10px var(--shadow);
+    border: 1px solid var(--secondary-brown);
+    display: inline-block;
+}
+
+/* Área de acción */
+.action-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+/* Botón DISIMULAR */
+.disimular-button {
+    background: linear-gradient(145deg, var(--accent-brown), var(--primary-brown));
+    color: var(--white);
+    border: none;
+    padding: 25px 50px;
+    font-size: 2.5rem;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 8px 25px var(--shadow);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    min-width: 300px;
+    min-height: 100px;
+}
+
+.disimular-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px var(--shadow);
+    background: linear-gradient(145deg, var(--primary-brown), var(--accent-brown));
+}
+
+.disimular-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 4px 15px var(--shadow);
+}
+
+/* Descripción del juego */
+.game-description {
+    text-align: center;
+    max-width: 400px;
+}
+
+.game-description p {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .screen {
+        padding: 15px;
+    }
+    
+    .game-title {
+        font-size: 2.5rem;
+    }
+    
+    .disimular-button {
+        font-size: 2rem;
+        padding: 20px 40px;
+        min-width: 250px;
+        min-height: 80px;
+    }
+    
+    .round-info {
+        font-size: 1.3rem;
+        padding: 12px 25px;
+    }
+    
+    .player-info {
+        font-size: 1.1rem;
+        padding: 8px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-title {
+        font-size: 2rem;
+    }
+    
+    .disimular-button {
+        font-size: 1.8rem;
+        padding: 18px 35px;
+        min-width: 220px;
+        min-height: 70px;
+    }
+    
+    .main-content {
+        gap: 30px;
+    }
+    
+    .round-info {
+        font-size: 1.2rem;
+        padding: 10px 20px;
+    }
+    
+    .player-info {
+        font-size: 1rem;
+        padding: 6px 16px;
+    }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.screen.active {
+    animation: fadeIn 0.5s ease-out;
+}

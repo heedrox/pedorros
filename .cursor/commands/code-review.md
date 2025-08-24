@@ -8,4 +8,9 @@ Please do a thorough code review:
 4. Look for any over-engineering or files getting too large and needing refactoring.  
 5. Look for any weird syntax or style that doesn't match other parts of the codebase.  
 
+In this specific project:
+- Make sure "lib.js" does not access DOM. 
+- It uses inmutable functions.
+- Only "script.js" access to DOM importing functions from lib.js
+
 Document your findings in `docs/features/<N>_REVIEW.md` unless a different file name is specified.  

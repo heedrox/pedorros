@@ -42,6 +42,8 @@ PEDORROS es una aplicación móvil de fiesta multijugador que simula un juego de
 - **Base de datos**: Firebase Realtime Database para sincronización en tiempo real
 - **Hosting**: Firebase Hosting para despliegue
 - **Backend**: Sin servidor tradicional - lógica distribuida en el frontend
+- **Entorno de desarrollo**: Node.js 20 (usar `nvm use 20` antes de ejecutar comandos)
+- **Servidor de desarrollo**: live-server para desarrollo local
 
 ### Arquitectura de Alto Nivel
 - **Arquitectura peer-to-peer**: Los dispositivos se comunican a través de Firebase

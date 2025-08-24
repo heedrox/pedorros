@@ -1,1 +1,39 @@
-<h1>soon</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PEDORROS - Juego de Fiesta</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <div id="start-screen" class="screen active">
+            <div class="header">
+                <h1 class="game-title">PEDORROS</h1>
+                <p class="game-subtitle">El juego de detective social</p>
+            </div>
+            
+            <div class="main-content">
+                <div class="game-info">
+                    <p class="round-info">Ronda <span id="current-round">1</span> de 5</p>
+                    <p id="player-info" class="player-info">Jugador: 1 / 4</p>
+                </div>
+                
+                <div class="action-area">
+                    <button id="disimular-btn" class="disimular-button">
+                        DISIMULAR
+                    </button>
+                </div>
+                
+                <div class="game-description">
+                    <p>Identifica quién ha sido el pedorro y quiénes los peditos</p>
+                    <p>¡Basándote solo en los sonidos!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="script.js"></script>
+</body>
+</html>

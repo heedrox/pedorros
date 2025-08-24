@@ -640,3 +640,47 @@ Cuando empecemos a desarrollar, podremos crear una paleta de colores marrones qu
 
 ---
 
+_**User**_
+
+El director de juego tendrá un botón "REINICIAR" en la zona superior derecha para reiniciar el juego en cualquier momento.
+
+---
+
+_**Assistant**_
+
+¡Perfecto! Voy a agregar esa funcionalidad al product brief:
+
+
+---
+
+<details><summary>Edit file: docs/PRODUCT_BRIEF.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -28,4 +28,5 @@
+  - **Sin límite de tiempo**: Las acusaciones no tienen restricción temporal
+  - **Paleta de colores**: Tonos marrones como tema principal de la aplicación
++ - **Control del director**: Botón "REINICIAR" en zona superior derecha para reiniciar el juego en cualquier momento
+  
+  ### Sistema de Puntuación
+```
+
+</details>
+
+---
+
+¡Excelente! Ahora el product brief incluye que el director de juego (jugador 1) tendrá control total con el botón "REINICIAR" en la zona superior derecha. 
+
+Esto es muy útil para:
+- **Control de la partida**: Si algo sale mal o quieren empezar de nuevo
+- **Flexibilidad**: Reiniciar en cualquier estado del juego
+- **Experiencia del director**: Mantiene el control total de la sesión
+
+El botón estará siempre visible para el jugador 1, independientemente del estado actual del juego.
+
+---
+

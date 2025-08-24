@@ -1,0 +1,40 @@
+{
+  "name": "Pedorros",
+  "version": "1.0.0",
+  "description": "Farting Mystery Game - PEDORROS. ",
+  "main": "index.js",
+  "scripts": {
+    "dev": "live-server web --port=3000 --open=/index.html",
+    "start": "live-server web --port=3000",
+    "build": "echo 'Build completed'",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:unit": "jest test/unit",
+    "test:e2e": "npx playwright test",
+    "test:e2e:headed": "npx playwright test --headed"
+  },
+  "keywords": [
+    "game",
+    "murder-mystery",
+    "farting-game",
+    "party-game"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
+    "@playwright/test": "^1.54.2",
+    "babel-jest": "^30.0.5",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^30.0.5",
+    "jest-junit": "^16.0.0",
+    "jsdom": "^26.1.0",
+    "live-server": "^1.2.2"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "firebase": "^12.1.0"
+  }
+}

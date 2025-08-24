@@ -5,6 +5,12 @@ El usuario proporcionará una descripción de una funcionalidad. Tu trabajo es:
 3. Evitar cualquier sección al estilo de product manager (sin criterios de éxito, cronograma, migración, etc)
 4. Evitar escribir cualquier código real en el plan.
 5. Incluir detalles específicos y textuales del prompt del usuario para garantizar que el plan sea preciso.
+6. Realizar el plan en base a la filosofía de SMALL SAFE STEPS.
+
+Filosofía small safe steps: Los pequeños pasos tienen las características siguientes:
+- Son incrementales respecto a la funcionalidad anterior.
+- Son seguros, implementando mecánicas de testing en la funcionalidad.
+- Se basan en vertical slicing, basado en features. Es decir, no son pasos técnicos, sino pasos de funcionalidad.
 
 Esto es estrictamente un documento de requisitos técnicos que debe:
 
