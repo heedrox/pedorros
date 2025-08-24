@@ -14,9 +14,9 @@ const firebaseConfig = {
     projectId: "the-anomaly-897ce",
     storageBucket: "the-anomaly-897ce.firebasestorage.app",
     messagingSenderId: "136548028625",
-    appId: "1:136548028625:web:437d1081024d3907edf5f0",
-    measurementId: "G-8SJHHK4Y6G"
-};
+    appId: "1:136548028625:web:6c160864ca11da67edf5f0",
+    measurementId: "G-BP3D0ZBEGH"
+  };
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
