@@ -59,6 +59,19 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Animaciones suaves** con transiciones CSS
 - **Integración completa** con sistema de permisos existente
 
+### 🎯 Sistema de Acusaciones Completo
+- **Pantalla de acusación** con grid de botones de jugadores (4 columnas responsive)
+- **Estados de botones con colores reales**:
+  - 🟢 **Verde**: Jugador neutral (estado por defecto)
+  - 🟠 **Naranja**: Acusado de ser pedito
+  - 🔴 **Rojo**: Acusado de ser pedorro
+- **Cambio cíclico de colores** en cada botón (verde → naranja → rojo → verde)
+- **Validación automática** que activa el botón ACUSAR cuando las cantidades coinciden
+- **Inicialización inteligente** con todos los jugadores en verde por defecto
+- **Mensaje especial "¡ERES EL PEDORRO!"** para el jugador correspondiente
+- **Integración con Firebase** para cargar estado real del juego (no hardcodeado)
+- **Funciones utilitarias** para manejo consistente de clases CSS (activate/deactivate/setVisibility)
+
 ### 🔗 Sistema de URLs Inteligente
 - **Formato de URL**: `index.html?/g/CODIGO/p/NUMERO_JUGADOR/TOTAL_JUGADORES`
 - **Ejemplo**: `index.html?/g/galerna/p/1/5` → Jugador 1 de 5, código "galerna"
@@ -78,14 +91,19 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Sincronización en tiempo real** del estado del juego
 - **Reglas de seguridad** configuradas para acceso autenticado
 - **Actualización de estado** del juego con `updateGameState()`
+- **Carga de estado real** desde Firebase con `getGameState()`
+- **Listener inteligente** que detecta cambios de estado automáticamente
 
 ### 🧪 Suite de Tests Unitarios
-- **53 tests pasando** con cobertura completa
+- **105 tests pasando** con cobertura completa
 - **Tests de funcionalidad pura** (inmutabilidad, predictibilidad)
 - **Tests de edge cases** (URLs inválidas, casos límite)
 - **Tests de validación de regex** (caracteres especiales, espacios)
 - **Tests de cálculo de roles** (distribución, sonidos, mezcla de arrays)
 - **Tests de funcionalidad DISIMULAR** (lógica de sonidos, roles, inmutabilidad)
+- **Tests de funcionalidad INVESTIGAR** (botón, permisos, cambio de estado)
+- **Tests de funcionalidad de acusaciones** (validación, estados, cantidades)
+- **Tests de funciones utilitarias** (manejo de clases CSS)
 - **Configuración Jest** con soporte para módulos ES6
 
 ## 🚀 Tecnologías Utilizadas
@@ -118,7 +136,11 @@ pedorro/
 │   └── unit/                    # Tests de funciones del core
 │       ├── parseGameURL.test.js # Tests para parseGameURL
 │       ├── gameRoles.test.js    # Tests para cálculo de roles y sonidos
-│       └── disimular.test.js    # Tests para funcionalidad DISIMULAR
+│       ├── disimular.test.js    # Tests para funcionalidad DISIMULAR
+│       ├── investigar.test.js   # Tests para funcionalidad INVESTIGAR
+│       ├── introPedorro.test.js # Tests para secuencia intro + pedorro
+│       ├── acusaciones.test.js  # Tests para funcionalidad de acusaciones
+│       └── utilities.test.js    # Tests para funciones utilitarias CSS
 ├── docs/                        # Documentación del proyecto
 │   ├── PRODUCT_BRIEF.md         # Especificación del producto
 │   └── features/                # Planes técnicos de funcionalidades
@@ -240,6 +262,10 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - `playSoundHTML5(soundFileName)` - Fallback a HTML5 Audio si Web Audio API falla
 - `preloadAudioForIOS()` - Precarga audio para compatibilidad con iOS
 
+### Funcionalidad de Acusaciones
+- `getAccusationState(accusations, playerNumber)` - Obtiene estado actual de acusación de un jugador
+- `validateAccusations(accusations, totalPlayers)` - Valida que las cantidades coincidan con distribución esperada
+
 ### Utilidades
 - `isValidGameState()` - Valida estructura del estado
 - `getPlayerInfo()` - Obtiene información del jugador
@@ -256,7 +282,9 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - **Funcionalidad DISIMULAR**: 16 tests (lógica de sonidos, roles, inmutabilidad)
 - **Funcionalidad INVESTIGAR**: 13 tests (botón, permisos, cambio de estado)
 - **Funcionalidad Intro + Pedorro**: 16 tests (secuencia de sonidos, timing, fallbacks)
-- **Total**: 81 tests con cobertura completa
+- **Funcionalidad de Acusaciones**: 13 tests (validación, estados, cantidades)
+- **Funciones Utilitarias**: 11 tests (manejo de clases CSS)
+- **Total**: 105 tests con cobertura completa
 
 ### Casos de Test Cubiertos
 - ✅ URLs con diferentes formatos y códigos
@@ -271,6 +299,10 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - ✅ Funcionalidad de investigar con permisos de jugador 1
 - ✅ Cambio de estado del juego a ACUSE
 - ✅ Validación de elementos del DOM para investigar
+- ✅ Funcionalidad de acusaciones con validación de cantidades
+- ✅ Estados de botones (verde, naranja, rojo) y cambio cíclico
+- ✅ Funciones utilitarias para manejo de clases CSS
+- ✅ Integración con Firebase para cargar estado real del juego
 
 ## 🚧 Próximas Funcionalidades
 
@@ -301,9 +333,22 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - [x] Scripts de preparación de juegos de prueba
 - [x] Experiencia inmersiva con contador a pantalla completa
 
-### Fase 5: Sistema de Votación y Acusaciones
-- [ ] Sistema de votación y acusaciones
-- [ ] Estado RESULTS con puntuaciones
+### ✅ **COMPLETADO - Fase 5: Sistema de Acusaciones Completo**
+- [x] Pantalla de acusación con grid de botones de jugadores
+- [x] Estados de botones con colores reales (verde, naranja, rojo)
+- [x] Cambio cíclico de colores en cada botón
+- [x] Validación automática que activa botón ACUSAR
+- [x] Inicialización inteligente con todos en verde por defecto
+- [x] Mensaje especial "¡ERES EL PEDORRO!" para jugador correspondiente
+- [x] Integración con Firebase para cargar estado real (no hardcodeado)
+- [x] Funciones utilitarias para manejo consistente de clases CSS
+- [x] Tests unitarios completos (24 nuevos tests: 13 acusaciones + 11 utilitarias)
+- [x] Diseño responsive y colores intuitivos
+- [x] Integración completa con arquitectura existente
+
+### Fase 6: Estado RESULTS y Puntuaciones
+- [ ] Estado RESULTS con puntuaciones y ranking
+- [ ] Lógica de cálculo de puntos por acusaciones correctas
 
 ### Fase 6: Sincronización Avanzada
 - [ ] Sincronización en tiempo real del estado del juego

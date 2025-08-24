@@ -200,6 +200,31 @@ export const getGameRoles = async (gameCode) => {
 };
 
 /**
+ * Obtiene el estado completo del juego desde Firebase Database
+ * @param {string} gameCode - Código del juego (ej: "galerna")
+ * @returns {Promise<Object>} Estado completo del juego o null si no existe
+ */
+export const getGameState = async (gameCode) => {
+    try {
+        if (!gameCode || typeof gameCode !== 'string') {
+            throw new Error('Código de juego inválido');
+        }
+
+        const gameRef = ref(database, `pedorros-game/${gameCode}`);
+        const snapshot = await get(gameRef);
+        
+        if (snapshot.exists()) {
+            return snapshot.val();
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error('Error al obtener estado del juego:', error);
+        return null;
+    }
+};
+
+/**
  * Actualiza el estado del juego en Firebase Database
  * @param {string} gameCode - Código del juego (ej: "galerna")
  * @param {string} newState - Nuevo estado del juego (ej: "ACUSE")

@@ -77,6 +77,28 @@
                     <source src="sounds/neutral.mp3" type="audio/mpeg">
                 </audio>
             </div>
+            
+            <!-- Pantalla de Acusación (oculta por defecto) -->
+            <div id="acuse-screen" class="screen inactive">
+                <!-- Mensaje especial para el pedorro -->
+                <div id="pedorro-message" class="pedorro-message" style="display: none;">
+                    <h2>💩 ¡ERES EL PEDORRO!</h2>
+                </div>
+                
+                <!-- Grid de botones de jugadores -->
+                <div class="players-grid-container">
+                    <div id="players-grid" class="players-grid">
+                        <!-- Los botones se generarán dinámicamente -->
+                    </div>
+                </div>
+                
+                <!-- Botón ACUSAR -->
+                <div class="action-area">
+                    <button id="acusar-btn" class="acusar-button" disabled>
+                        ACUSAR
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
     

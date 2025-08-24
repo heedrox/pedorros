@@ -1617,7 +1617,93 @@ git commit -m "feat: implementar secuencia de sonidos intro + pedorro antes del 
 
 ---
 
+Excelente! El commit se ha realizado correctamente. Ahora voy a hacer push al repositorio remoto:
 
+
+---
+
+```bash
+git push origin main
+```
+
+```
+(base) ➜  pedorro git:(main) ✗ git push origin main
+Enumerating objects: 19, done.
+Counting objects: 100% (19/19), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (11/11), done.
+Writing objects: 100% (11/11), 5.84 KiB | 5.84 MiB/s, done.
+Total 11 (delta 7), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (7/7), completed with 7 local objects.
+To github.com:heedrox/pedorros.git
+   07a648e..a73a148  main -> main
+```
+
+---
+
+¡Perfecto! El commit y push se han realizado exitosamente. Voy a verificar el estado final del repositorio:
+
+
+---
+
+```bash
+git status
+```
+
+```
+(base) ➜  pedorro git:(main) ✗ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        deleted:    scripts/README.md
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        .cursor/commands/code-it.md
+        .specstory/history/2025-08-24_14-15Z-implementar-sonido-al-investigar.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+(base) ?➜  pedorro git:(main) ?✗
+```
+
+---
+
+## ✅ Commit y Push Completados Exitosamente
+
+La nueva funcionalidad de **secuencia de sonidos intro + pedorro** ha sido implementada, testeada, documentada y enviada al repositorio remoto.
+
+### �� Resumen del Commit
+
+**Commit ID**: `a73a148`  
+**Archivos modificados**: 4 archivos  
+**Líneas agregadas**: 419 insertions  
+**Líneas eliminadas**: 2 deletions  
+
+### �� Archivos Incluidos en el Commit
+
+1. **`web/script.js`** - Implementación de la funcionalidad
+2. **`docs/features/0007_PLAN.md`** - Plan técnico completo
+3. **`test/unit/introPedorro.test.js`** - 16 tests unitarios
+4. **`README.md`** - Documentación actualizada
+
+### 🎯 Funcionalidad Implementada
+
+- **Secuencia especial de sonidos** para jugador 1 antes del botón INVESTIGAR
+- **Timing preciso**: intro.mp3 (3s) + sonido pedorro + 1.5s adicionales
+- **Integración con Firebase** para obtener valor del pedorro dinámicamente
+- **Fallback robusto** a HTML5 Audio si Web Audio API falla
+- **Mantiene compatibilidad** total con funcionalidades existentes
+
+### 🧪 Testing
+
+- **81 tests totales** pasando (incluyendo 16 nuevos)
+- **Cobertura completa** de casos edge y manejo de errores
+- **No regresiones** en funcionalidades existentes
+
+La implementación sigue la filosofía de **SMALL SAFE STEPS** y mantiene la arquitectura funcional e inmutable del proyecto. La funcionalidad está lista para ser probada en producción.
 
 ---
 

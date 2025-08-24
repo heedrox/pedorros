@@ -294,3 +294,87 @@ export const handleDisimularClick = (gameState) => {
         isDisimulando: true
     };
 };
+
+// ===== FUNCIONES PARA SISTEMA DE ACUSACIONES =====
+
+// Función pura para obtener el estado actual de acusación de un jugador
+export const getAccusationState = (accusations, playerNumber) => {
+    if (!accusations || typeof accusations !== 'object' || typeof playerNumber !== 'number') {
+        return 'verde';
+    }
+    
+    return accusations[playerNumber] || 'verde';
+};
+
+// Función pura para validar que las cantidades de acusaciones coincidan con la distribución esperada
+export const validateAccusations = (accusations, totalPlayers) => {
+    // Validar parámetros de entrada
+    if (!accusations || typeof accusations !== 'object' || typeof totalPlayers !== 'number') {
+        return {
+            success: false,
+            error: 'Parámetros inválidos para validación de acusaciones'
+        };
+    }
+    
+    // Validar rango de jugadores (4-16 según PRODUCT_BRIEF)
+    if (totalPlayers < 4 || totalPlayers > 16) {
+        return {
+            success: false,
+            error: 'Número de jugadores debe estar entre 4 y 16'
+        };
+    }
+    
+    // Tabla de distribución según PRODUCT_BRIEF
+    const roleDistribution = {
+        4: { peditos: 2, pedorros: 1, neutrales: 1 },
+        5: { peditos: 2, pedorros: 1, neutrales: 2 },
+        6: { peditos: 3, pedorros: 1, neutrales: 2 },
+        7: { peditos: 4, pedorros: 1, neutrales: 2 },
+        8: { peditos: 4, pedorros: 1, neutrales: 3 },
+        9: { peditos: 5, pedorros: 1, neutrales: 3 },
+        10: { peditos: 6, pedorros: 1, neutrales: 3 },
+        11: { peditos: 6, pedorros: 1, neutrales: 4 },
+        12: { peditos: 7, pedorros: 1, neutrales: 4 },
+        13: { peditos: 8, pedorros: 1, neutrales: 4 },
+        14: { peditos: 8, pedorros: 1, neutrales: 5 },
+        15: { peditos: 9, pedorros: 1, neutrales: 5 },
+        16: { peditos: 10, pedorros: 1, neutrales: 5 }
+    };
+    
+    const distribution = roleDistribution[totalPlayers];
+    
+    // Contar acusaciones actuales
+    let verdes = 0;
+    let naranjas = 0;
+    let rojos = 0;
+    
+    for (let i = 1; i <= totalPlayers; i++) {
+        const state = getAccusationState(accusations, i);
+        switch (state) {
+            case 'verde':
+                verdes++;
+                break;
+            case 'naranja':
+                naranjas++;
+                break;
+            case 'rojo':
+                rojos++;
+                break;
+            default:
+                // Estado inválido, contar como verde
+                verdes++;
+        }
+    }
+    
+    // Validar que las cantidades coincidan exactamente
+    const isValid = verdes === distribution.neutrales && 
+                   naranjas === distribution.peditos && 
+                   rojos === distribution.pedorros;
+    
+    return {
+        success: isValid,
+        error: isValid ? null : `Cantidades incorrectas: ${verdes} verdes, ${naranjas} naranjas, ${rojos} rojos. Esperado: ${distribution.neutrales} verdes, ${distribution.peditos} naranjas, ${distribution.pedorros} rojos`,
+        counts: { verdes, naranjas, rojos },
+        expected: distribution
+    };
+};

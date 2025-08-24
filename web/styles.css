@@ -448,3 +448,172 @@ body {
         font-size: 5rem;
     }
 }
+
+/* ===== PANTALLA DE ACUSACIÓN ===== */
+
+/* Mensaje del pedorro */
+.pedorro-message {
+    text-align: center;
+    margin: 20px 0 30px 0;
+    animation: pedorroMessageFadeIn 0.8s ease-in-out;
+}
+
+.pedorro-message h2 {
+    font-size: 2.5rem;
+    color: #CD853F;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px 40px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Contenedor del grid de jugadores */
+.players-grid-container {
+    margin: 30px 0;
+    padding: 0 20px;
+}
+
+.players-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Botones de jugadores */
+.player-button {
+    background: linear-gradient(135deg, #8B4513, #A0522D);
+    color: white;
+    border: none;
+    padding: 15px 10px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+.player-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.player-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Estados de los botones */
+.player-button.verde {
+    background: linear-gradient(135deg, #4CAF50, #45A049);
+}
+
+.player-button.naranja {
+    background: linear-gradient(135deg, #FF9800, #F57C00);
+}
+
+.player-button.rojo {
+    background: linear-gradient(135deg, #F44336, #D32F2F);
+}
+
+/* Botón ACUSAR */
+.acusar-button {
+    background: linear-gradient(135deg, #8B4513, #A0522D);
+    color: white;
+    border: none;
+    padding: 20px 40px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    min-width: 200px;
+    margin: 30px auto;
+    display: block;
+}
+
+.acusar-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, #A0522D, #CD853F);
+}
+
+.acusar-button:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.acusar-button:disabled {
+    background: linear-gradient(135deg, #654321, #8B4513);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Animación para el mensaje del pedorro */
+@keyframes pedorroMessageFadeIn {
+    0% {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive para pantalla de acusación */
+@media (max-width: 600px) {
+    .players-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+    
+    .player-button {
+        font-size: 0.8rem;
+        padding: 12px 8px;
+        min-height: 50px;
+    }
+    
+    .pedorro-message h2 {
+        font-size: 2rem;
+        padding: 15px 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .players-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .player-button {
+        font-size: 0.7rem;
+        padding: 10px 6px;
+        min-height: 45px;
+    }
+    
+    .pedorro-message h2 {
+        font-size: 1.5rem;
+        padding: 12px 25px;
+    }
+    
+    .acusar-button {
+        font-size: 1.2rem;
+        padding: 18px 35px;
+        min-width: 180px;
+    }
+}

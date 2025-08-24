@@ -18,6 +18,8 @@ import {
     generateNextSounds,
     determineSoundForPlayer,
     getPlayerRole,
+    getAccusationState,
+    validateAccusations,
     AUTH_STATES
 } from './lib.js';
 
@@ -33,7 +35,8 @@ import {
     updateGameRoles,
     getNextSounds,
     getGameRoles,
-    updateGameState
+    updateGameState,
+    getGameState
 } from './firebase-database.js';
 
 // Estado de autenticación (separado del estado del juego)
@@ -45,6 +48,48 @@ let gameStateListenerCleanup = null;
 // Estado del juego (accesible globalmente)
 let gameState = null;
 
+// Estado local de acusaciones (jugador -> 'verde'|'naranja'|'rojo')
+let accusationsState = {};
+
+// ===== FUNCIONES UTILITARIAS PARA MANEJO DE CLASES CSS =====
+
+/**
+ * Activa un elemento removiendo 'inactive' y añadiendo 'active'
+ * @param {HTMLElement} element - Elemento a activar
+ */
+const activate = (element) => {
+    if (element) {
+        element.classList.remove('inactive');
+        element.classList.add('active');
+    }
+};
+
+/**
+ * Desactiva un elemento removiendo 'active' y añadiendo 'inactive'
+ * @param {HTMLElement} element - Elemento a desactivar
+ */
+const deactivate = (element) => {
+    if (element) {
+        element.classList.remove('active');
+        element.classList.add('inactive');
+    }
+};
+
+/**
+ * Cambia el estado de visibilidad de un elemento
+ * @param {HTMLElement} element - Elemento a cambiar
+ * @param {boolean} isVisible - Si debe ser visible o no
+ */
+const setVisibility = (element, isVisible) => {
+    if (element) {
+        if (isVisible) {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+};
+
 // Función pura para renderizar la pantalla según el estado de autenticación
 const renderAuthScreen = (authState) => {
     const loginScreen = document.getElementById('login-screen');
@@ -54,57 +99,24 @@ const renderAuthScreen = (authState) => {
     
     switch (authState) {
         case AUTH_STATES.UNAUTHENTICATED:
-            if (loginScreen) {
-                loginScreen.classList.add('active');
-                loginScreen.classList.remove('inactive');
-            }
-            if (gameScreen) {
-                gameScreen.classList.remove('active');
-                gameScreen.classList.add('inactive');
-            }
-            if (startScreen) {
-                startScreen.classList.remove('active');
-                startScreen.classList.add('inactive');
-            }
-            if (gameHeader) {
-                gameHeader.style.display = 'none';
-            }
+            activate(loginScreen);
+            deactivate(gameScreen);
+            deactivate(startScreen);
+            setVisibility(gameHeader, false);
             break;
         case AUTH_STATES.AUTHENTICATED:
-            if (loginScreen) {
-                loginScreen.classList.remove('active');
-                loginScreen.classList.add('inactive');
-            }
-            if (gameScreen) {
-                gameScreen.classList.add('active');
-                gameScreen.classList.remove('inactive');
-            }
+            deactivate(loginScreen);
+            activate(gameScreen);
             // start-screen se activará después cuando se llame a renderStartScreen
-            if (startScreen) {
-                startScreen.classList.remove('active');
-                startScreen.classList.add('inactive');
-            }
-            if (gameHeader) {
-                gameHeader.style.display = 'block';
-            }
+            deactivate(startScreen);
+            setVisibility(gameHeader, true);
             break;
         case AUTH_STATES.AUTHENTICATING:
             // Mantener pantalla de login durante autenticación
-            if (loginScreen) {
-                loginScreen.classList.add('active');
-                loginScreen.classList.remove('inactive');
-            }
-            if (gameScreen) {
-                gameScreen.classList.remove('active');
-                gameScreen.classList.add('inactive');
-            }
-            if (startScreen) {
-                startScreen.classList.remove('active');
-                startScreen.classList.add('inactive');
-            }
-            if (gameHeader) {
-                gameHeader.style.display = 'none';
-            }
+            activate(loginScreen);
+            deactivate(gameScreen);
+            deactivate(startScreen);
+            setVisibility(gameHeader, false);
             break;
         default:
             console.log('Estado de autenticación no implementado:', authState);
@@ -118,6 +130,9 @@ const renderScreen = (gameState) => {
     switch (state) {
         case 'START':
             renderStartScreen(gameState);
+            break;
+        case 'ACUSE':
+            renderAcuseScreen(gameState);
             break;
         default:
             console.log('Estado no implementado:', state);
@@ -143,11 +158,9 @@ const renderStartScreen = (gameState) => {
         
         // Solo activar start-screen si el juego está activo Y el login está inactivo
         if (isGameActive && !isLoginActive) {
-            startScreen.classList.add('active');
-            startScreen.classList.remove('inactive');
+            activate(startScreen);
         } else {
-            startScreen.classList.remove('active');
-            startScreen.classList.add('inactive');
+            deactivate(startScreen);
         }
     }
     
@@ -160,10 +173,131 @@ const renderStartScreen = (gameState) => {
     // Controlar visibilidad del botón REINICIAR solo para jugador 1
     if (reiniciarButton) {
         if (isPlayerOne(gameState)) {
-            reiniciarButton.style.display = 'flex';
+            setVisibility(reiniciarButton, true);
         } else {
-            reiniciarButton.style.display = 'none';
+            setVisibility(reiniciarButton, false);
         }
+    }
+};
+
+// Función pura para renderizar la pantalla de acusación
+const renderAcuseScreen = async (gameState) => {
+    const { round, playerNumber, totalPlayers } = gameState;
+    
+    // Ocultar todas las pantallas del juego
+    const startScreen = document.getElementById('start-screen');
+    const acuseScreen = document.getElementById('acuse-screen');
+    
+    deactivate(startScreen);
+    activate(acuseScreen);
+    
+    // Mostrar mensaje del pedorro si corresponde
+    const pedorroMessage = document.getElementById('pedorro-message');
+    if (pedorroMessage) {
+        // Obtener el pedorro real desde Firebase
+        try {
+            const gameRoles = await getGameRoles(gameState.gameCode);
+            if (gameRoles && gameRoles.pedorro === playerNumber) {
+                setVisibility(pedorroMessage, true);
+            } else {
+                setVisibility(pedorroMessage, false);
+            }
+        } catch (error) {
+            console.log('Error al obtener roles del juego:', error);
+            setVisibility(pedorroMessage, false);
+        }
+    }
+    
+    // Generar grid de botones de jugadores
+    generatePlayersGrid(totalPlayers);
+    
+    // Validar acusaciones y activar/desactivar botón ACUSAR
+    validateAndUpdateAcusarButton();
+};
+
+// Función para generar el grid de botones de jugadores
+const generatePlayersGrid = (totalPlayers) => {
+    const playersGrid = document.getElementById('players-grid');
+    if (!playersGrid) return;
+    
+    // Limpiar grid existente
+    playersGrid.innerHTML = '';
+    
+    // Crear botones para cada jugador
+    for (let i = 1; i <= totalPlayers; i++) {
+        const playerButton = document.createElement('button');
+        playerButton.className = 'player-button verde';
+        playerButton.textContent = `JUG. ${i}`;
+        playerButton.dataset.playerNumber = i;
+        
+        // Event listener para cambio cíclico de colores
+        playerButton.addEventListener('click', () => handlePlayerButtonClick(i));
+        
+        playersGrid.appendChild(playerButton);
+    }
+    
+    // Inicializar estado de acusaciones con todos en verde (neutral)
+    accusationsState = {};
+    for (let i = 1; i <= totalPlayers; i++) {
+        accusationsState[i] = 'verde';
+    }
+    
+    // Inicializar estado de acusaciones con todos en verde (neutrales)
+    accusationsState = {};
+    for (let i = 1; i <= totalPlayers; i++) {
+        accusationsState[i] = 'verde';
+    }
+    
+    // Validar acusaciones iniciales y actualizar botón ACUSAR
+    validateAndUpdateAcusarButton();
+};
+
+// Función para manejar el click en botones de jugadores
+const handlePlayerButtonClick = (playerNumber) => {
+    // Cambiar estado cíclicamente: verde -> naranja -> rojo -> verde
+    const currentState = accusationsState[playerNumber] || 'verde';
+    let newState;
+    
+    switch (currentState) {
+        case 'verde':
+            newState = 'naranja';
+            break;
+        case 'naranja':
+            newState = 'rojo';
+            break;
+        case 'rojo':
+            newState = 'verde';
+            break;
+        default:
+            newState = 'verde';
+    }
+    
+    // Actualizar estado local
+    accusationsState[playerNumber] = newState;
+    
+    // Actualizar botón visualmente
+    const playerButton = document.querySelector(`[data-player-number="${playerNumber}"]`);
+    if (playerButton) {
+        playerButton.className = `player-button ${newState}`;
+    }
+    
+    // Validar acusaciones y actualizar botón ACUSAR
+    validateAndUpdateAcusarButton();
+};
+
+// Función para validar acusaciones y actualizar estado del botón ACUSAR
+const validateAndUpdateAcusarButton = () => {
+    const acusarButton = document.getElementById('acusar-btn');
+    if (!acusarButton || !gameState) return;
+    
+    const validation = validateAccusations(accusationsState, gameState.totalPlayers);
+    
+    if (validation.success) {
+        acusarButton.disabled = false;
+        acusarButton.classList.remove('disabled');
+    } else {
+        acusarButton.disabled = true;
+        acusarButton.classList.add('disabled');
     }
 };
 
@@ -200,11 +334,40 @@ const handleLogin = async () => {
 };
 
 // Función para inicializar el juego (solo se ejecuta después de autenticación)
-const initializeGame = () => {
+const initializeGame = async () => {
     console.log('PEDORROS - Juego iniciado');
     
-    // Crear estado inicial inmutable
-    gameState = initializeGameState(window.location.href);
+    // Crear estado inicial inmutable (solo para obtener gameCode, playerNumber, totalPlayers)
+    const initialGameState = initializeGameState(window.location.href);
+    
+    // Inicializar estado local de acusaciones
+    accusationsState = {};
+    
+    // Intentar cargar el estado real desde Firebase
+    console.log('Intentando cargar estado desde Firebase...');
+    let firebaseGameState = null;
+    
+    try {
+        firebaseGameState = await getGameState(initialGameState.gameCode);
+        console.log('Estado cargado desde Firebase:', firebaseGameState);
+    } catch (error) {
+        console.log('Error al cargar estado desde Firebase:', error);
+    }
+    
+    // Si no hay estado en Firebase, usar el estado inicial hardcodeado
+    if (!firebaseGameState) {
+        console.log('No hay estado en Firebase, usando estado inicial hardcodeado');
+        gameState = initialGameState;
+    } else {
+        // Combinar el estado de Firebase con la información del jugador actual
+        gameState = {
+            ...firebaseGameState,
+            gameCode: initialGameState.gameCode,
+            playerNumber: initialGameState.playerNumber,
+            totalPlayers: initialGameState.totalPlayers
+        };
+        console.log('Estado combinado:', gameState);
+    }
     
     // Log del estado inicial
     const playerInfo = getPlayerInfo(gameState);
@@ -242,6 +405,7 @@ const initializeGame = () => {
     // Esperar un momento para que el estado de autenticación esté completamente establecido
     setTimeout(() => {
         // Renderizar pantalla inicial
+        console.log('renderizando pantalla inicial', gameState)
         renderScreen(gameState);
     }, 100);
     
@@ -285,6 +449,12 @@ const initializeGame = () => {
                     if (result.success) {
                         console.log('Juego reiniciado exitosamente:', result);
                         alert('¡Juego reiniciado exitosamente!');
+                        
+                        // Reinicializar estado local de acusaciones
+                        accusationsState = {};
+                        
+                        // Volver a la pantalla START
+                        renderScreen(gameState);
                     } else {
                         console.error('Error al reiniciar:', result.error);
                         alert(`Error al reiniciar: ${result.error}`);
@@ -296,6 +466,20 @@ const initializeGame = () => {
             } else {
                 console.log('Reinicio cancelado por el usuario');
             }
+        });
+    }
+    
+    // Event listener para el botón ACUSAR
+    const acusarButton = document.getElementById('acusar-btn');
+    if (acusarButton) {
+        acusarButton.addEventListener('click', async () => {
+            console.log('Botón ACUSAR clickeado');
+            console.log('Estado de acusaciones:', accusationsState);
+            
+            // TODO: Implementar lógica de acusación
+            // Por ahora, solo mostrar las acusaciones en consola
+            console.log('Acusaciones realizadas:', accusationsState);
+            alert('¡Acusaciones enviadas! (Funcionalidad en desarrollo)');
         });
     }
     
