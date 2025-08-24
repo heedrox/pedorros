@@ -513,7 +513,130 @@ Lines added: 5, lines removed: 4
 
 ---
 
+<details><summary>Edit file: docs/PRODUCT_BRIEF.md</summary>
 
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -83,5 +83,5 @@
+  ### Sistema de Audio
+  - **Variedad de sonidos**: Diferentes tipos de pedos para pedorros y peditos
+- - **Sincronización automática**: Los sonidos se reproducen automáticamente tras 5 segundos del botón "DISIMULAR"
++ - **Sincronización local**: Los sonidos se reproducen automáticamente tras 5 segundos de pulsar "DISIMULAR" en cada dispositivo
+  - **Distribución aleatoria**: Los roles se asignan aleatoriamente cada ronda
+  - **Sonidos diferenciados**: El pedorro tiene sonidos claramente distintos a los peditos
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: docs/PRODUCT_BRIEF.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -46,5 +46,5 @@
+  - **Jugador maestro**: El jugador 1 coordina los cambios de estado y cálculos centralizados
+  - **Sincronización en tiempo real**: Todos los dispositivos reflejan el mismo estado del juego
+- - **Estados del juego**: START → DISIMULANDO → ACUSE → RESULTS → START (ciclo de 5 rondas)
++ - **Estados del juego**: START → ACUSE → RESULTS → START (ciclo de 5 rondas)
+  
+  ### Estados del Juego
+```
+
+</details>
+
+---
+
+¡Perfecto! Ahora el product brief refleja correctamente la arquitectura del juego:
+
+## ✅ **Cambios realizados:**
+
+1. **Estados del juego**: Eliminé "DISIMULANDO" como estado de BD
+2. **Flujo correcto**: START → ACUSE → RESULTS → START
+3. **Aclaración importante**: El botón "DISIMULAR" es una acción local que no cambia el estado de la BD
+4. **Sincronización local**: Los sonidos se reproducen en cada dispositivo tras 5 segundos
+
+## 🔍 **Arquitectura clara:**
+
+- **Estados de BD**: Solo 3 estados principales para coordinar la pantalla
+- **Acciones locales**: El botón "DISIMULAR" es independiente en cada dispositivo
+- **Coordinación**: Los jugadores se sincronizan manualmente pulsando "DISIMULAR" al mismo tiempo
+- **Lógica distribuida**: Cada dispositivo maneja su propio contador y reproducción de sonidos
+
+Esto tiene mucho más sentido arquitectónicamente. ¿Ahora está correcto el brief? ¿Podemos proceder con la implementación de la aplicación?
+
+---
+
+_**User**_
+
+eso es. vamos a dejar el brief así.  Todavía no desarrolles.
+
+---
+
+_**Assistant**_
+
+¡Perfecto! El product brief está listo y refleja correctamente la arquitectura del juego. 
+
+Entiendo que por ahora solo querías definir y documentar la visión del proyecto. Cuando estés listo para empezar a desarrollar la aplicación PEDORROS, ya tendremos una base sólida con:
+
+- ✅ Mecánica del juego bien definida
+- ✅ Estados del juego claros (START → ACUSE → RESULTS)
+- ✅ Tabla de distribución de roles por número de jugadores
+- ✅ Arquitectura técnica basada en Firebase
+- ✅ Flujo de usuario detallado
+
+El brief está guardado en `docs/PRODUCT_BRIEF.md` y listo para que cualquier desarrollador que se una al proyecto pueda entender rápidamente qué estamos construyendo.
+
+¿Hay algo más que quieras definir o documentar antes de empezar con el desarrollo?
+
+---
+
+_**User**_
+
+A la app le pega tener tonos marrones, de template.
+
+---
+
+_**Assistant**_
+
+¡Perfecto! Los tonos marrones le van muy bien a una app llamada "PEDORROS" 😄
+
+Voy a actualizar el product brief para incluir la paleta de colores:
+
+
+---
+
+<details><summary>Edit file: docs/PRODUCT_BRIEF.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -27,4 +27,5 @@
+  - **Identificación numérica**: Los jugadores se identifican con números del 1 al total de participantes
+  - **Sin límite de tiempo**: Las acusaciones no tienen restricción temporal
++ - **Paleta de colores**: Tonos marrones como tema principal de la aplicación
+  
+  ### Sistema de Puntuación
+```
+
+</details>
+
+---
+
+¡Listo! Ahora el product brief incluye que la app tendrá tonos marrones como tema principal. Es perfecto para mantener la coherencia temática con el nombre "PEDORROS" 🟫
+
+Cuando empecemos a desarrollar, podremos crear una paleta de colores marrones que sea tanto divertida como visualmente atractiva para la experiencia de juego.
 
 ---
 
