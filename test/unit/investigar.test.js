@@ -22,7 +22,7 @@ const mockGameState = {
     playerNumber: 1,
     totalPlayers: 4,
     state: 'DISIMULANDO',
-    round: 1
+    numRound: 1
 };
 
 describe('Funcionalidad de Investigar', () => {

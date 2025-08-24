@@ -5297,7 +5297,277 @@ Lines added: 4, lines removed: undefined
 
 ---
 
+Ahora voy a actualizar la sección de testing para reflejar los nuevos tests:
 
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 1
+
+```diff
+@@ -277,5 +277,7 @@
+  - **Funcionalidad INVESTIGAR**: 13 tests (botón, permisos, cambio de estado)
+  - **Funcionalidad Intro + Pedorro**: 16 tests (secuencia de sonidos, timing, fallbacks)
+- - **Total**: 81 tests con cobertura completa
++ - **Funcionalidad de Acusaciones**: 13 tests (validación, estados, cantidades)
++ - **Funciones Utilitarias**: 11 tests (manejo de clases CSS)
++ - **Total**: 105 tests con cobertura completa
+  
+  ### Casos de Test Cubiertos
+```
+
+</details>
+
+---
+
+Ahora voy a actualizar la sección de próximas funcionalidades para marcar la Fase 5 como completada:
+
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 16, lines removed: 3
+
+```diff
+@@ -324,7 +324,20 @@
+  - [x] Experiencia inmersiva con contador a pantalla completa
+  
+- ### Fase 5: Sistema de Votación y Acusaciones
+- - [ ] Sistema de votación y acusaciones
+- - [ ] Estado RESULTS con puntuaciones
++ ### ✅ **COMPLETADO - Fase 5: Sistema de Acusaciones Completo**
++ - [x] Pantalla de acusación con grid de botones de jugadores
++ - [x] Estados de botones con colores reales (verde, naranja, rojo)
++ - [x] Cambio cíclico de colores en cada botón
++ - [x] Validación automática que activa botón ACUSAR
++ - [x] Inicialización inteligente con todos en verde por defecto
++ - [x] Mensaje especial "¡ERES EL PEDORRO!" para jugador correspondiente
++ - [x] Integración con Firebase para cargar estado real (no hardcodeado)
++ - [x] Funciones utilitarias para manejo consistente de clases CSS
++ - [x] Tests unitarios completos (24 nuevos tests: 13 acusaciones + 11 utilitarias)
++ - [x] Diseño responsive y colores intuitivos
++ - [x] Integración completa con arquitectura existente
++ 
++ ### Fase 6: Estado RESULTS y Puntuaciones
++ - [ ] Estado RESULTS con puntuaciones y ranking
++ - [ ] Lógica de cálculo de puntos por acusaciones correctas
+  
+  ### Fase 6: Sincronización Avanzada
+```
+
+</details>
+
+---
+
+Ahora voy a actualizar la estructura del proyecto para incluir los nuevos archivos:
+
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 5, lines removed: 1
+
+```diff
+@@ -135,5 +135,9 @@
+  │       ├── parseGameURL.test.js # Tests para parseGameURL
+  │       ├── gameRoles.test.js    # Tests para cálculo de roles y sonidos
+- │       └── disimular.test.js    # Tests para funcionalidad DISIMULAR
++ │       ├── disimular.test.js    # Tests para funcionalidad DISIMULAR
++ │       ├── investigar.test.js   # Tests para funcionalidad INVESTIGAR
++ │       ├── introPedorro.test.js # Tests para secuencia intro + pedorro
++ │       ├── acusaciones.test.js  # Tests para funcionalidad de acusaciones
++ │       └── utilities.test.js    # Tests para funciones utilitarias CSS
+  ├── docs/                        # Documentación del proyecto
+  │   ├── PRODUCT_BRIEF.md         # Especificación del producto
+```
+
+</details>
+
+---
+
+Ahora voy a actualizar la sección de casos de test cubiertos:
+
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 4, lines removed: undefined
+
+```diff
+@@ -298,4 +298,8 @@
+  - ✅ Cambio de estado del juego a ACUSE
+  - ✅ Validación de elementos del DOM para investigar
++ - ✅ Funcionalidad de acusaciones con validación de cantidades
++ - ✅ Estados de botones (verde, naranja, rojo) y cambio cíclico
++ - ✅ Funciones utilitarias para manejo de clases CSS
++ - ✅ Integración con Firebase para cargar estado real del juego
+  
+  ## 🚧 Próximas Funcionalidades
+```
+
+</details>
+
+---
+
+Ahora voy a actualizar la sección de funciones del core para incluir las nuevas funciones de Firebase:
+
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -92,4 +92,6 @@
+  - **Reglas de seguridad** configuradas para acceso autenticado
+  - **Actualización de estado** del juego con `updateGameState()`
++ - **Carga de estado real** desde Firebase con `getGameState()`
++ - **Listener inteligente** que detecta cambios de estado automáticamente
+  
+  ### 🧪 Suite de Tests Unitarios
+```
+
+</details>
+
+---
+
+Perfecto! Ahora el README está completamente actualizado. Vamos a hacer commit y push:
+
+
+---
+
+```bash
+git add .
+```
+
+---
+
+```bash
+git status
+```
+
+```
+
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   .specstory/history/2025-08-24_14-15Z-implementar-sonido-al-investigar.md
+        new file:   ".specstory/history/2025-08-24_14-35Z-implementar-funcionalidad-de-acusaci\303\263n.md"
+        modified:   README.md
+        new file:   docs/features/0008_PLAN.md
+        new file:   test/unit/acusaciones.test.js
+        new file:   test/unit/utilities.test.js
+        modified:   web/firebase-database.js
+        modified:   web/index.html
+        modified:   web/lib.js
+        modified:   web/script.js
+        modified:   web/styles.css
+
+```
+
+---
+
+```bash
+git commit -m "feat: implementar sistema completo de acusaciones
+
+- Pantalla de acusación con grid de botones de jugadores (4 columnas responsive)
+- Estados de botones con colores reales: verde (neutral), naranja (pedito), rojo (pedorro)
+- Cambio cíclico de colores en cada botón
+- Validación automática que activa botón ACUSAR cuando cantidades coinciden
+- Inicialización inteligente con todos los jugadores en verde por defecto
+- Mensaje especial '¡ERES EL PEDORRO!' para jugador correspondiente
+- Integración con Firebase para cargar estado real del juego (no hardcodeado)
+- Funciones utilitarias para manejo consistente de clases CSS (activate/deactivate/setVisibility)
+- 24 nuevos tests: 13 para acusaciones + 11 para funciones utilitarias
+- Total: 105 tests pasando (sin regresiones)
+- README.md completamente actualizado con nueva funcionalidad"
+```
+
+```
+
+[main d98095c] feat: implementar sistema completo de acusaciones
+ 11 files changed, 6371 insertions(+), 61 deletions(-)
+ create mode 100644 ".specstory/history/2025-08-24_14-35Z-implementar-funcionalidad-de-acusaci\303\263n.md"
+ create mode 100644 docs/features/0008_PLAN.md
+ create mode 100644 test/unit/acusaciones.test.js
+ create mode 100644 test/unit/utilities.test.js
+```
+
+---
+
+```bash
+git push origin main
+```
+
+```
+
+Enumerating objects: 35, done.
+Counting objects: 100% (35/35), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (20/20), done.
+Writing objects: 100% (20/20), 46.45 KiB | 3.87 MiB/s, done.
+Total 20 (delta 12), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (12/12), completed with 12 local objects.
+To github.com:heedrox/pedorros.git
+   1d057d5..d98095c  main -> main
+```
+
+---
+
+¡Perfecto! 🎉 **Commit y push completados exitosamente.**
+
+## 📋 **Resumen del Commit:**
+
+### ✅ **Archivos Modificados:**
+- **`web/index.html`**: Nueva pantalla de acusación
+- **`web/styles.css`**: Estilos para pantalla de acusación y colores reales
+- **`web/lib.js`**: Nuevas funciones de validación de acusaciones
+- **`web/script.js`**: Lógica completa de acusaciones y funciones utilitarias
+- **`web/firebase-database.js`**: Nueva función `getGameState()`
+- **`README.md`**: Completamente actualizado con nueva funcionalidad
+
+### ✅ **Archivos Nuevos:**
+- **`docs/features/0008_PLAN.md`**: Plan técnico de la funcionalidad
+- **`test/unit/acusaciones.test.js`**: 13 tests para funcionalidad de acusaciones
+- **`test/unit/utilities.test.js`**: 11 tests para funciones utilitarias CSS
+
+### 🚀 **Funcionalidad Implementada:**
+- **Sistema completo de acusaciones** con validación automática
+- **Colores reales** (verde, naranja, rojo) para estados de botones
+- **Integración con Firebase** para cargar estado real del juego
+- **Funciones utilitarias** para manejo consistente de clases CSS
+- **105 tests pasando** (sin regresiones)
+
+### �� **Estadísticas del Commit:**
+- **11 archivos modificados**
+- **6,371 líneas añadidas**
+- **61 líneas eliminadas**
+- **Commit hash**: `d98095c`
+
+¡La funcionalidad de acusaciones está ahora completamente implementada, testeada y documentada en el repositorio! 🎯
 
 ---
 

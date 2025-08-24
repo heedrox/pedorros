@@ -4,7 +4,7 @@
  */
 
 import { database } from './firebase-config.js';
-import { ref, set, onValue, update, off, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { ref, set, onValue, update, off, get, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
 /**
  * Obtiene la referencia a la base de datos
@@ -35,28 +35,27 @@ export const getResetGameState = () => ({
  */
 export const resetGameState = async (gameCode) => {
     try {
-        if (!gameCode || typeof gameCode !== 'string') {
-            throw new Error('Código de juego inválido');
-        }
-
-        const resetState = getResetGameState();
         const gameRef = ref(database, `pedorros-game/${gameCode}`);
         
-        await set(gameRef, resetState);
-        
-        return {
-            success: true,
-            message: 'Juego reiniciado exitosamente',
-            gameCode,
-            resetState
+        const resetData = {
+            state: 'START',
+            numRound: 1,
+            gameCode: gameCode,
+            playerNumber: 0,
+            totalPlayers: 0,
+            ranking: {},
+            lastResult: null,
+            nextSounds: {},
+            pedorroSound: null,
+            resetTimestamp: serverTimestamp()
         };
+        
+        await set(gameRef, resetData);
+        
+        return { success: true, gameState: resetData };
     } catch (error) {
         console.error('Error al reiniciar el juego:', error);
-        return {
-            success: false,
-            error: error.message,
-            gameCode
-        };
+        return { success: false, error: error.message };
     }
 };
 

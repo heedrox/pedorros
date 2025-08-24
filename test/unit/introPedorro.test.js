@@ -13,7 +13,7 @@ const mockPlaySoundHTML5 = jest.fn();
 // Mock del estado del juego
 const createMockGameState = (playerNumber = 1, gameCode = 'test') => ({
     state: 'START',
-    round: 1,
+    numRound: 1,
     gameCode,
     playerNumber,
     totalPlayers: 4

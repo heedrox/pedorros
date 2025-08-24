@@ -1,6 +1,6 @@
 # PEDORROS - Juego de Fiesta Multijugador
 
-[![Tests](https://img.shields.io/badge/tests-37%20passed-brightgreen)](https://github.com/yourusername/pedorro)
+[![Tests](https://img.shields.io/badge/tests-105%20passed-brightgreen)](https://github.com/yourusername/pedorro)
 [![Node.js](https://img.shields.io/badge/node-20.x-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -24,6 +24,8 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Guardado de estado de reinicio** en `/pedorros-game/{CODIGO_JUEGO}`
 - **Confirmación del usuario** antes de ejecutar reinicio
 - **Feedback visual** de éxito o error de la operación
+- **✅ CORREGIDO**: Funciona correctamente en dispositivos móviles
+- **✅ CORREGIDO**: Estandarización completa del campo `numRound`
 
 ### 🎭 Cálculo Automático de Roles y Sonidos
 - **Listener de Firebase** que detecta cambios en el estado del juego
@@ -84,6 +86,7 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Funciones puras** sin side effects
 - **Estado inmutable** usando spread operator
 - **Programación funcional** sin variables globales mutables
+- **✅ CORREGIDO**: Estandarización completa del campo `numRound` en todo el código
 
 ### 🗄️ Integración Firebase
 - **Autenticación anónima** para acceso al juego
@@ -98,13 +101,7 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **105 tests pasando** con cobertura completa
 - **Tests de funcionalidad pura** (inmutabilidad, predictibilidad)
 - **Tests de edge cases** (URLs inválidas, casos límite)
-- **Tests de validación de regex** (caracteres especiales, espacios)
-- **Tests de cálculo de roles** (distribución, sonidos, mezcla de arrays)
-- **Tests de funcionalidad DISIMULAR** (lógica de sonidos, roles, inmutabilidad)
-- **Tests de funcionalidad INVESTIGAR** (botón, permisos, cambio de estado)
-- **Tests de funcionalidad de acusaciones** (validación, estados, cantidades)
-- **Tests de funciones utilitarias** (manejo de clases CSS)
-- **Configuración Jest** con soporte para módulos ES6
+- **✅ CORREGIDO**: Todos los tests pasan después de la estandarización de `numRound`
 
 ## 🚀 Tecnologías Utilizadas
 
@@ -305,6 +302,15 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - ✅ Integración con Firebase para cargar estado real del juego
 
 ## 🚧 Próximas Funcionalidades
+
+### ✅ **COMPLETADO - Correcciones de Estandarización y Compatibilidad Móvil**
+- [x] **Estandarización completa del campo `numRound`** en todo el código
+- [x] **Corrección del botón REINICIAR** para funcionar correctamente en dispositivos móviles
+- [x] **Consistencia total** entre `createGameState`, `updateRound`, `getRoundInfo`, etc.
+- [x] **Función `isPlayerOne` corregida** para manejar estados inválidos correctamente
+- [x] **Tests actualizados** para usar `numRound` consistentemente
+- [x] **105 tests pasando** después de las correcciones
+- [x] **Arquitectura más robusta** sin inconsistencias de nombres de campos
 
 ### ✅ **COMPLETADO - Fase 4: Transición a Estado ACUSE**
 - [x] Botón de investigar después de secuencia DISIMULAR

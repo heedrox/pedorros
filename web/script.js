@@ -125,7 +125,7 @@ const renderAuthScreen = (authState) => {
 
 // Función pura para renderizar la pantalla según el estado
 const renderScreen = (gameState) => {
-    const { state, round, playerNumber, totalPlayers } = gameState;
+    const { state, numRound, playerNumber, totalPlayers } = gameState;
     
     switch (state) {
         case 'START':
@@ -141,7 +141,7 @@ const renderScreen = (gameState) => {
 
 // Función pura para renderizar la pantalla START
 const renderStartScreen = (gameState) => {
-    const { round, playerNumber, totalPlayers } = gameState;
+    const { numRound, playerNumber, totalPlayers } = gameState;
     const startScreen = document.getElementById('start-screen');
     const currentRoundElement = document.getElementById('current-round');
     const playerInfoElement = document.getElementById('player-info');
@@ -164,7 +164,7 @@ const renderStartScreen = (gameState) => {
         }
     }
     
-    if (currentRoundElement) currentRoundElement.textContent = round;
+    if (currentRoundElement) currentRoundElement.textContent = numRound;
     if (playerInfoElement && playerNumber > 0 && totalPlayers > 0) {
         playerInfoElement.textContent = `Jugador: ${playerNumber} / ${totalPlayers}`;
         playerInfoElement.style.display = 'block';
@@ -182,7 +182,7 @@ const renderStartScreen = (gameState) => {
 
 // Función pura para renderizar la pantalla de acusación
 const renderAcuseScreen = async (gameState) => {
-    const { round, playerNumber, totalPlayers } = gameState;
+    const { numRound, playerNumber, totalPlayers } = gameState;
     
     // Ocultar todas las pantallas del juego
     const startScreen = document.getElementById('start-screen');
@@ -415,7 +415,7 @@ const initializeGame = async () => {
         disimularButton.addEventListener('click', async () => {
             console.log('Botón DISIMULAR clickeado');
             console.log('Estado actual:', gameState.state);
-            console.log('Ronda actual:', gameState.round);
+            console.log('Ronda actual:', gameState.numRound);
             console.log('Código de juego:', gameState.gameCode);
             console.log('Jugador:', gameState.playerNumber, 'de', gameState.totalPlayers);
             
@@ -490,9 +490,14 @@ const initializeGame = async () => {
             gameState = changeGameState(gameState, newState);
             renderScreen(gameState);
         },
-        updateRound: (newRound) => {
-            gameState = updateRound(gameState, newRound);
-            renderScreen(gameState);
+        updateRound: (newNumRound) => {
+            const result = updateRound(gameState, newNumRound);
+            if (result.success) {
+                gameState = result.gameState;
+                renderScreen(gameState);
+            } else {
+                console.error('Error al actualizar ronda:', result.error);
+            }
         },
         parseGameURL,
         getPlayerInfo: () => getPlayerInfo(gameState),

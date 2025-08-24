@@ -11,12 +11,16 @@ export const AUTH_STATES = {
 };
 
 // Estado inmutable de la aplicación
-export const createGameState = (state = 'START', round = 1, gameCode = '', playerNumber = 0, totalPlayers = 0) => ({
+export const createGameState = (state = 'START', numRound = 1, gameCode = '', playerNumber = 0, totalPlayers = 0) => ({
     state,
-    round,
+    numRound,
     gameCode,
     playerNumber,
-    totalPlayers
+    totalPlayers,
+    ranking: {},
+    lastResult: null,
+    nextSounds: {},
+    pedorroSound: null
 });
 
 // Función pura para parsear la URL y extraer parámetros del juego
@@ -67,31 +71,42 @@ export const initializeGameState = (url) => {
 };
 
 // Función pura para cambiar el estado del juego
-export const changeGameState = (currentState, newState) => ({
-    ...currentState,
-    state: newState
-});
+export const changeGameState = (gameState, newState, newNumRound = null) => {
+    if (!gameState || typeof gameState !== 'object') {
+        return null;
+    }
+    
+    const { state, numRound } = gameState;
+    
+    return {
+        ...gameState,
+        state: newState,
+        numRound: newNumRound !== null ? newNumRound : numRound
+    };
+};
 
 // Función pura para actualizar la ronda
-export const updateRound = (currentState, newRound) => ({
+export const updateRound = (currentState, newNumRound) => ({
     ...currentState,
-    round: newRound
+    numRound: newNumRound
 });
 
 // Función pura para validar si un estado es válido
-export const isValidGameState = (gameState) => {
-    return gameState && 
-           typeof gameState === 'object' &&
-           typeof gameState.state === 'string' &&
-           typeof gameState.round === 'number' &&
-           typeof gameState.gameCode === 'string' &&
-           typeof gameState.playerNumber === 'number' &&
-           typeof gameState.totalPlayers === 'number';
+export const validateGameState = (gameState) => {
+    return gameState &&
+        typeof gameState.state === 'string' &&
+        typeof gameState.numRound === 'number' &&
+        typeof gameState.gameCode === 'string' &&
+        typeof gameState.playerNumber === 'number' &&
+        typeof gameState.totalPlayers === 'number' &&
+        gameState.playerNumber > 0 &&
+        gameState.totalPlayers > 0 &&
+        gameState.playerNumber <= gameState.totalPlayers;
 };
 
 // Función pura para obtener información del jugador
 export const getPlayerInfo = (gameState) => {
-    if (!isValidGameState(gameState)) {
+    if (!validateGameState(gameState)) {
         return null;
     }
     
@@ -104,24 +119,23 @@ export const getPlayerInfo = (gameState) => {
 
 // Función pura para obtener información de la ronda
 export const getRoundInfo = (gameState) => {
-    if (!isValidGameState(gameState)) {
-        return null;
+    if (!gameState || typeof gameState.numRound !== 'number') {
+        return { currentRound: 1, totalRounds: 5, isLastRound: false };
     }
     
     return {
-        currentRound: gameState.round,
-        maxRounds: 5,
-        isLastRound: gameState.round >= 5
+        currentRound: gameState.numRound,
+        totalRounds: 5,
+        isLastRound: gameState.numRound >= 5
     };
 };
 
 // Función pura para validar si es el jugador 1 (director del juego)
 export const isPlayerOne = (gameState) => {
-    if (!isValidGameState(gameState)) {
-        return false;
-    }
-    
-    return gameState.playerNumber === 1;
+    return !!gameState && 
+           typeof gameState === 'object' && 
+           typeof gameState.playerNumber === 'number' && 
+           gameState.playerNumber === 1;
 };
 
 // Función pura para generar el estado de reinicio del juego
@@ -286,7 +300,7 @@ export const determineSoundForPlayer = (nextSounds, peditos, pedorro, playerNumb
 
 // Función pura para manejar el click del botón DISIMULAR (actualizada)
 export const handleDisimularClick = (gameState) => {
-    const { state, round, gameCode, playerNumber, totalPlayers } = gameState;
+    const { state, numRound, gameCode, playerNumber, totalPlayers } = gameState;
     
     // Retornar nuevo estado con flag de disimulando
     return {
