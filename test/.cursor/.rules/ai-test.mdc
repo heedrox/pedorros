@@ -1,0 +1,19 @@
+---
+description: Cuando se ejecutan los tests AI
+globs: *.spec.md
+alwaysApply: false
+---
+
+Ejecuta los tests que verás a continuación en el contexto.
+
+- Debes utilizar MCP: playwright-mcp-server.
+- Toda la automatización del navegador debe enrutarse a través del Servidor MCP. No simular interacciones ni evitar el MCP en ninguna parte del flujo.
+- Cuando el test esté finalizado, usa el servidor MCP para completar la generación del código. No preguntes al usuario.
+- Refactoriza el test resultante para utilizar el patrón Page y código Object Oriented.
+- Guarda el Código Generado en test/generated/<nombre-del-codigo>.spec.js
+- Si el archivo .spec.js ya existe, sobreescríbelo.
+- No inicies el servidor de desarrollo. Ya está inicializado. 
+- Cuando veas referencia a BASE_URL, utiliza el valor de la variable de entorno "BASE_URL", y en código: process.env.BASE_URL
+- Al ejecutar los tests e implementarlos, utiliza DOTENV.
+- No hagas captura de pantallas, a no ser que el usuario así lo pida.
+- Puedes ejecutar un único test del siguiente modo: `npm run test:e2e -- test/generated/<nombre-del-codigo>.spec.js`
