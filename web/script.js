@@ -476,6 +476,14 @@ const startDisimularSequence = async () => {
     // Esperar 3 segundos mostrando "DISIMULANDO"
     await new Promise(resolve => setTimeout(resolve, 3000));
     
+    // Para jugador 1: secuencia especial de sonidos antes del botón INVESTIGAR
+    if (isPlayerOne(gameState)) {
+        await playIntroAndPedorroSound();
+    } else {
+        // Para otros jugadores: esperar 3 segundos y continuar normalmente
+        await new Promise(resolve => setTimeout(resolve, 3000));
+    }
+    
     // Ocultar contenedor de disimular y mostrar botón de investigar
     disimularContainer.style.display = 'none';
     showInvestigarButton();
@@ -485,6 +493,52 @@ const startDisimularSequence = async () => {
     disimularButton.style.opacity = '1';
     
     console.log('Secuencia de DISIMULAR completada');
+};
+
+// Función para reproducir secuencia de sonidos intro + pedorro para jugador 1
+const playIntroAndPedorroSound = async () => {
+    try {
+        console.log('Iniciando secuencia de sonidos intro + pedorro para jugador 1...');
+        
+        // 1. Reproducir intro.mp3 con fallback
+        console.log('Reproduciendo intro.mp3...');
+        try {
+            await playSoundWebAudio('intro/intro.mp3', 0);
+        } catch (webAudioError) {
+            console.warn('Web Audio API falló para intro, usando HTML5 Audio:', webAudioError);
+            await playSoundHTML5('intro/intro.mp3');
+        }
+        
+        // 2. Esperar 3 segundos (duración del intro)
+        console.log('Esperando 3 segundos (duración del intro)...');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        // 3. Obtener valor del pedorro desde Firebase
+        console.log('Obteniendo valor del pedorro desde Firebase...');
+        const gameRoles = await getGameRoles(gameState.gameCode);
+        const pedorroValue = gameRoles?.pedorro || 1; // fallback a 1
+        console.log(`Valor del pedorro obtenido: ${pedorroValue}`);
+        
+        // 4. Reproducir sonido del pedorro con fallback
+        console.log(`Reproduciendo pedorro-${pedorroValue}.mp3...`);
+        try {
+            await playSoundWebAudio(`pedorro-${pedorroValue}.mp3`, 0);
+        } catch (webAudioError) {
+            console.warn('Web Audio API falló para pedorro, usando HTML5 Audio:', webAudioError);
+            await playSoundHTML5(`pedorro-${pedorroValue}.mp3`);
+        }
+        
+        // 5. Esperar 1.5 segundos adicionales
+        console.log('Esperando 1.5 segundos adicionales...');
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        console.log('Secuencia de sonidos intro + pedorro completada');
+        
+    } catch (error) {
+        console.error('Error en secuencia de sonidos intro+pedorro:', error);
+        // Continuar con el botón de investigar incluso si fallan los sonidos
+        console.log('Continuando con el botón de investigar a pesar del error de audio');
+    }
 };
 
 // Función para crear y gestionar el contexto de audio

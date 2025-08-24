@@ -49,6 +49,8 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 
 ### 🔍 Botón de Investigar después de Disimular
 - **Transición automática** de secuencia DISIMULAR a pantalla de investigar
+- **Secuencia especial de sonidos** para jugador 1 antes del botón INVESTIGAR:
+  - `intro.mp3` (3 segundos) + sonido del pedorro desde Firebase + 1.5s adicionales
 - **Botón clicable "(👃) INVESTIGAR"** exclusivo para jugador 1 (director del juego)
 - **Texto no clicable "(👃)"** para otros jugadores
 - **Actualización de estado** del juego a "ACUSE" en Firebase Database
@@ -232,6 +234,7 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - `getPlayerRole(peditos, pedorro, playerNumber)` - Determina rol del jugador (pedito, pedorro, neutral)
 - `determineSoundForPlayer(nextSounds, peditos, pedorro, playerNumber)` - Lógica de selección de sonido
 - `handleDisimularClick(gameState)` - Maneja click del botón DISIMULAR con estado inmutable
+- `playIntroAndPedorroSound()` - Secuencia especial de sonidos para jugador 1 (intro + pedorro)
 - `createAudioContext()` - Crea y gestiona contexto de Web Audio API
 - `playSoundWebAudio(soundFileName, delayMs)` - Reproduce sonido con timing preciso usando Web Audio API
 - `playSoundHTML5(soundFileName)` - Fallback a HTML5 Audio si Web Audio API falla
@@ -252,7 +255,8 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - **generateNextSounds**: 3 tests (generación, validación, rangos)
 - **Funcionalidad DISIMULAR**: 16 tests (lógica de sonidos, roles, inmutabilidad)
 - **Funcionalidad INVESTIGAR**: 13 tests (botón, permisos, cambio de estado)
-- **Total**: 66 tests con cobertura completa
+- **Funcionalidad Intro + Pedorro**: 16 tests (secuencia de sonidos, timing, fallbacks)
+- **Total**: 81 tests con cobertura completa
 
 ### Casos de Test Cubiertos
 - ✅ URLs con diferentes formatos y códigos
@@ -272,10 +276,11 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 
 ### ✅ **COMPLETADO - Fase 4: Transición a Estado ACUSE**
 - [x] Botón de investigar después de secuencia DISIMULAR
+- [x] Secuencia especial de sonidos para jugador 1 (intro + pedorro) antes del botón INVESTIGAR
 - [x] Permisos exclusivos para jugador 1 (director del juego)
 - [x] Actualización de estado del juego a "ACUSE" en Firebase
 - [x] Interfaz diferenciada para jugador 1 vs otros jugadores
-- [x] Tests unitarios completos (13 nuevos tests)
+- [x] Tests unitarios completos (29 nuevos tests: 13 investigar + 16 intro+pedorro)
 - [x] Diseño responsive y temática visual consistente
 - [x] Integración con arquitectura existente sin regresiones
 
