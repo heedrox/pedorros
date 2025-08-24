@@ -277,6 +277,71 @@ body {
     padding: 0;
 }
 
+/* Estilos para el contenedor de INVESTIGAR */
+.investigar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #8B4513, #A0522D, #CD853F);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    margin: 0;
+    padding: 0;
+}
+
+.investigar-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.investigar-button {
+    background: linear-gradient(135deg, #8B4513, #A0522D);
+    color: white;
+    border: none;
+    padding: 25px 50px;
+    font-size: 2rem;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    min-width: 300px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.investigar-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, #A0522D, #CD853F);
+}
+
+.investigar-button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.investigar-text {
+    font-size: 8rem;
+    font-weight: bold;
+    color: #CD853F;
+    text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.7);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: investigarFadeIn 1s ease-in-out;
+    min-height: auto;
+}
+
 /* Estilos para el contador */
 .countdown-display {
     font-size: 15rem;
@@ -334,6 +399,15 @@ body {
     }
 }
 
+@keyframes investigarFadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
 /* Responsive para contador */
 @media (max-width: 600px) {
     .countdown-display {
@@ -342,6 +416,16 @@ body {
     
     .disimulando-display {
         font-size: 2.5rem;
+    }
+    
+    .investigar-button {
+        font-size: 1.5rem;
+        padding: 20px 40px;
+        min-width: 250px;
+    }
+    
+    .investigar-text {
+        font-size: 6rem;
     }
 }
 
@@ -352,5 +436,15 @@ body {
     
     .disimulando-display {
         font-size: 2rem;
+    }
+    
+    .investigar-button {
+        font-size: 1.2rem;
+        padding: 18px 35px;
+        min-width: 220px;
+    }
+    
+    .investigar-text {
+        font-size: 5rem;
     }
 }

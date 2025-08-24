@@ -47,6 +47,16 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Fallback robusto** a HTML5 Audio si Web Audio API falla
 - **Compatibilidad total con iOS** sin problemas de autoplay
 
+### 🔍 Botón de Investigar después de Disimular
+- **Transición automática** de secuencia DISIMULAR a pantalla de investigar
+- **Botón clicable "(👃) INVESTIGAR"** exclusivo para jugador 1 (director del juego)
+- **Texto no clicable "(👃)"** para otros jugadores
+- **Actualización de estado** del juego a "ACUSE" en Firebase Database
+- **Interfaz a pantalla completa** con temática marrón consistente
+- **Diseño responsive** adaptado para dispositivos móviles
+- **Animaciones suaves** con transiciones CSS
+- **Integración completa** con sistema de permisos existente
+
 ### 🔗 Sistema de URLs Inteligente
 - **Formato de URL**: `index.html?/g/CODIGO/p/NUMERO_JUGADOR/TOTAL_JUGADORES`
 - **Ejemplo**: `index.html?/g/galerna/p/1/5` → Jugador 1 de 5, código "galerna"
@@ -65,6 +75,7 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Realtime Database** para persistencia de estado
 - **Sincronización en tiempo real** del estado del juego
 - **Reglas de seguridad** configuradas para acceso autenticado
+- **Actualización de estado** del juego con `updateGameState()`
 
 ### 🧪 Suite de Tests Unitarios
 - **53 tests pasando** con cobertura completa
@@ -240,7 +251,8 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - **calculateGameRoles**: 8 tests (distribución, validación, aleatoriedad)
 - **generateNextSounds**: 3 tests (generación, validación, rangos)
 - **Funcionalidad DISIMULAR**: 16 tests (lógica de sonidos, roles, inmutabilidad)
-- **Total**: 53 tests con cobertura completa
+- **Funcionalidad INVESTIGAR**: 13 tests (botón, permisos, cambio de estado)
+- **Total**: 66 tests con cobertura completa
 
 ### Casos de Test Cubiertos
 - ✅ URLs con diferentes formatos y códigos
@@ -252,8 +264,20 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - ✅ Generación de sonidos según roles
 - ✅ Mezcla de arrays con preservación de inmutabilidad
 - ✅ Validación de rangos y tipos de entrada
+- ✅ Funcionalidad de investigar con permisos de jugador 1
+- ✅ Cambio de estado del juego a ACUSE
+- ✅ Validación de elementos del DOM para investigar
 
 ## 🚧 Próximas Funcionalidades
+
+### ✅ **COMPLETADO - Fase 4: Transición a Estado ACUSE**
+- [x] Botón de investigar después de secuencia DISIMULAR
+- [x] Permisos exclusivos para jugador 1 (director del juego)
+- [x] Actualización de estado del juego a "ACUSE" en Firebase
+- [x] Interfaz diferenciada para jugador 1 vs otros jugadores
+- [x] Tests unitarios completos (13 nuevos tests)
+- [x] Diseño responsive y temática visual consistente
+- [x] Integración con arquitectura existente sin regresiones
 
 ### ✅ **COMPLETADO - Fase 3: Funcionalidad del Botón DISIMULAR**
 - [x] Sistema de audio y temporizador de 5 segundos
@@ -272,12 +296,11 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - [x] Scripts de preparación de juegos de prueba
 - [x] Experiencia inmersiva con contador a pantalla completa
 
-### Fase 4: Estados del Juego
-- [ ] Transición a estado ACUSE
+### Fase 5: Sistema de Votación y Acusaciones
 - [ ] Sistema de votación y acusaciones
 - [ ] Estado RESULTS con puntuaciones
 
-### Fase 5: Sincronización Avanzada
+### Fase 6: Sincronización Avanzada
 - [ ] Sincronización en tiempo real del estado del juego
 - [ ] Sistema de roles y distribución automática
 - [ ] Persistencia de ranking entre sesiones

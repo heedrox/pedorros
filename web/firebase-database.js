@@ -198,3 +198,43 @@ export const getGameRoles = async (gameCode) => {
         };
     }
 };
+
+/**
+ * Actualiza el estado del juego en Firebase Database
+ * @param {string} gameCode - Código del juego (ej: "galerna")
+ * @param {string} newState - Nuevo estado del juego (ej: "ACUSE")
+ * @returns {Promise<Object>} Resultado de la operación
+ */
+export const updateGameState = async (gameCode, newState) => {
+    try {
+        if (!gameCode || typeof gameCode !== 'string') {
+            throw new Error('Código de juego inválido');
+        }
+
+        if (!newState || typeof newState !== 'string') {
+            throw new Error('Nuevo estado inválido');
+        }
+
+        const gameRef = ref(database, `pedorros-game/${gameCode}`);
+        
+        // Actualizar solo el campo state
+        await update(gameRef, {
+            state: newState
+        });
+        
+        return {
+            success: true,
+            message: 'Estado del juego actualizado exitosamente',
+            gameCode,
+            newState
+        };
+    } catch (error) {
+        console.error('Error al actualizar estado del juego:', error);
+        return {
+            success: false,
+            error: error.message,
+            gameCode,
+            newState
+        };
+    }
+};

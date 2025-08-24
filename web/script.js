@@ -32,7 +32,8 @@ import {
     setupGameStateListener,
     updateGameRoles,
     getNextSounds,
-    getGameRoles
+    getGameRoles,
+    updateGameState
 } from './firebase-database.js';
 
 // Estado de autenticación (separado del estado del juego)
@@ -472,12 +473,12 @@ const startDisimularSequence = async () => {
     // El sonido ya está programado para reproducirse automáticamente
     // No necesitamos llamar a playSound() aquí
     
-    // Esperar 2 segundos mostrando "DISIMULANDO"
+    // Esperar 3 segundos mostrando "DISIMULANDO"
     await new Promise(resolve => setTimeout(resolve, 3000));
     
-    // Ocultar contador y mostrar main-content nuevamente
+    // Ocultar contenedor de disimular y mostrar botón de investigar
     disimularContainer.style.display = 'none';
-    mainContent.style.display = 'block';
+    showInvestigarButton();
     
     // Rehabilitar botón
     disimularButton.disabled = false;
@@ -689,5 +690,79 @@ const playSound = async () => {
         
     } catch (error) {
         console.error('Error al reproducir sonido:', error);
+    }
+};
+
+// Función para mostrar el botón/texto de investigar
+const showInvestigarButton = () => {
+    const investigarContainer = document.getElementById('investigar-container');
+    const investigarButton = document.getElementById('investigar-btn');
+    const investigarText = document.getElementById('investigar-text');
+    
+    if (!investigarContainer || !investigarButton || !investigarText) {
+        console.error('Elementos de investigar no encontrados');
+        return;
+    }
+    
+    // Mostrar contenedor de investigar
+    investigarContainer.style.display = 'flex';
+    
+    // Verificar si es jugador 1
+    if (isPlayerOne(gameState)) {
+        // Para jugador 1: mostrar botón clicable
+        investigarButton.style.display = 'block';
+        investigarText.style.display = 'none';
+        
+        // Agregar event listener para el botón
+        investigarButton.addEventListener('click', handleInvestigarClick);
+    } else {
+        // Para otros jugadores: mostrar solo texto
+        investigarButton.style.display = 'none';
+        investigarText.style.display = 'flex';
+    }
+    
+    console.log('Pantalla de investigar mostrada');
+};
+
+// Función para manejar el clic del botón investigar
+const handleInvestigarClick = async () => {
+    try {
+        if (!gameState || !gameState.gameCode) {
+            console.error('Estado del juego no disponible para investigar');
+            return;
+        }
+        
+        // Verificar que sea jugador 1
+        if (!isPlayerOne(gameState)) {
+            console.error('Solo el jugador 1 puede investigar');
+            return;
+        }
+        
+        console.log('Jugador 1 iniciando investigación...');
+        
+        // Actualizar estado del juego a "ACUSE" en Firebase
+        const result = await updateGameState(gameState.gameCode, 'ACUSE');
+        
+        if (result.success) {
+            console.log('Estado del juego actualizado a ACUSE:', result);
+            
+            // Actualizar estado local del juego
+            gameState = changeGameState(gameState, 'ACUSE');
+            
+            // Aquí se prepararía la transición al siguiente estado
+            // Por ahora solo ocultamos la pantalla de investigar
+            const investigarContainer = document.getElementById('investigar-container');
+            if (investigarContainer) {
+                investigarContainer.style.display = 'none';
+            }
+            
+            console.log('Transición a estado ACUSE completada');
+        } else {
+            console.error('Error al actualizar estado del juego:', result.error);
+            // Aquí se podría mostrar un mensaje de error al usuario
+        }
+        
+    } catch (error) {
+        console.error('Error al manejar clic de investigar:', error);
     }
 };
