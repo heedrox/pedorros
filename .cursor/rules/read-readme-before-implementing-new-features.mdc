@@ -1,6 +1,6 @@
 ---
-description: For implementing new features, get more context of the game reading README
+description: For implementing new features, get more context of the game reading README and PRODUCT_BRIEF
 alwaysApply: false
 ---
 
-Read @README.md to be able to get more context of this project and the overall game, when implementing new features.
+Read @README.md and @PRODUCT_BRIEF.md to be able to get more context of this project and the overall game, when implementing new features.
