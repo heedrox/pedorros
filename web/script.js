@@ -473,7 +473,7 @@ const startDisimularSequence = async () => {
     // No necesitamos llamar a playSound() aquí
     
     // Esperar 2 segundos mostrando "DISIMULANDO"
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 3000));
     
     // Ocultar contador y mostrar main-content nuevamente
     disimularContainer.style.display = 'none';

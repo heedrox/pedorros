@@ -4869,3 +4869,215 @@ Lines added: 9, lines removed: 7
 
 ---
 
+_**User**_
+
+genial @write-features-in-readme-before-commiting.mdc y luego commit / push
+
+---
+
+_**Assistant**_
+
+¡Perfecto! Voy a actualizar el README.md con las nuevas funcionalidades implementadas y luego hacer commit y push. Primero, déjame actualizar la documentación.
+
+## 📝 **Actualizando README.md con las nuevas funcionalidades**
+
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 5, lines removed: 1
+
+```diff
+@@ -35,12 +35,16 @@
+  
+  ### 🎵 Funcionalidad DISIMULAR con Contador y Sonidos
+- - **Contador visual prominente** de 5, 4, 3, 2, 1 en pantalla completa
++ - **Contador visual prominente** de 5, 4, 3, 2, 1, 0 en pantalla completa
+  - **Ocultación del contenido principal** durante la secuencia de DISIMULAR
+  - **Estado "DISIMULANDO"** después del contador con animaciones dramáticas
++ - **Web Audio API nativa** con timing preciso de 5 segundos
++ - **Precarga automática para iOS** al hacer click en DISIMULAR
+  - **Sistema de sonidos inteligente** basado en Firebase
+  - **Lógica de sonidos** según rol del jugador (pedito, pedorro, neutral)
+  - **Reproducción automática** de sonidos después del contador
+  - **Integración completa** con campos `nextSounds`, `peditos` y `pedorro`
+  - **Experiencia inmersiva** con contador a pantalla completa
++ - **Fallback robusto** a HTML5 Audio si Web Audio API falla
++ - **Compatibilidad total con iOS** sin problemas de autoplay
+  
+  ### 🔗 Sistema de URLs Inteligente
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 4, lines removed: undefined
+
+```diff
+@@ -222,4 +222,8 @@
+  - `determineSoundForPlayer(nextSounds, peditos, pedorro, playerNumber)` - Lógica de selección de sonido
+  - `handleDisimularClick(gameState)` - Maneja click del botón DISIMULAR con estado inmutable
++ - `createAudioContext()` - Crea y gestiona contexto de Web Audio API
++ - `playSoundWebAudio(soundFileName, delayMs)` - Reproduce sonido con timing preciso usando Web Audio API
++ - `playSoundHTML5(soundFileName)` - Fallback a HTML5 Audio si Web Audio API falla
++ - `preloadAudioForIOS()` - Precarga audio para compatibilidad con iOS
+  
+  ### Utilidades
+```
+
+</details>
+
+---
+
+The string to replace was not found in the file.
+
+---
+
+Voy a leer esa sección para ver el contenido exacto:
+
+
+---
+
+Read file: README.md
+
+---
+
+Ahora voy a actualizar la sección correcta:
+
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 6, lines removed: 1
+
+```diff
+@@ -257,13 +257,18 @@
+  ### ✅ **COMPLETADO - Fase 3: Funcionalidad del Botón DISIMULAR**
+  - [x] Sistema de audio y temporizador de 5 segundos
+- - [x] Contador visual prominente de 5, 4, 3, 2, 1 en pantalla completa
++ - [x] Contador visual prominente de 5, 4, 3, 2, 1, 0 en pantalla completa
+  - [x] Ocultación del contenido principal durante la secuencia de DISIMULAR
+  - [x] Estado "DISIMULANDO" después del contador con animaciones dramáticas
++ - [x] Web Audio API nativa con timing preciso de 5 segundos
++ - [x] Precarga automática para iOS al hacer click en DISIMULAR
+  - [x] Reproducción automática de sonidos según rol del jugador
+  - [x] Lógica inteligente de sonidos basada en Firebase
+  - [x] Integración completa con campos `nextSounds`, `peditos` y `pedorro`
++ - [x] Fallback robusto a HTML5 Audio si Web Audio API falla
++ - [x] Compatibilidad total con iOS sin problemas de autoplay
+  - [x] Tests unitarios completos (16 nuevos tests)
+  - [x] Arquitectura inmutable y funcional
+  - [x] Scripts de preparación de juegos de prueba
++ - [x] Experiencia inmersiva con contador a pantalla completa
+  
+  ### Fase 4: Estados del Juego
+```
+
+</details>
+
+---
+
+Ahora voy a actualizar la sección de tests para incluir las nuevas funciones:
+
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -240,5 +240,6 @@
+  - **calculateGameRoles**: 8 tests (distribución, validación, aleatoriedad)
+  - **generateNextSounds**: 3 tests (generación, validación, rangos)
+- - **Total**: 37 tests con cobertura completa
++ - **Funcionalidad DISIMULAR**: 16 tests (lógica de sonidos, roles, inmutabilidad)
++ - **Total**: 53 tests con cobertura completa
+  
+  ### Casos de Test Cubiertos
+```
+
+</details>
+
+---
+
+Ahora voy a hacer commit y push de todas las nuevas funcionalidades:
+
+## �� **Commit y Push de las nuevas funcionalidades**
+
+
+---
+
+```bash
+git add .
+```
+
+```
+(base) ➜  pedorro git:(main) ✗ git add .
+```
+
+---
+
+```bash
+git status
+```
+
+```
+
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   ".specstory/history/2025-08-24_12-56Z-implementar-l\303\263gica-de-juego-para-peditos-y-
+pedorros.md"
+
+        new file:   .specstory/history/2025-08-24_13-15Z-implementar-contador-y-sonidos-en-el-juego.md
+        modified:   README.md
+        new file:   docs/features/0005_PLAN.md
+        modified:   package.json
+        new file:   scripts/README.md
+        new file:   scripts/quick-test.cjs
+        new file:   test/unit/disimular.test.js
+        modified:   web/firebase-database.js
+        modified:   web/index.html
+        modified:   web/lib.js
+        modified:   web/script.js
+        new file:   web/sounds/neutral.mp3
+        new file:   web/sounds/pedito-1.mp3
+        new file:   web/sounds/pedito-2.mp3
+        new file:   web/sounds/pedito-3.mp3
+        new file:   web/sounds/pedito-4.mp3
+        new file:   web/sounds/pedito-5.mp3
+        new file:   web/sounds/pedorro-1.mp3
+        new file:   web/sounds/pedorro-2.mp3
+        new file:   web/sounds/pedorro-3.mp3
+        new file:   web/sounds/pedorro-4.mp3
+        new file:   web/sounds/pedorro-5.mp3
+        modified:   web/styles.css
+
+```
+
+---
+
+
+
+---
+
