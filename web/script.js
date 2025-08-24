@@ -14,6 +14,8 @@ import {
     getRoundInfo,
     isPlayerOne,
     getResetGameState,
+    calculateGameRoles,
+    generateNextSounds,
     AUTH_STATES
 } from './lib.js';
 
@@ -24,11 +26,19 @@ import {
 } from './firebase-config.js';
 
 import {
-    resetGameState
+    resetGameState,
+    setupGameStateListener,
+    updateGameRoles
 } from './firebase-database.js';
 
 // Estado de autenticación (separado del estado del juego)
 let authState = AUTH_STATES.UNAUTHENTICATED;
+
+// Variable para almacenar la función de cleanup del listener
+let gameStateListenerCleanup = null;
+
+// Estado del juego (accesible globalmente)
+let gameState = null;
 
 // Función pura para renderizar la pantalla según el estado de autenticación
 const renderAuthScreen = (authState) => {
@@ -189,7 +199,7 @@ const initializeGame = () => {
     console.log('PEDORROS - Juego iniciado');
     
     // Crear estado inicial inmutable
-    let gameState = initializeGameState(window.location.href);
+    gameState = initializeGameState(window.location.href);
     
     // Log del estado inicial
     const playerInfo = getPlayerInfo(gameState);
@@ -206,6 +216,23 @@ const initializeGame = () => {
     }
     
     console.log('Código de juego:', gameState.gameCode);
+    
+    // Configurar listener de Firebase solo para el jugador 1 (director del juego)
+    if (isPlayerOne(gameState)) {
+        console.log('Configurando listener de Firebase para jugador 1...');
+        
+        // Limpiar listener anterior si existe
+        if (gameStateListenerCleanup) {
+            gameStateListenerCleanup();
+        }
+        
+        // Configurar nuevo listener
+        gameStateListenerCleanup = setupGameStateListener(gameState.gameCode, handleGameStateChange);
+        
+        console.log('Listener de Firebase configurado para jugador 1');
+    } else {
+        console.log('Jugador no es director del juego, no se configura listener');
+    }
     
     // Esperar un momento para que el estado de autenticación esté completamente establecido
     setTimeout(() => {
@@ -282,6 +309,60 @@ const initializeGame = () => {
     };
 };
 
+// Función para manejar cambios en el estado del juego (solo jugador 1)
+const handleGameStateChange = async (gameData) => {
+    // Solo procesar si es el jugador 1 (director del juego)
+    if (!gameState || !isPlayerOne(gameState)) {
+        return;
+    }
+    
+    // Solo procesar si el estado es "START"
+    if (gameData.state !== "START") {
+        return;
+    }
+    
+    // Verificar si ya existen roles calculados para evitar recalcular
+    if (gameData.peditos && gameData.peditos.length > 0 && gameData.pedorro) {
+        console.log('Roles ya calculados, saltando cálculo automático');
+        return;
+    }
+    
+    console.log('Estado START detectado, calculando roles automáticamente...');
+    
+    try {
+        // Calcular distribución de roles
+        const roles = calculateGameRoles(gameState.totalPlayers);
+        
+        if (!roles.success) {
+            console.error('Error al calcular roles:', roles.error);
+            return;
+        }
+        
+        // Generar sonidos para cada jugador
+        const nextSounds = generateNextSounds(roles, gameState.totalPlayers);
+        
+        if (Object.keys(nextSounds).length === 0) {
+            console.error('Error al generar sonidos');
+            return;
+        }
+        
+        console.log('Roles calculados:', roles);
+        console.log('Sonidos generados:', nextSounds);
+        
+        // Actualizar en Firebase Database
+        const result = await updateGameRoles(gameState.gameCode, roles, nextSounds);
+        
+        if (result.success) {
+            console.log('Roles y sonidos actualizados exitosamente en Firebase');
+        } else {
+            console.error('Error al actualizar roles en Firebase:', result.error);
+        }
+        
+    } catch (error) {
+        console.error('Error inesperado al calcular roles:', error);
+    }
+};
+
 // Función principal de inicialización de la aplicación
 const initializeApp = () => {
     console.log('PEDORROS - Aplicación iniciada');
@@ -316,3 +397,21 @@ const initializeApp = () => {
 
 // Event listener para cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', initializeApp);
+
+// Cleanup cuando se cierre la aplicación
+window.addEventListener('beforeunload', () => {
+    if (gameStateListenerCleanup) {
+        console.log('Limpiando listener de Firebase...');
+        gameStateListenerCleanup();
+        gameStateListenerCleanup = null;
+    }
+});
+
+// Cleanup cuando se cambie de página
+window.addEventListener('pagehide', () => {
+    if (gameStateListenerCleanup) {
+        console.log('Limpiando listener de Firebase...');
+        gameStateListenerCleanup();
+        gameStateListenerCleanup = null;
+    }
+});

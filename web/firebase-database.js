@@ -4,7 +4,7 @@
  */
 
 import { database } from './firebase-config.js';
-import { ref, set } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { ref, set, onValue, update, off } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
 /**
  * Obtiene la referencia a la base de datos
@@ -24,7 +24,8 @@ export const getResetGameState = () => ({
     numRound: 1,
     state: "START",
     nextSounds: {},
-    pedorroSound: null
+    peditos: [],
+    pedorro: null
 });
 
 /**
@@ -51,6 +52,85 @@ export const resetGameState = async (gameCode) => {
         };
     } catch (error) {
         console.error('Error al reiniciar el juego:', error);
+        return {
+            success: false,
+            error: error.message,
+            gameCode
+        };
+    }
+};
+
+/**
+ * Configura un listener para cambios en el estado del juego
+ * @param {string} gameCode - Código del juego (ej: "galerna")
+ * @param {Function} callback - Función a ejecutar cuando cambie el estado
+ * @returns {Function} Función de cleanup para desconectar el listener
+ */
+export const setupGameStateListener = (gameCode, callback) => {
+    try {
+        if (!gameCode || typeof gameCode !== 'string') {
+            throw new Error('Código de juego inválido');
+        }
+
+        const gameRef = ref(database, `pedorros-game/${gameCode}`);
+        
+        // Configurar listener
+        onValue(gameRef, (snapshot) => {
+            const gameData = snapshot.val();
+            if (gameData && callback) {
+                callback(gameData);
+            }
+        });
+        
+        // Retornar función de cleanup
+        return () => {
+            off(gameRef);
+        };
+    } catch (error) {
+        console.error('Error al configurar listener del juego:', error);
+        return () => {}; // Función de cleanup vacía en caso de error
+    }
+};
+
+/**
+ * Actualiza los roles y sonidos del juego en Firebase Database
+ * @param {string} gameCode - Código del juego
+ * @param {Object} roles - Objeto con peditos y pedorro
+ * @param {Object} nextSounds - Diccionario de sonidos por jugador
+ * @returns {Promise<Object>} Resultado de la operación
+ */
+export const updateGameRoles = async (gameCode, roles, nextSounds) => {
+    try {
+        if (!gameCode || typeof gameCode !== 'string') {
+            throw new Error('Código de juego inválido');
+        }
+
+        if (!roles || !roles.success || !roles.peditos || !roles.pedorro) {
+            throw new Error('Estructura de roles inválida');
+        }
+
+        if (!nextSounds || typeof nextSounds !== 'object') {
+            throw new Error('Estructura de sonidos inválida');
+        }
+
+        const gameRef = ref(database, `pedorros-game/${gameCode}`);
+        
+        // Actualizar solo los campos específicos
+        await update(gameRef, {
+            peditos: roles.peditos,
+            pedorro: roles.pedorro,
+            nextSounds: nextSounds
+        });
+        
+        return {
+            success: true,
+            message: 'Roles y sonidos actualizados exitosamente',
+            gameCode,
+            roles,
+            nextSounds
+        };
+    } catch (error) {
+        console.error('Error al actualizar roles del juego:', error);
         return {
             success: false,
             error: error.message,

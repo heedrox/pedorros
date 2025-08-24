@@ -2663,10 +2663,6 @@ Lines added: 19, lines removed: undefined
 
 ---
 
-
-
----
-
 _**User**_
 
 actualizare las reglas a mano, no necesito el archivo database.rules.json
@@ -2715,7 +2711,151 @@ La aplicación está **completamente funcional** con:
 
 Una vez que configures las reglas en Firebase Console, el botón REINICIAR debería funcionar perfectamente y guardar el estado del juego en la base de datos.
 
-¿Necesitas ayuda con algo más o ya está tod
+¿Necesitas ayuda con algo más o ya está todo listo para probar?
+
+---
+
+_**User**_
+
+commit & push
+
+---
+
+_**Assistant**_
+
+¡Perfecto! Vamos a hacer commit y push de todas las nuevas funcionalidades implementadas. Primero voy a verificar el estado actual y luego proceder con el commit.
+
+
+---
+
+```bash
+cd /Users/jordimarti/Development/pedorro && git status
+```
+
+```
+
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   ".specstory/history/2025-08-24_10-10Z-implementar-login-an\3
+03\263nimo-con-firebase.md"
+        modified:   README.md
+        modified:   web/firebase-config.js
+        modified:   web/index.html
+        modified:   web/lib.js
+        modified:   web/script.js
+        modified:   web/styles.css
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        ".specstory/history/2025-08-24_11-04Z-implementar-bot\303\263n-de-reinic
+io-en-el-juego.md"
+        docs/features/0003_PLAN.md
+        web/firebase-database.js
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+---
+
+Perfecto! Veo todos los cambios. Ahora voy a añadir todos los archivos y hacer el commit con un mensaje descriptivo de las nuevas funcionalidades.
+
+
+---
+
+```bash
+git add .
+```
+
+```
+(base) ➜  pedorro git:(main) ✗ git add .
+```
+
+---
+
+```bash
+git commit -m "feat: implementar botón REINICIAR para jugador 1 con integración Firebase
+
+- Añadir botón REINICIAR exclusivo para jugador 1 (director del juego)
+- Posicionar botón en zona superior derecha del header
+- Integrar con Firebase Realtime Database para guardar estado de reinicio
+- Crear firebase-database.js para operaciones de base de datos
+- Implementar lógica de visibilidad condicional según número de jugador
+- Añadir confirmación del usuario antes de ejecutar reinicio
+- Crear guía de estilos oficial con paleta marrón clara
+- Documentar funcionalidad completa en README.md
+- Mantener arquitectura funcional e inmutable
+- Seguir filosofía Small Safe Steps"
+```
+
+```
+
+[main c255104] feat: implementar botón REINICIAR para jugador 1 con integración Firebase
+ 10 files changed, 3429 insertions(+), 33 deletions(-)
+ create mode 100644 ".specstory/history/2025-08-24_11-04Z-implementar-bot\303\263n-de-reinicio-en-el-juego.m
+d"
+
+ create mode 100644 docs/features/0003_PLAN.md
+ create mode 100644 web/firebase-database.js
+```
+
+---
+
+¡Excelente! El commit se ha realizado correctamente. Ahora vamos a hacer push al repositorio remoto.
+
+
+---
+
+```bash
+git push origin main
+```
+
+```
+(base) ➜  pedorro git:(main) git push origin main
+Enumerating objects: 30, done.
+Counting objects: 100% (30/30), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (17/17), done.
+Writing objects: 100% (17/17), 25.15 KiB | 3.59 MiB/s, done.
+Total 17 (delta 10), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (10/10), completed with 9 local objects.
+To github.com:heedrox/pedorros.git
+   de6a6dc..c255104  main -> main
+```
+
+---
+
+¡Perfecto! 🎉 El commit y push se han realizado exitosamente.
+
+## ✅ **Commit Completado:**
+
+**Hash**: `c255104`  
+**Mensaje**: "feat: implementar botón REINICIAR para jugador 1 con integración Firebase"
+
+## 📊 **Resumen de Cambios:**
+
+- **10 archivos modificados**
+- **3,429 inserciones**
+- **33 eliminaciones**
+- **3 archivos nuevos creados**
+
+## �� **Archivos Nuevos:**
+- `docs/features/0003_PLAN.md` - Plan técnico de la funcionalidad
+- `web/firebase-database.js` - Funciones de Firebase Database
+- `.specstory/history/...` - Historial de especificaciones
+
+## 🔄 **Funcionalidades Implementadas:**
+✅ Botón REINICIAR para jugador 1  
+✅ Integración con Firebase Realtime Database  
+✅ Sistema de autenticación anónima  
+✅ Arquitectura funcional e inmutable  
+✅ Guía de estilos oficial  
+✅ Documentación completa en README  
+
+La funcionalidad del botón REINICIAR está ahora completamente implementada y documentada. Solo necesitas configurar las reglas de Firebase en la consola para que funcione completamente.
 
 ---
 

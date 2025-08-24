@@ -140,5 +140,106 @@ export const getResetGameState = () => ({
     numRound: 1,
     state: "START",
     nextSounds: {},
-    pedorroSound: null
+    peditos: [],
+    pedorro: null
 });
+
+// Función pura para mezclar un array (algoritmo Fisher-Yates)
+export const shuffleArray = (array) => {
+    if (!Array.isArray(array)) {
+        return [];
+    }
+    
+    const shuffled = [...array]; // Clonar array para mantener inmutabilidad
+    
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    
+    return shuffled;
+};
+
+// Función pura para calcular la distribución de roles según el número de jugadores
+export const calculateGameRoles = (totalPlayers) => {
+    // Validar que totalPlayers sea un número
+    if (typeof totalPlayers !== 'number' || !Number.isInteger(totalPlayers)) {
+        return {
+            success: false,
+            error: 'Número de jugadores debe ser un número entero',
+            peditos: [],
+            pedorro: null
+        };
+    }
+    
+    // Validar rango de jugadores (4-16 según PRODUCT_BRIEF)
+    if (totalPlayers < 4 || totalPlayers > 16) {
+        return {
+            success: false,
+            error: 'Número de jugadores debe estar entre 4 y 16',
+            peditos: [],
+            pedorro: null
+        };
+    }
+    
+    // Tabla de distribución según PRODUCT_BRIEF
+    const roleDistribution = {
+        4: { peditos: 2, pedorros: 1, neutrales: 1 },
+        5: { peditos: 2, pedorros: 1, neutrales: 2 },
+        6: { peditos: 3, pedorros: 1, neutrales: 2 },
+        7: { peditos: 4, pedorros: 1, neutrales: 2 },
+        8: { peditos: 4, pedorros: 1, neutrales: 3 },
+        9: { peditos: 5, pedorros: 1, neutrales: 3 },
+        10: { peditos: 6, pedorros: 1, neutrales: 3 },
+        11: { peditos: 6, pedorros: 1, neutrales: 4 },
+        12: { peditos: 7, pedorros: 1, neutrales: 4 },
+        13: { peditos: 8, pedorros: 1, neutrales: 4 },
+        14: { peditos: 8, pedorros: 1, neutrales: 5 },
+        15: { peditos: 9, pedorros: 1, neutrales: 5 },
+        16: { peditos: 10, pedorros: 1, neutrales: 5 }
+    };
+    
+    const distribution = roleDistribution[totalPlayers];
+    
+    // Generar array base [1, 2, 3, ..., totalPlayers]
+    const baseArray = Array.from({ length: totalPlayers }, (_, i) => i + 1);
+    
+    // Mezclar el array
+    const shuffledArray = shuffleArray(baseArray);
+    
+    // Extraer roles
+    const peditos = shuffledArray.slice(0, distribution.peditos);
+    const pedorro = shuffledArray[distribution.peditos];
+    
+    return {
+        success: true,
+        peditos,
+        pedorro,
+        totalPlayers
+    };
+};
+
+// Función pura para generar el diccionario de sonidos para cada jugador
+export const generateNextSounds = (roles, totalPlayers) => {
+    if (!roles || !roles.success || !roles.peditos || !roles.pedorro) {
+        return {};
+    }
+    
+    // Crear diccionario base con null para todos
+    const nextSounds = {};
+    for (let i = 1; i <= totalPlayers; i++) {
+        nextSounds[i] = null;
+    }
+    
+    // Asignar sonido para peditos (mismo número del 1-5)
+    const peditoSound = Math.floor(Math.random() * 5) + 1;
+    roles.peditos.forEach(playerNum => {
+        nextSounds[playerNum] = peditoSound;
+    });
+    
+    // Asignar sonido para pedorro (número del 1-5, puede coincidir)
+    const pedorroSound = Math.floor(Math.random() * 5) + 1;
+    nextSounds[roles.pedorro] = pedorroSound;
+    
+    return nextSounds;
+};

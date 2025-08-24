@@ -1,6 +1,6 @@
 # PEDORROS - Juego de Fiesta Multijugador
 
-[![Tests](https://img.shields.io/badge/tests-22%20passed-brightgreen)](https://github.com/yourusername/pedorro)
+[![Tests](https://img.shields.io/badge/tests-37%20passed-brightgreen)](https://github.com/yourusername/pedorro)
 [![Node.js](https://img.shields.io/badge/node-20.x-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -25,6 +25,14 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Confirmación del usuario** antes de ejecutar reinicio
 - **Feedback visual** de éxito o error de la operación
 
+### 🎭 Cálculo Automático de Roles y Sonidos
+- **Listener de Firebase** que detecta cambios en el estado del juego
+- **Cálculo automático** de distribución de roles (peditos, pedorro, neutrales)
+- **Generación de sonidos** para cada jugador según su rol
+- **Restricción de acceso** - solo el jugador 1 puede ejecutar cálculos
+- **Distribución según tabla** del PRODUCT_BRIEF (4-16 jugadores)
+- **Prevención de loops** - no recalcula si roles ya existen
+
 ### 🔗 Sistema de URLs Inteligente
 - **Formato de URL**: `index.html?/g/CODIGO/p/NUMERO_JUGADOR/TOTAL_JUGADORES`
 - **Ejemplo**: `index.html?/g/galerna/p/1/5` → Jugador 1 de 5, código "galerna"
@@ -45,10 +53,11 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Reglas de seguridad** configuradas para acceso autenticado
 
 ### 🧪 Suite de Tests Unitarios
-- **22 tests pasando** con cobertura completa
+- **37 tests pasando** con cobertura completa
 - **Tests de funcionalidad pura** (inmutabilidad, predictibilidad)
 - **Tests de edge cases** (URLs inválidas, casos límite)
 - **Tests de validación de regex** (caracteres especiales, espacios)
+- **Tests de cálculo de roles** (distribución, sonidos, mezcla de arrays)
 - **Configuración Jest** con soporte para módulos ES6
 
 ## 🚀 Tecnologías Utilizadas
@@ -79,7 +88,8 @@ pedorro/
 │   └── script.js                # Lógica de DOM y conexión
 ├── test/                        # Tests unitarios
 │   └── unit/                    # Tests de funciones del core
-│       └── parseGameURL.test.js # Tests para parseGameURL
+│       ├── parseGameURL.test.js # Tests para parseGameURL
+│       └── gameRoles.test.js    # Tests para cálculo de roles y sonidos
 ├── docs/                        # Documentación del proyecto
 │   ├── PRODUCT_BRIEF.md         # Especificación del producto
 │   └── features/                # Planes técnicos de funcionalidades
@@ -186,6 +196,11 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - `parseGameURL(url)` - Parsea URL y extrae parámetros del juego
 - `initializeGameState(url)` - Inicializa estado desde URL
 
+### Cálculo de Roles y Sonidos
+- `calculateGameRoles(totalPlayers)` - Calcula distribución de roles según tabla del PRODUCT_BRIEF
+- `generateNextSounds(roles, totalPlayers)` - Genera diccionario de sonidos para cada jugador
+- `shuffleArray(array)` - Mezcla array usando algoritmo Fisher-Yates (inmutable)
+
 ### Utilidades
 - `isValidGameState()` - Valida estructura del estado
 - `getPlayerInfo()` - Obtiene información del jugador
@@ -196,11 +211,10 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 
 ### Cobertura de Tests
 - **parseGameURL**: 22 tests cubriendo todos los casos
-- **URLs válidas**: 4 tests
-- **URLs inválidas**: 7 tests
-- **Casos edge**: 4 tests
-- **Validación de regex**: 3 tests
-- **Funcionalidad pura**: 4 tests
+- **shuffleArray**: 4 tests (mezcla, inmutabilidad, casos edge)
+- **calculateGameRoles**: 8 tests (distribución, validación, aleatoriedad)
+- **generateNextSounds**: 3 tests (generación, validación, rangos)
+- **Total**: 37 tests con cobertura completa
 
 ### Casos de Test Cubiertos
 - ✅ URLs con diferentes formatos y códigos
@@ -208,20 +222,24 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - ✅ Casos límite (códigos largos, números grandes)
 - ✅ Validación de inmutabilidad y funciones puras
 - ✅ Manejo de URLs null/undefined/empty
+- ✅ Cálculo de roles para 4-16 jugadores
+- ✅ Generación de sonidos según roles
+- ✅ Mezcla de arrays con preservación de inmutabilidad
+- ✅ Validación de rangos y tipos de entrada
 
 ## 🚧 Próximas Funcionalidades
 
-### Fase 2: Funcionalidad del Botón DISIMULAR
+### Fase 3: Funcionalidad del Botón DISIMULAR
 - [ ] Sistema de audio y temporizador de 5 segundos
 - [ ] Reproducción de sonidos de pedorros y peditos
 - [ ] Sincronización local entre dispositivos
 
-### Fase 3: Estados del Juego
+### Fase 4: Estados del Juego
 - [ ] Transición a estado ACUSE
 - [ ] Sistema de votación y acusaciones
 - [ ] Estado RESULTS con puntuaciones
 
-### Fase 4: Sincronización Avanzada
+### Fase 5: Sincronización Avanzada
 - [ ] Sincronización en tiempo real del estado del juego
 - [ ] Sistema de roles y distribución automática
 - [ ] Persistencia de ranking entre sesiones
@@ -232,6 +250,14 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - [x] Guardado de estado de reinicio
 - [x] Sistema de autenticación anónima
 - [x] Arquitectura funcional e inmutable
+
+### ✅ **COMPLETADO - Fase 2: Cálculo Automático de Roles y Sonidos**
+- [x] Funciones de cálculo de roles según tabla del PRODUCT_BRIEF
+- [x] Generación automática de sonidos para cada jugador
+- [x] Listener de Firebase solo para jugador 1 (director del juego)
+- [x] Prevención de cálculos duplicados
+- [x] Tests unitarios completos (15 nuevos tests)
+- [x] Integración con sistema existente sin regresiones
 
 ## 📚 Documentación Adicional
 
