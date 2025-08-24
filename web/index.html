@@ -8,31 +8,57 @@
 </head>
 <body>
     <div id="app">
-        <div id="start-screen" class="screen active">
-            <div class="header">
+        <!-- Pantalla de Login (visible por defecto) -->
+        <div id="login-screen" class="screen active">
+            <div class="login-container">
                 <h1 class="game-title">PEDORROS</h1>
-                <p class="game-subtitle">El juego de detective social</p>
+                <button id="acceder-btn" class="acceder-button">
+                    ACCEDER
+                </button>
             </div>
-            
-            <div class="main-content">
-                <div class="game-info">
-                    <p class="round-info">Ronda <span id="current-round">1</span> de 5</p>
-                    <p id="player-info" class="player-info">Jugador: 1 / 4</p>
+        </div>
+
+        <!-- Pantalla del Juego (oculta por defecto) -->
+        <div id="game-screen" class="screen">
+            <div id="start-screen" class="screen active">
+                <div class="header">
+                    <h1 class="game-title">PEDORROS</h1>
+                    <p class="game-subtitle">El juego de detective social</p>
                 </div>
                 
-                <div class="action-area">
-                    <button id="disimular-btn" class="disimular-button">
-                        DISIMULAR
-                    </button>
-                </div>
-                
-                <div class="game-description">
-                    <p>Identifica quién ha sido el pedorro y quiénes los peditos</p>
-                    <p>¡Basándote solo en los sonidos!</p>
+                <div class="main-content">
+                    <div class="game-info">
+                        <p class="round-info">Ronda <span id="current-round">1</span> de 5</p>
+                        <p id="player-info" class="player-info">Jugador: 1 / 4</p>
+                    </div>
+                    
+                    <div class="action-area">
+                        <button id="disimular-btn" class="disimular-button">
+                            DISIMULAR
+                        </button>
+                    </div>
+                    
+                    <div class="game-description">
+                        <p>Identifica quién ha sido el pedorro y quiénes los peditos</p>
+                        <p>¡Basándote solo en los sonidos!</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- Firebase desde CDN -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { 
+            getAuth, 
+            signInAnonymously, 
+            onAuthStateChanged 
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        // Hacer Firebase disponible globalmente
+        window.Firebase = { initializeApp, getAuth, signInAnonymously, onAuthStateChanged };
+    </script>
     
     <script type="module" src="script.js"></script>
 </body>

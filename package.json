@@ -11,8 +11,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:unit": "jest test/unit",
-    "test:e2e": "npx playwright test",
-    "test:e2e:headed": "npx playwright test --headed"
+    "test:e2e": "npx playwright test test/e2e/generated",
+    "test:e2e:headed": "npx playwright test test/e2e/generated --headed"
   },
   "keywords": [
     "game",

@@ -10,7 +10,7 @@ Ejecuta los tests que verás a continuación en el contexto.
 - Toda la automatización del navegador debe enrutarse a través del Servidor MCP. No simular interacciones ni evitar el MCP en ninguna parte del flujo.
 - Cuando el test esté finalizado, usa el servidor MCP para completar la generación del código. No preguntes al usuario.
 - Refactoriza el test resultante para utilizar el patrón Page y código Object Oriented.
-- Guarda el Código Generado en test/generated/<nombre-del-codigo>.spec.js
+- Guarda el Código Generado en test/e2e/generated/<nombre-del-codigo>.spec.js
 - Si el archivo .spec.js ya existe, sobreescríbelo.
 - No inicies el servidor de desarrollo. Ya está inicializado. 
 - Cuando veas referencia a BASE_URL, utiliza el valor de la variable de entorno "BASE_URL", y en código: process.env.BASE_URL

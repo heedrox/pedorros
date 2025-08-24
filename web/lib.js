@@ -3,6 +3,13 @@
  * Contiene toda la lógica de negocio sin dependencias del DOM
  */
 
+// Estados de autenticación (separados del estado del juego)
+export const AUTH_STATES = {
+    AUTHENTICATING: 'AUTHENTICATING',
+    AUTHENTICATED: 'AUTHENTICATED',
+    UNAUTHENTICATED: 'UNAUTHENTICATED'
+};
+
 // Estado inmutable de la aplicación
 export const createGameState = (state = 'START', round = 1, gameCode = '', playerNumber = 0, totalPlayers = 0) => ({
     state,
