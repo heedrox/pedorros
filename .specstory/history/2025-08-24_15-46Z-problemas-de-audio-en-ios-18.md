@@ -2397,3 +2397,210 @@ El README ahora refleja completamente la solución implementada para iOS 18 y la
 
 ---
 
+_**User**_
+
+añade que index2.html es una pagina de prueba para el sistema de audio nuevo.
+
+Y sí, adelante
+
+---
+
+_**Assistant**_
+
+Perfecto! Voy a añadir esa descripción más clara sobre `index2.html` y luego proceder con el commit y push de los cambios.
+
+
+---
+
+<details><summary>Edit file: /Users/jordimarti/Development/pedorro/README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -111,5 +111,5 @@
+    - **Módulo `web/audio.js`** que conecta cada elemento `<audio>` con `createMediaElementSource()` al destino del contexto
+    - **Función `playAudio(key, delay)`** que programa reproducción con `setTimeout` y usa `audioElement.play()` para garantizar compatibilidad iOS
+- - **Página de prueba `web/index2.html`** con botón gigante para validar el desbloqueo de audio en iOS 18
++ - **Página de prueba `web/index2.html`** con botón gigante para validar el desbloqueo de audio en iOS 18 - **Sistema de audio nuevo** para probar la compatibilidad
+  - **Eliminación de fallbacks obsoletos**: Quitado `playSoundHTML5`, `createAudioContext`, y `playSoundWebAudio` del sistema anterior
+  - **Integración directa** con `playAudio` en todo el flujo del juego (DISIMULAR, intro, pedorro)
+```
+
+</details>
+
+---
+
+Ahora voy a hacer el commit y push de todos los cambios implementados:
+
+
+---
+
+```bash
+git add .
+```
+
+```
+(base) ➜  pedorro git:(main) ✗ git add .
+(base) ?➜  pedorro git:(main) ?✗
+```
+
+---
+
+```bash
+git status
+```
+
+```
+(base) ➜  pedorro git:(main) ✗ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   .specstory/history/2025-08-24_15-46Z-problemas-de-audio-en-ios-18.md
+        modified:   README.md
+        modified:   test/unit/introPedorro.test.js
+        new file:   web/audio.js
+        modified:   web/index.html
+        modified:   web/index2.html
+        modified:   web/script.js
+        modified:   web/sounds/neutral.mp3
+
+(base) ?➜  pedorro git:(main) ?✗
+```
+
+---
+
+```bash
+git commit -m "feat: Implementar sistema de audio optimizado para iOS 18
+
+- Añadir módulo web/audio.js con AudioContext predefinido
+- Precargar todos los audios en index.html con preload='auto' y playsinline
+- Reducir cuenta atrás de 5 a 3 segundos por limitación iOS 18 (máximo 4-5s)
+- Integrar playAudio() en todo el flujo del juego (DISIMULAR, intro, pedorro)
+- Eliminar sistema obsoleto: playSoundHTML5, createAudioContext, playSoundWebAudio
+- Actualizar tests unitarios para usar playAudio
+- Añadir index2.html como página de prueba del sistema de audio nuevo
+- Documentar limitaciones críticas de iOS 18 en README
+- Todos los tests unitarios pasando (105/105)"
+```
+
+```
+<ADME\n- Todos los tests unitarios pasando (105/105)"
+[main 1f9818a] feat: Implementar sistema de audio optimizado para iOS 18
+ 8 files changed, 1901 insertions(+), 234 deletions(-)
+ create mode 100644 web/audio.js
+```
+
+---
+
+```bash
+git push origin main
+```
+
+```
+(base) ➜  pedorro git:(main) git push origin main
+Enumerating objects: 30, done.
+Counting objects: 100% (30/30), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (16/16), done.
+Writing objects: 100% (16/16), 53.81 KiB | 7.69 MiB/s, done.
+Total 16 (delta 10), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (10/10), completed with 9 local objects.
+To github.com:heedrox/pedorros.git
+   5833743..1f9818a  main -> main
+```
+
+---
+
+¡Perfecto! 🎉 
+
+## ✅ **Cambios implementados y documentados exitosamente**
+
+### 🔧 **Implementación técnica completada:**
+- **Sistema de audio optimizado para iOS 18** con `web/audio.js`
+- **Precarga de audio** en `index.html` con `preload="auto"` y `playsinline`
+- **Cuenta atrás reducida** de 5 a 3 segundos por limitación crítica de iOS 18
+- **Integración completa** de `playAudio()` en todo el flujo del juego
+- **Eliminación del sistema obsoleto** (HTML5 fallback, WebAudio API manual)
+
+### 📚 **Documentación actualizada en README:**
+- **Sección específica** sobre compatibilidad con iOS 18
+- **Limitaciones críticas** documentadas (máximo 4-5 segundos después del gesto)
+- **Arquitectura de audio** explicada técnicamente
+- **Advertencias para desarrolladores** sobre no cambiar el timing de 3 segundos
+- **Descripción clara** de `index2.html` como página de prueba del sistema de audio nuevo
+
+### �� **Tests validados:**
+- **105 tests unitarios** pasando en verde
+- **Tests actualizados** para usar `playAudio` en lugar de funciones eliminadas
+
+### 🚀 **Deploy completado:**
+- **Commit** con mensaje descriptivo detallado
+- **Push** exitoso a `origin/main`
+
+El sistema ahora está completamente optimizado para iOS 18 y documentado para futuros desarrolladores. La limitación crítica de audio está claramente explicada y la solución implementada es robusta y mantenible.
+
+---
+
+_**User**_
+
+commit & push, please.
+
+---
+
+_**Assistant**_
+
+Veo que ya hice el commit y push en el mensaje anterior, pero déjame verificar el estado actual del repositorio:
+
+
+---
+
+```bash
+git status
+```
+
+```
+(base) ➜  pedorro git:(main) git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+```
+
+---
+
+```bash
+git log --oneline -3
+```
+
+```
+(base) ➜  pedorro git:(main) git log --oneline -3
+1f9818a (HEAD -> main, origin/main) feat: Implementar sistema de audio optimizado para iOS 18
+5833743 add index2.html test
+1e38f91 make more clear that wrong url
+```
+
+---
+
+✅ **El commit y push ya están completados!**
+
+Como puedes ver:
+- **Estado del repositorio**: `working tree clean` - no hay cambios pendientes
+- **Último commit**: `1f9818a` con el mensaje "feat: Implementar sistema de audio optimizado para iOS 18"
+- **Sincronización**: `HEAD -> main, origin/main` - tanto local como remoto están sincronizados
+
+El commit y push se realizaron exitosamente en el mensaje anterior. Todos los cambios están ahora en el repositorio remoto:
+
+- ✅ Sistema de audio optimizado para iOS 18
+- ✅ README actualizado con documentación completa
+- ✅ Tests unitarios actualizados y pasando
+- ✅ Eliminación del sistema obsoleto de audio
+
+¿Hay algo más que quieras que haga o algún otro cambio que necesites?
+
+---
+

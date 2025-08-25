@@ -210,11 +210,93 @@ const renderAcuseScreen = async (gameState) => {
         }
     }
     
+    // Configurar botones de sonidos
+    setupSoundButtons(gameState);
+    
     // Generar grid de botones de jugadores
     generatePlayersGrid(totalPlayers);
     
     // Validar acusaciones y activar/desactivar botón ACUSAR
     validateAndUpdateAcusarButton();
+};
+
+// Función para configurar los botones de sonidos
+const setupSoundButtons = (gameState) => {
+    // Botón LIMPIO
+    const limpiarBtn = document.getElementById('limpiar-btn');
+    if (limpiarBtn) {
+        limpiarBtn.addEventListener('click', handleLimpioClick);
+    }
+    
+    // Botón PEDITO
+    const peditoBtn = document.getElementById('pedito-btn');
+    if (peditoBtn) {
+        peditoBtn.addEventListener('click', () => handlePeditoClick(gameState));
+    }
+    
+    // Botón PEDORRO
+    const pedorroBtn = document.getElementById('pedorro-btn');
+    if (pedorroBtn) {
+        pedorroBtn.addEventListener('click', () => handlePedorroClick(gameState));
+    }
+};
+
+// Función para manejar el click del botón LIMPIO
+const handleLimpioClick = async () => {
+    try {
+        console.log('Reproduciendo sonido neutral...');
+        await playAudio('neutral.mp3', 0);
+    } catch (error) {
+        console.error('Error al reproducir sonido neutral:', error);
+    }
+};
+
+// Función para manejar el click del botón PEDITO
+const handlePeditoClick = async (gameState) => {
+    try {
+        console.log('Obteniendo sonido del pedito...');
+        
+        // Obtener roles del juego desde Firebase
+        const gameRoles = await getGameRoles(gameState.gameCode);
+        const nextSounds = await getNextSounds(gameState.gameCode);
+        
+        if (gameRoles.peditos && gameRoles.peditos.length > 0) {
+            // Tomar el primer pedito del array
+            const primerPedito = gameRoles.peditos[0];
+            const sonidoPedito = nextSounds[primerPedito];
+            
+            if (sonidoPedito) {
+                console.log(`Reproduciendo pedito-${sonidoPedito}.mp3...`);
+                await playAudio(`pedito-${sonidoPedito}.mp3`, 0);
+            } else {
+                console.warn('No se encontró sonido para el pedito');
+            }
+        } else {
+            console.warn('No hay peditos en esta ronda');
+        }
+    } catch (error) {
+        console.error('Error al reproducir sonido del pedito:', error);
+    }
+};
+
+// Función para manejar el click del botón PEDORRO
+const handlePedorroClick = async (gameState) => {
+    try {
+        console.log('Obteniendo sonido del pedorro...');
+        
+        // Obtener roles del juego desde Firebase
+        const gameRoles = await getGameRoles(gameState.gameCode);
+        
+        if (gameRoles.pedorro) {
+            const pedorroValue = gameRoles.pedorro;
+            console.log(`Reproduciendo pedorro-${pedorroValue}.mp3...`);
+            await playAudio(`pedorro-${pedorroValue}.mp3`, 0);
+        } else {
+            console.warn('No se encontró pedorro en esta ronda');
+        }
+    } catch (error) {
+        console.error('Error al reproducir sonido del pedorro:', error);
+    }
 };
 
 // Función para generar el grid de botones de jugadores
@@ -710,7 +792,7 @@ const playIntroAndPedorroSound = async () => {
         // 4. Reproducir sonido del pedorro con fallback
         console.log(`Reproduciendo pedorro-${pedorroValue}.mp3...`);
         try {
-            await playAudio(`pedorro-${pedorroValue}.mp3`, 0);
+            await playAudio(`pedorro-${pedorroValue}.mp3gst`, 0);
         } catch (webAudioError) {
             console.warn('Web Audio API falló para pedorro:', webAudioError);
         }

@@ -73,6 +73,17 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Integración con Firebase** para cargar estado real del juego (no hardcodeado)
 - **Funciones utilitarias** para manejo consistente de clases CSS (activate/deactivate/setVisibility)
 
+### 🎵 Botones de Sonidos en Pantalla ACUSE
+- **Tres botones de sonidos** posicionados entre mensaje del pedorro y grid de jugadores:
+  - 🟢 **LIMPIO** (verde): Reproduce "neutral.mp3" directamente
+  - 🟠 **PEDITO** (naranja): Obtiene pedito desde Firebase y reproduce `pedito-{valor}.mp3`
+  - 🔴 **PEDORRO** (rojo): Obtiene pedorro desde Firebase y reproduce `pedorro-{valor}.mp3`
+- **Integración con Firebase**: Usa `getGameRoles()` y `getNextSounds()` para obtener sonidos reales
+- **Sistema de audio existente**: Integra con `playAudio()` del módulo `web/audio.js`
+- **Diseño responsive**: Botones adaptados para móviles y tablets
+- **Colores oficiales**: Verde (#4CAF50), Naranja (#FF9800), Rojo (#F44336)
+- **Posicionamiento inteligente**: Botones sobre grid de jugadores, bajo mensaje del pedorro
+
 ### 🔗 Sistema de URLs Inteligente
 - **Formato de URL**: `index.html?/g/CODIGO/p/NUMERO_JUGADOR/TOTAL_JUGADORES`
 - **Ejemplo**: `index.html?/g/galerna/p/1/5` → Jugador 1 de 5, código "galerna"
@@ -368,11 +379,23 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - [x] Diseño responsive y colores intuitivos
 - [x] Integración completa con arquitectura existente
 
-### Fase 6: Estado RESULTS y Puntuaciones
+### ✅ **COMPLETADO - Fase 6: Botones de Sonidos en Pantalla ACUSE**
+- [x] **Tres botones de sonidos** con colores específicos y funcionalidad completa
+- [x] **Botón LIMPIO** (verde): Reproduce "neutral.mp3" directamente
+- [x] **Botón PEDITO** (naranja): Obtiene pedito desde Firebase y reproduce sonido correspondiente
+- [x] **Botón PEDORRO** (rojo): Obtiene pedorro desde Firebase y reproduce sonido correspondiente
+- [x] **Integración con Firebase**: Usa `getGameRoles()` y `getNextSounds()` para sonidos reales
+- [x] **Sistema de audio existente**: Integra con `playAudio()` del módulo `web/audio.js`
+- [x] **Diseño responsive**: Botones adaptados para móviles y tablets
+- [x] **Colores oficiales**: Verde (#4CAF50), Naranja (#FF9800), Rojo (#F44336)
+- [x] **Posicionamiento inteligente**: Botones sobre grid de jugadores, bajo mensaje del pedorro
+- [x] **Corrección de layout**: #app ahora sigue flujo normal de página con margin-top para header fijo
+
+### Fase 7: Estado RESULTS y Puntuaciones
 - [ ] Estado RESULTS con puntuaciones y ranking
 - [ ] Lógica de cálculo de puntos por acusaciones correctas
 
-### Fase 6: Sincronización Avanzada
+### Fase 8: Sincronización Avanzada
 - [ ] Sincronización en tiempo real del estado del juego
 - [ ] Sistema de roles y distribución automática
 - [ ] Persistencia de ranking entre sesiones
