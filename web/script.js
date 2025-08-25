@@ -419,8 +419,8 @@ const initializeGame = async () => {
             console.log('Código de juego:', gameState.gameCode);
             console.log('Jugador:', gameState.playerNumber, 'de', gameState.totalPlayers);
             
-            // Precargar audio inmediatamente para iOS (Web Audio API)
-            await preloadAudioForIOS();
+            // Desbloquear audio inmediatamente para iOS sin await (mantener gesto)
+            preloadAudioForIOS();
             
             // Iniciar secuencia de DISIMULAR
             startDisimularSequence();
@@ -737,9 +737,14 @@ const createAudioContext = () => {
         console.warn('Web Audio API no soportada, usando HTML5 Audio como fallback');
         return null;
     }
-    
+
+    // Reutilizar un único contexto global para evitar límites de iOS
+    if (window.__pedorrosAudioContext) {
+        return window.__pedorrosAudioContext;
+    }
+
     const audioContext = new AudioContext();
-    
+
     // En iOS, el contexto puede estar suspendido inicialmente
     if (audioContext.state === 'suspended') {
         console.log('Contexto de audio suspendido, resumiendo...');
@@ -747,42 +752,46 @@ const createAudioContext = () => {
             console.warn('No se pudo resumir el contexto de audio:', error);
         });
     }
-    
+
+    window.__pedorrosAudioContext = audioContext;
     return audioContext;
 };
 
-// Función para precargar audio en iOS (Web Audio API)
-const preloadAudioForIOS = async () => {
+// Función para desbloquear audio en iOS (Web Audio API) sin await
+const preloadAudioForIOS = () => {
     // Solo precargar si es iOS y Web Audio API está disponible
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     if (!isIOS) {
         console.log('No es iOS, saltando precarga de audio');
         return;
     }
-    
+
     try {
-        console.log('iOS detectado: Precargando audio para Web Audio API...');
+        console.log('iOS detectado: desbloqueando audio...');
         const audioContext = createAudioContext();
         if (!audioContext) {
             console.warn('Web Audio API no disponible en iOS, usando HTML5 Audio');
             return;
         }
-        
-        // Asegurar que el contexto esté ejecutándose
+
+        // Intentar reanudar sin await para mantener el gesto del usuario
         if (audioContext.state === 'suspended') {
-            await audioContext.resume();
-            console.log('Contexto de audio iOS resumido exitosamente');
+            audioContext.resume().catch(() => {});
         }
-        
-        // Precargar un archivo de audio pequeño para activar el contexto
-        const response = await fetch('sounds/neutral.mp3');
-        const arrayBuffer = await response.arrayBuffer();
-        await audioContext.decodeAudioData(arrayBuffer);
-        
-        console.log('Audio precargado exitosamente en iOS');
-        
+
+        // Reproducir un buffer silencioso mínimo para activar el contexto
+        const buffer = audioContext.createBuffer(1, 1, audioContext.sampleRate);
+        const source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+        try { source.start(0); } catch (_) {}
+        source.onended = () => {
+            try { source.disconnect(); } catch (_) {}
+        };
+
+        console.log('Audio desbloqueado exitosamente en iOS');
     } catch (error) {
-        console.warn('Error al precargar audio en iOS:', error);
+        console.warn('Error al desbloquear audio en iOS:', error);
         console.log('Continuando con HTML5 Audio como fallback');
     }
 };
@@ -821,11 +830,18 @@ const playSoundWebAudio = async (soundFileName, delayMs = 0) => {
         gainNode.connect(audioContext.destination);
         
         // Reproducir con timing preciso
+
         if (delayMs > 0) {
             // Usar el timing del contexto de audio para mayor precisión
             const startTime = audioContext.currentTime + (delayMs / 1000);
-            source.start(startTime);
-            console.log(`Audio programado para reproducirse en ${delayMs}ms`);
+            setTimeout(() => {
+                const source = audioContext.createBufferSource();
+                source.buffer = audioBuffer;
+                source.connect(audioContext.destination);
+                source.start();
+            }, delayMs)
+            
+            console.log(`timeoutx Audio programado para reproducirse en ${delayMs}ms`);
         } else {
             source.start(0);
             console.log('Audio reproducido inmediatamente');
@@ -1009,3 +1025,14 @@ const handleInvestigarClick = async () => {
         console.error('Error al manejar clic de investigar:', error);
     }
 };
+
+// Desbloquear audio en el primer gesto del usuario por seguridad (iOS 18)
+const __unlockOnce = () => {
+    try { preloadAudioForIOS(); } catch (_) {}
+    window.removeEventListener('pointerdown', __unlockOnce);
+    window.removeEventListener('touchend', __unlockOnce);
+    window.removeEventListener('click', __unlockOnce);
+};
+window.addEventListener('pointerdown', __unlockOnce, { once: true });
+window.addEventListener('touchend', __unlockOnce, { once: true });
+window.addEventListener('click', __unlockOnce, { once: true });

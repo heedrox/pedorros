@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Prueba mínima iOS 18</title>
+  <style>
+    body {
+      background-color: #000;
+    }
+    button {
+      background-color: #fff;
+      color: #000;
+      font-size: 10rem;
+    }
+    button:hover {
+      background-color: #000;
+      color: #fff;
+    }
+
+  </style>
+  
+</head>
+<body>
+  <audio id="game-audio" src="sounds/pedito-1.mp3" preload="auto"></audio>
+<button id="playBtn">▶ Sonar</button>
+
+<script>
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const audioElement = document.getElementById("game-audio");
+  const track = audioContext.createMediaElementSource(audioElement);
+  track.connect(audioContext.destination);
+
+  document.getElementById("playBtn").addEventListener("click", async () => {
+    if (audioContext.state === "suspended") {
+      await audioContext.resume();
+    }
+    setTimeout(async () => {
+      await audioElement.play(); // suena seguro en iOS
+    }, 1000)
+    
+    console.log("Reproducción HTML5 + AudioContext");
+  });
+</script>
+
+</body>
+</html>
