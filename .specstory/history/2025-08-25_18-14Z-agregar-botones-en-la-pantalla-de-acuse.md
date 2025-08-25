@@ -1846,3 +1846,68 @@ He implementado la solución para que la capa "app" siga el flujo normal de la p
 
 ---
 
+_**User**_
+
+@write-features-in-readme-before-commiting.mdc  + comiti + push
+
+---
+
+_**Assistant**_
+
+¡Perfecto! Voy a actualizar el README.md con la nueva funcionalidad implementada y luego hacer commit y push. Primero voy a leer la sección de funcionalidades implementadas para añadir la nueva:
+
+
+---
+
+Read file: README.md
+
+---
+
+Ahora voy a añadir la nueva funcionalidad de botones de sonidos en la pantalla de ACUSE:
+
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 11, lines removed: undefined
+
+```diff
+@@ -73,4 +73,15 @@
+  - **Integración con Firebase** para cargar estado real del juego (no hardcodeado)
+  - **Funciones utilitarias** para manejo consistente de clases CSS (activate/deactivate/setVisibility)
++ 
++ ### 🎵 Botones de Sonidos en Pantalla ACUSE
++ - **Tres botones de sonidos** posicionados entre mensaje del pedorro y grid de jugadores:
++   - 🟢 **LIMPIO** (verde): Reproduce "neutral.mp3" directamente
++   - 🟠 **PEDITO** (naranja): Obtiene pedito desde Firebase y reproduce `pedito-{valor}.mp3`
++   - 🔴 **PEDORRO** (rojo): Obtiene pedorro desde Firebase y reproduce `pedorro-{valor}.mp3`
++ - **Integración con Firebase**: Usa `getGameRoles()` y `getNextSounds()` para obtener sonidos reales
++ - **Sistema de audio existente**: Integra con `playAudio()` del módulo `web/audio.js`
++ - **Diseño responsive**: Botones adaptados para móviles y tablets
++ - **Colores oficiales**: Verde (#4CAF50), Naranja (#FF9800), Rojo (#F44336)
++ - **Posicionamiento inteligente**: Botones sobre grid de jugadores, bajo mensaje del pedorro
+  
+  ### 🔗 Sistema de URLs Inteligente
+```
+
+</details>
+
+---
+
+Ahora voy a añadir la información sobre la corrección del layout en la sección de correcciones:
+
+
+---
+
+
+
+---
+
+
+
+---
+
