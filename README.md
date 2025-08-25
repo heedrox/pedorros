@@ -36,18 +36,17 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Prevención de loops** - no recalcula si roles ya existen
 
 ### 🎵 Funcionalidad DISIMULAR con Contador y Sonidos
-- **Contador visual prominente** de 5, 4, 3, 2, 1, 0 en pantalla completa
+- **Contador visual prominente** de 3, 2, 1, 0 en pantalla completa
 - **Ocultación del contenido principal** durante la secuencia de DISIMULAR
 - **Estado "DISIMULANDO"** después del contador con animaciones dramáticas
-- **Web Audio API nativa** con timing preciso de 5 segundos
-- **Precarga automática para iOS** al hacer click en DISIMULAR
+- **Sistema de audio optimizado para iOS 18** con timing preciso de 3 segundos
+- **Precarga automática de audio** al hacer click en DISIMULAR
 - **Sistema de sonidos inteligente** basado en Firebase
 - **Lógica de sonidos** según rol del jugador (pedito, pedorro, neutral)
 - **Reproducción automática** de sonidos después del contador
 - **Integración completa** con campos `nextSounds`, `peditos` y `pedorro`
 - **Experiencia inmersiva** con contador a pantalla completa
-- **Fallback robusto** a HTML5 Audio si Web Audio API falla
-- **Compatibilidad total con iOS** sin problemas de autoplay
+- **Compatibilidad total con iOS 18** sin problemas de autoplay
 
 ### 🔍 Botón de Investigar después de Disimular
 - **Transición automática** de secuencia DISIMULAR a pantalla de investigar
@@ -103,6 +102,18 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Tests de edge cases** (URLs inválidas, casos límite)
 - **✅ CORREGIDO**: Todos los tests pasan después de la estandarización de `numRound`
 
+### 📱 Compatibilidad con iOS 18 - Limitaciones Críticas de Audio
+- **⚠️ LIMITACIÓN CRÍTICA**: iOS 18 solo permite reproducir audio durante **máximo 4-5 segundos** después del gesto del usuario
+- **Solución implementada**: Cuenta atrás reducida de **5 a 3 segundos** para asegurar reproducción dentro de la ventana permitida
+- **Arquitectura de audio optimizada**:
+  - **Precarga de `<audio>` en el DOM** con `preload="auto"` y `playsinline` para cumplir políticas de iOS
+  - **`AudioContext` predefinido** en `web/audio.js` para evitar crear contextos nuevos que rompan la reproducción
+  - **Módulo `web/audio.js`** que conecta cada elemento `<audio>` con `createMediaElementSource()` al destino del contexto
+  - **Función `playAudio(key, delay)`** que programa reproducción con `setTimeout` y usa `audioElement.play()` para garantizar compatibilidad iOS
+- **Página de prueba `web/index2.html`** con botón gigante para validar el desbloqueo de audio en iOS 18 - **Sistema de audio nuevo** para probar la compatibilidad
+- **Eliminación de fallbacks obsoletos**: Quitado `playSoundHTML5`, `createAudioContext`, y `playSoundWebAudio` del sistema anterior
+- **Integración directa** con `playAudio` en todo el flujo del juego (DISIMULAR, intro, pedorro)
+
 ## 🚀 Tecnologías Utilizadas
 
 - **Frontend**: JavaScript vanilla con módulos ES6
@@ -113,22 +124,27 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **🎨 Estilos**: Guía oficial de colores documentada en sección UI
 - **🗄️ Base de datos**: Firebase Realtime Database
 - **🔐 Autenticación**: Firebase Auth (anónima)
+- **🎵 Audio**: Web Audio API + HTML5 Audio optimizado para iOS 18
 
 ### ⚠️ Importante para Desarrolladores
 - **NO modificar la paleta de colores** sin consultar la guía de estilos
 - **Mantener coherencia visual** en todos los elementos
 - **Respetar la temática marrón** establecida
 - **Configurar reglas de Firebase** para acceso autenticado
+- **⚠️ CRÍTICO para iOS 18**: NO cambiar el timing de audio de 3 segundos - iOS solo permite 4-5 segundos máximo después del gesto
+- **Audio**: Usar siempre `playAudio()` del módulo `web/audio.js` - NO implementar nuevos sistemas de audio
 
 ## 📁 Estructura del Proyecto
 
 ```
 pedorro/
 ├── web/                          # Frontend de la aplicación
-│   ├── index.html               # Pantalla principal START
+│   ├── index.html               # Pantalla principal START con preload de audio
+│   ├── index2.html              # Página de prueba para validar audio en iOS 18
 │   ├── styles.css               # Estilos con temática marrón
 │   ├── lib.js                   # Core de la aplicación (lógica pura)
-│   └── script.js                # Lógica de DOM y conexión
+│   ├── audio.js                 # Módulo de audio optimizado para iOS 18
+│   └── script.js                # Lógica de DOM e integración con audio
 ├── test/                        # Tests unitarios
 │   └── unit/                    # Tests de funciones del core
 │       ├── parseGameURL.test.js # Tests para parseGameURL

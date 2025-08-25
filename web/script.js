@@ -39,6 +39,8 @@ import {
     getGameState
 } from './firebase-database.js';
 
+import { playAudio } from './audio.js';
+
 // Estado de autenticación (separado del estado del juego)
 let authState = AUTH_STATES.UNAUTHENTICATED;
 
@@ -420,7 +422,6 @@ const initializeGame = async () => {
             console.log('Jugador:', gameState.playerNumber, 'de', gameState.totalPlayers);
             
             // Desbloquear audio inmediatamente para iOS sin await (mantener gesto)
-            preloadAudioForIOS();
             
             // Iniciar secuencia de DISIMULAR
             startDisimularSequence();
@@ -639,9 +640,8 @@ const startDisimularSequence = async () => {
     // PROGRAMAR SONIDO INMEDIATAMENTE al inicio del contador
     // Esto asegura que se reproduzca exactamente después de 5 segundos
     await playSound();
-    
     // Iniciar contador: 5, 4, 3, 2, 1
-    const countdownNumbers = [5, 4, 3, 2, 1, 0];
+    const countdownNumbers = [3, 2, 1, 0];
     
     // Mostrar el primer número inmediatamente
     countdownDisplay.textContent = countdownNumbers[0];
@@ -692,10 +692,9 @@ const playIntroAndPedorroSound = async () => {
         // 1. Reproducir intro.mp3 con fallback
         console.log('Reproduciendo intro.mp3...');
         try {
-            await playSoundWebAudio('intro/intro.mp3', 0);
+            await playAudio('intro/intro.mp3', 0);
         } catch (webAudioError) {
-            console.warn('Web Audio API falló para intro, usando HTML5 Audio:', webAudioError);
-            await playSoundHTML5('intro/intro.mp3');
+            console.warn('Web Audio API falló para intro:', webAudioError);
         }
         
         // 2. Esperar 3 segundos (duración del intro)
@@ -711,10 +710,9 @@ const playIntroAndPedorroSound = async () => {
         // 4. Reproducir sonido del pedorro con fallback
         console.log(`Reproduciendo pedorro-${pedorroValue}.mp3...`);
         try {
-            await playSoundWebAudio(`pedorro-${pedorroValue}.mp3`, 0);
+            await playAudio(`pedorro-${pedorroValue}.mp3`, 0);
         } catch (webAudioError) {
-            console.warn('Web Audio API falló para pedorro, usando HTML5 Audio:', webAudioError);
-            await playSoundHTML5(`pedorro-${pedorroValue}.mp3`);
+            console.warn('Web Audio API falló para pedorro:', webAudioError);
         }
         
         // 5. Esperar 1.5 segundos adicionales
@@ -730,169 +728,13 @@ const playIntroAndPedorroSound = async () => {
     }
 };
 
-// Función para crear y gestionar el contexto de audio
-const createAudioContext = () => {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) {
-        console.warn('Web Audio API no soportada, usando HTML5 Audio como fallback');
-        return null;
-    }
 
-    // Reutilizar un único contexto global para evitar límites de iOS
-    if (window.__pedorrosAudioContext) {
-        return window.__pedorrosAudioContext;
-    }
 
-    const audioContext = new AudioContext();
 
-    // En iOS, el contexto puede estar suspendido inicialmente
-    if (audioContext.state === 'suspended') {
-        console.log('Contexto de audio suspendido, resumiendo...');
-        audioContext.resume().catch(error => {
-            console.warn('No se pudo resumir el contexto de audio:', error);
-        });
-    }
 
-    window.__pedorrosAudioContext = audioContext;
-    return audioContext;
-};
 
-// Función para desbloquear audio en iOS (Web Audio API) sin await
-const preloadAudioForIOS = () => {
-    // Solo precargar si es iOS y Web Audio API está disponible
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    if (!isIOS) {
-        console.log('No es iOS, saltando precarga de audio');
-        return;
-    }
 
-    try {
-        console.log('iOS detectado: desbloqueando audio...');
-        const audioContext = createAudioContext();
-        if (!audioContext) {
-            console.warn('Web Audio API no disponible en iOS, usando HTML5 Audio');
-            return;
-        }
 
-        // Intentar reanudar sin await para mantener el gesto del usuario
-        if (audioContext.state === 'suspended') {
-            audioContext.resume().catch(() => {});
-        }
-
-        // Reproducir un buffer silencioso mínimo para activar el contexto
-        const buffer = audioContext.createBuffer(1, 1, audioContext.sampleRate);
-        const source = audioContext.createBufferSource();
-        source.buffer = buffer;
-        source.connect(audioContext.destination);
-        try { source.start(0); } catch (_) {}
-        source.onended = () => {
-            try { source.disconnect(); } catch (_) {}
-        };
-
-        console.log('Audio desbloqueado exitosamente en iOS');
-    } catch (error) {
-        console.warn('Error al desbloquear audio en iOS:', error);
-        console.log('Continuando con HTML5 Audio como fallback');
-    }
-};
-
-// Función para reproducir sonido usando Web Audio API
-const playSoundWebAudio = async (soundFileName, delayMs = 0) => {
-    const audioContext = createAudioContext();
-    if (!audioContext) {
-        throw new Error('Web Audio API no disponible');
-    }
-    
-    try {
-        // Asegurar que el contexto esté ejecutándose
-        if (audioContext.state === 'suspended') {
-            await audioContext.resume();
-        }
-        
-        // Cargar el archivo de audio
-        const response = await fetch(`sounds/${soundFileName}`);
-        if (!response.ok) {
-            throw new Error(`Error al cargar audio: ${response.status}`);
-        }
-        
-        const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        
-        // Crear fuente de audio
-        const source = audioContext.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(audioContext.destination);
-        
-        // Configurar volumen
-        const gainNode = audioContext.createGain();
-        gainNode.gain.value = 1.0;
-        source.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        // Reproducir con timing preciso
-
-        if (delayMs > 0) {
-            // Usar el timing del contexto de audio para mayor precisión
-            const startTime = audioContext.currentTime + (delayMs / 1000);
-            setTimeout(() => {
-                const source = audioContext.createBufferSource();
-                source.buffer = audioBuffer;
-                source.connect(audioContext.destination);
-                source.start();
-            }, delayMs)
-            
-            console.log(`timeoutx Audio programado para reproducirse en ${delayMs}ms`);
-        } else {
-            source.start(0);
-            console.log('Audio reproducido inmediatamente');
-        }
-        
-        // Limpiar recursos cuando termine
-        source.onended = () => {
-            source.disconnect();
-            gainNode.disconnect();
-        };
-        
-        return true;
-        
-    } catch (error) {
-        console.error('Error con Web Audio API:', error);
-        throw error;
-    }
-};
-
-// Función para reproducir sonido usando HTML5 Audio (fallback)
-const playSoundHTML5 = async (soundFileName) => {
-    const audioElement = document.getElementById('game-audio');
-    if (!audioElement) {
-        throw new Error('Elemento de audio HTML5 no encontrado');
-    }
-    
-    try {
-        // Cambiar la fuente del audio
-        audioElement.src = `sounds/${soundFileName}`;
-        
-        // Precargar y reproducir
-        audioElement.load();
-        
-        // Reproducir con manejo de errores
-        try {
-            await audioElement.play();
-            console.log('Sonido HTML5 reproducido exitosamente');
-            return true;
-        } catch (playError) {
-            console.error('Error al reproducir sonido HTML5:', playError);
-            // Fallback: intentar reproducir sin await
-            audioElement.play().catch(error => {
-                console.error('Error en fallback de reproducción HTML5:', error);
-            });
-            return false;
-        }
-    } catch (error) {
-        console.error('Error con HTML5 Audio:', error);
-        throw error;
-    }
-};
 
 // Función principal para reproducir el sonido correspondiente al jugador
 const playSound = async () => {
@@ -925,26 +767,11 @@ const playSound = async () => {
         try {
             // Web Audio API con timing preciso de 5 segundos
             // El sonido se programa para reproducirse exactamente después del contador
-            await playSoundWebAudio(soundFileName, 5000);
+            console.log("Reproduciendo sonido con Web Audio API tras 5 segundos", soundFileName);
+            playAudio(soundFileName, 3000);
             console.log('Sonido programado exitosamente con Web Audio API para reproducirse en 5 segundos');
         } catch (webAudioError) {
-            console.warn('Web Audio API falló, usando HTML5 Audio como fallback:', webAudioError);
-            
-            // Fallback a HTML5 Audio
-            try {
-                await playSoundHTML5(soundFileName);
-                console.log('Sonido reproducido exitosamente con HTML5 Audio');
-            } catch (html5Error) {
-                console.error('HTML5 Audio también falló:', html5Error);
-                
-                // Último fallback: sonido neutral
-                try {
-                    await playSoundHTML5('neutral.mp3');
-                    console.log('Sonido neutral reproducido como último fallback');
-                } catch (finalError) {
-                    console.error('Todos los métodos de audio fallaron:', finalError);
-                }
-            }
+            console.warn('Web Audio API falló:', webAudioError);
         }
         
     } catch (error) {

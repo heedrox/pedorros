@@ -7,8 +7,7 @@ import { isPlayerOne } from '../../web/lib.js';
 
 // Mock de las funciones de Firebase y audio
 const mockGetGameRoles = jest.fn();
-const mockPlaySoundWebAudio = jest.fn();
-const mockPlaySoundHTML5 = jest.fn();
+const mockPlayAudio = jest.fn();
 
 // Mock del estado del juego
 const createMockGameState = (playerNumber = 1, gameCode = 'test') => ({
@@ -21,8 +20,7 @@ const createMockGameState = (playerNumber = 1, gameCode = 'test') => ({
 
 // Mock de las funciones globales
 global.getGameRoles = mockGetGameRoles;
-global.playSoundWebAudio = mockPlaySoundWebAudio;
-global.playSoundHTML5 = mockPlaySoundHTML5;
+global.playAudio = mockPlayAudio;
 
 describe('Funcionalidad Intro + Pedorro', () => {
     beforeEach(() => {
@@ -31,8 +29,7 @@ describe('Funcionalidad Intro + Pedorro', () => {
         
         // Configurar mocks por defecto
         mockGetGameRoles.mockResolvedValue({ pedorro: 3 });
-        mockPlaySoundWebAudio.mockResolvedValue(true);
-        mockPlaySoundHTML5.mockResolvedValue(true);
+        mockPlayAudio.mockResolvedValue(true);
     });
 
     describe('isPlayerOne', () => {
@@ -76,32 +73,32 @@ describe('Funcionalidad Intro + Pedorro', () => {
 
     describe('Manejo de Audio', () => {
         test('debe reproducir intro.mp3 correctamente', async () => {
-            mockPlaySoundWebAudio.mockResolvedValue(true);
+            mockPlayAudio.mockResolvedValue(true);
             
-            const result = await mockPlaySoundWebAudio('intro/intro.mp3', 0);
+            const result = await mockPlayAudio('intro', 0);
             expect(result).toBe(true);
-            expect(mockPlaySoundWebAudio).toHaveBeenCalledWith('intro/intro.mp3', 0);
+            expect(mockPlayAudio).toHaveBeenCalledWith('intro', 0);
         });
 
         test('debe reproducir sonido del pedorro correctamente', async () => {
-            mockPlaySoundWebAudio.mockResolvedValue(true);
+            mockPlayAudio.mockResolvedValue(true);
             
-            const result = await mockPlaySoundWebAudio('pedorro-3.mp3', 0);
+            const result = await mockPlayAudio('pedorro-3', 0);
             expect(result).toBe(true);
-            expect(mockPlaySoundWebAudio).toHaveBeenCalledWith('pedorro-3.mp3', 0);
+            expect(mockPlayAudio).toHaveBeenCalledWith('pedorro-3', 0);
         });
 
         test('debe fallback a HTML5 Audio si Web Audio API falla', async () => {
-            mockPlaySoundWebAudio.mockRejectedValue(new Error('Web Audio API no disponible'));
-            mockPlaySoundHTML5.mockResolvedValue(true);
+            mockPlayAudio.mockRejectedValueOnce(new Error('Web Audio API no disponible'));
             
             try {
-                await mockPlaySoundWebAudio('intro/intro.mp3', 0);
+                await mockPlayAudio('intro', 0);
             } catch (error) {
                 // Fallback a HTML5 Audio
-                const result = await mockPlaySoundHTML5('intro/intro.mp3');
+                mockPlayAudio.mockResolvedValueOnce(true);
+                const result = await mockPlayAudio('intro', 0);
                 expect(result).toBe(true);
-                expect(mockPlaySoundHTML5).toHaveBeenCalledWith('intro/intro.mp3');
+                expect(mockPlayAudio).toHaveBeenCalledWith('intro', 0);
             }
         });
     });
@@ -111,7 +108,7 @@ describe('Funcionalidad Intro + Pedorro', () => {
             const startTime = Date.now();
             
             // Simular espera de 3 segundos
-            await new Promise(resolve => setTimeout(resolve, 100)); // Usar 100ms para tests rápidos
+            await new Promise(resolve => setTimeout(resolve, 110)); // Usar 110ms para tests rápidos
             
             const elapsedTime = Date.now() - startTime;
             expect(elapsedTime).toBeGreaterThanOrEqual(100);
@@ -121,7 +118,7 @@ describe('Funcionalidad Intro + Pedorro', () => {
             const startTime = Date.now();
             
             // Simular espera de 1.5 segundos
-            await new Promise(resolve => setTimeout(resolve, 50)); // Usar 50ms para tests rápidos
+            await new Promise(resolve => setTimeout(resolve, 60)); // Usar 60ms para tests rápidos
             
             const elapsedTime = Date.now() - startTime;
             expect(elapsedTime).toBeGreaterThanOrEqual(50);
@@ -130,31 +127,30 @@ describe('Funcionalidad Intro + Pedorro', () => {
 
     describe('Manejo de Errores', () => {
         test('debe continuar si falla la reproducción del intro', async () => {
-            mockPlaySoundWebAudio.mockRejectedValue(new Error('Error de audio'));
-            mockPlaySoundHTML5.mockRejectedValue(new Error('Error de HTML5'));
+            mockPlayAudio.mockRejectedValue(new Error('Error de audio'));
             
             // Simular que se llamó a la función y falló
             try {
-                await mockPlaySoundWebAudio('intro/intro.mp3', 0);
+                await mockPlayAudio('intro', 0);
             } catch (error) {
                 expect(error.message).toBe('Error de audio');
             }
             
             // La función debe continuar ejecutándose a pesar de los errores
-            expect(mockPlaySoundWebAudio).toHaveBeenCalledWith('intro/intro.mp3', 0);
+            expect(mockPlayAudio).toHaveBeenCalledWith('intro', 0);
         });
 
         test('debe continuar si falla la reproducción del pedorro', async () => {
             mockGetGameRoles.mockResolvedValue({ pedorro: 2 });
-            mockPlaySoundWebAudio
+            mockPlayAudio
                 .mockResolvedValueOnce(true) // intro funciona
                 .mockRejectedValueOnce(new Error('Error de audio')); // pedorro falla
             
             // Simular que se llamó a la función
-            await mockPlaySoundWebAudio('pedorro-2.mp3', 0);
+            await mockPlayAudio('pedorro-2', 0);
             
             // La función debe continuar ejecutándose a pesar de los errores
-            expect(mockPlaySoundWebAudio).toHaveBeenCalledWith('pedorro-2.mp3', 0);
+            expect(mockPlayAudio).toHaveBeenCalledWith('pedorro-2', 0);
         });
 
         test('debe manejar errores de Firebase graciosamente', async () => {

@@ -21,24 +21,25 @@
   
 </head>
 <body>
-  <audio id="game-audio" src="sounds/pedito-1.mp3" preload="auto"></audio>
+  <audio id="game-audio-neutral" src="sounds/neutral.mp3" preload="auto"></audio>
+    <audio id="game-audio-pedito-1" src="sounds/pedito-1.mp3" preload="auto"></audio>
+    <audio id="game-audio-pedito-2" src="sounds/pedito-2.mp3" preload="auto"></audio>
+    <audio id="game-audio-pedito-3" src="sounds/pedito-3.mp3" preload="auto"></audio>
+    <audio id="game-audio-pedito-4" src="sounds/pedito-4.mp3" preload="auto"></audio>
+    <audio id="game-audio-pedito-5" src="sounds/pedito-5.mp3" preload="auto"></audio>
+    <audio id="game-audio-pedorro-1" src="sounds/pedorro-1.mp3" preload="auto"></audio>
+    <audio id="game-audio-pedorro-2" src="sounds/pedorro-2.mp3" preload="auto"></audio>
+    <audio id="game-audio-pedorro-3" src="sounds/pedorro-3.mp3" preload="auto"></audio>
+    <audio id="game-audio-pedorro-4" src="sounds/pedorro-4.mp3" preload="auto"></audio>
+    <audio id="game-audio-pedorro-5" src="sounds/pedorro-5.mp3" preload="auto"></audio>
+    <audio id="game-audio-intro" src="sounds/intro/intro.mp3" preload="auto"></audio>
 <button id="playBtn">▶ Sonar</button>
 
-<script>
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  const audioElement = document.getElementById("game-audio");
-  const track = audioContext.createMediaElementSource(audioElement);
-  track.connect(audioContext.destination);
+<script type="module">
+  import { playAudio } from './audio.js';
 
   document.getElementById("playBtn").addEventListener("click", async () => {
-    if (audioContext.state === "suspended") {
-      await audioContext.resume();
-    }
-    setTimeout(async () => {
-      await audioElement.play(); // suena seguro en iOS
-    }, 1000)
-    
-    console.log("Reproducción HTML5 + AudioContext");
+    await playAudio("intro", 5000);
   });
 </script>
 
