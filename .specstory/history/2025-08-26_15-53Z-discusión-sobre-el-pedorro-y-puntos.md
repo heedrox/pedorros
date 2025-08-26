@@ -1624,3 +1624,200 @@ Esto significa que el sistema de colaboración está funcionando correctamente y
 
 ---
 
+_**User**_
+
+vale, @write-features-in-readme-before-commiting.mdc & commit + push
+
+---
+
+_**Assistant**_
+
+Perfecto! Voy a actualizar el README con la nueva funcionalidad implementada y luego hacer el commit y push. Primero voy a revisar el README actual para ver qué necesito actualizar:
+
+
+---
+
+Read file: README.md
+
+---
+
+Ahora voy a actualizar la sección del sistema de puntuación para reflejar la corrección implementada:
+
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 2
+
+```diff
+@@ -141,6 +141,7 @@
+  - **Reglas**:
+    - 1 punto por cada pedito acertado (incluye autopedito: si eres pedito y te acusas como pedito sumas 1)
+-   - Si NO eres el pedorro y aciertas al pedorro: +5 puntos solo si hay colaboración (al menos otra persona también lo acierta)
+-   - Si eres el pedorro y nadie te acierta: +10 puntos. Si alguien acierta, no hay bonus
++   - Si NO eres el pedorro y aciertas al pedorro: +5 puntos solo si hay colaboración (al menos otra persona QUE NO ES EL PEDORRO también lo acierta)
++   - Si eres el pedorro y nadie QUE NO SEA TÚ te acierta: +10 puntos. Si alguien que no sea tú acierta, no hay bonus
++ - **✅ CORREGIDO**: Lógica de colaboración mejorada para evitar que el pedorro se acuse a sí mismo cuente como "colaboración"
+  - **Tests unitarios completos** que cubren autopedito, colaboración al acusar pedorro, pedorro oculto/descubierto y casos límite
+  
+```
+
+</details>
+
+---
+
+Ahora voy a verificar si necesito actualizar el PRODUCT_BRIEF.md:
+
+
+---
+
+Read file: docs/PRODUCT_BRIEF.md
+
+---
+
+El PRODUCT_BRIEF.md no necesita actualizaciones específicas para esta corrección, ya que es más técnica que funcional. Ahora voy a hacer el commit y push:
+
+
+---
+
+```bash
+git add .
+```
+
+```
+(base) ➜  pedorro git:(main) ✗ git add .
+(base) ➜  pedorro git:(main) ✗
+```
+
+---
+
+```bash
+git status
+```
+
+```
+
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   ".specstory/history/2025-08-26_15-16Z-reiniciar-bot\303\263n-de-acusaciones-en-el-juego.
+md"
+
+        new file:   ".specstory/history/2025-08-26_15-53Z-discusi\303\263n-sobre-el-pedorro-y-puntos.md"
+        modified:   README.md
+        modified:   test/unit/calculateRoundScore.test.js
+        modified:   web/lib.js
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   ".specstory/history/2025-08-26_15-53Z-discusi\303\263n-sobre-el-pedorro-y-puntos.md"
+
+```
+
+---
+
+Veo que hay un archivo que no está staged. Voy a agregarlo también:
+
+
+---
+
+```bash
+git add .specstory/history/2025-08-26_15-53Z-discusión-sobre-el-pedorro-y-puntos.md
+```
+
+```
+(base) ➜  pedorro git:(main) ✗ git add .specstory/history/2025-08-26_15-53Z-discusión-sobre-el-pedorro-y-pun
+tos.md
+(base) ➜  pedorro git:(main) ✗
+```
+
+---
+
+Ahora voy a hacer el commit:
+
+
+---
+
+```bash
+git commit -m "fix: corregir lógica de colaboración en sistema de puntuación
+
+- Corregir que el pedorro se acuse a sí mismo no cuente como 'colaboración'
+- Agregar función countPedorroHitsByOthers para contar solo aciertos de jugadores no-pedorro
+- Actualizar calculatePlayerScore para usar la nueva lógica
+- Corregir tests para reflejar la nueva lógica
+- Agregar test específico para el escenario de la pregunta del usuario
+- Actualizar README con la corrección implementada
+
+La nueva lógica asegura que solo se premie la colaboración real entre jugadores que no son el pedorro."
+```
+
+```
+<oración real entre jugadores que no son el pedorro."
+[main 1752d91] fix: corregir lógica de colaboración en sistema de puntuación
+ 5 files changed, 1978 insertions(+), 10 deletions(-)
+ create mode 100644 ".specstory/history/2025-08-26_15-53Z-discusi\303\263n-sobre-el-pedorro-y-puntos.md"
+(base) ➜  pedorro git:(main)
+```
+
+---
+
+Ahora voy a hacer el push:
+
+
+---
+
+```bash
+git push origin main
+```
+
+```
+(base) ➜  pedorro git:(main) git push origin main
+Enumerating objects: 22, done.
+Counting objects: 100% (22/22), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (12/12), done.
+Writing objects: 100% (12/12), 15.40 KiB | 5.13 MiB/s, done.
+Total 12 (delta 9), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (9/9), completed with 9 local objects.
+To github.com:heedrox/pedorros.git
+   5ead270..1752d91  main -> main
+(base) ➜  pedorro git:(main)
+```
+
+---
+
+¡Perfecto! He completado exitosamente la actualización del README, commit y push. 
+
+## 📝 Resumen de lo implementado:
+
+### **✅ Corrección del Sistema de Puntuación:**
+- **Problema identificado**: El pedorro siempre se acusa a sí mismo, por lo que cualquier otro jugador que acierte automáticamente obtenía los 5 puntos de colaboración
+- **Solución implementada**: Nueva función `countPedorroHitsByOthers` que solo cuenta aciertos de jugadores que NO son el pedorro
+- **Lógica corregida**: Solo se premia la colaboración real entre jugadores que no son el pedorro
+
+### **�� Tests Actualizados:**
+- **33 tests pasando** con la nueva lógica
+- **Test específico** para el escenario que describiste
+- **Cobertura completa** de todos los casos de uso
+
+### **📚 Documentación Actualizada:**
+- **README.md** actualizado con la corrección implementada
+- **Reglas clarificadas** sobre cuándo se otorgan los puntos de colaboración
+- **Marcador ✅ CORREGIDO** para identificar la mejora
+
+### **🚀 Commit y Push Completados:**
+- **Commit**: `1752d91` con mensaje descriptivo
+- **Push exitoso** a `origin/main`
+- **5 archivos modificados** incluyendo la documentación
+
+La corrección asegura que el sistema de puntuación sea justo y solo premie la verdadera colaboración entre jugadores que no son el pedorro, resolviendo exactamente el problema que identificaste.
+
+---
+
