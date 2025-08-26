@@ -4854,7 +4854,37 @@ He solucionado exitosamente el problema raíz donde el `main-content` no se enco
 #### 1. **Añadido ID al elemento HTML**
 - **Archivo**: `web/index.html`
 - **Línea**: 75
-- **Cambio**: `<div class="main-con
+- **Cambio**: `<div class="main-content">` → `<div id="main-content" class="main-content">`
+
+#### 2. **Mantenida la funcionalidad existente**
+- **Clase CSS**: Se mantiene `class="main-content"` para estilos
+- **ID único**: Se añade `id="main-content"` para JavaScript
+- **Compatibilidad**: No se rompe ningún estilo o funcionalidad existente
+
+### 🔍 **Por Qué Funcionaba Antes**
+
+- **Estados iniciales**: En los estados iniciales del juego, el `main-content` era visible por defecto
+- **Transiciones simples**: Las transiciones simples entre pantallas no requerían manipulación del `main-content`
+- **Secuencia DISIMULAR**: Solo cuando se ejecutaba la secuencia de DISIMULAR se ocultaba el `main-content`
+- **Problema en transiciones complejas**: El problema aparecía cuando se volvía del estado `RANKING` al estado `START`
+
+### 📋 **Flujo de Solución Completo**
+
+1. **Problema detectado**: `main-content` no se encontraba en el DOM
+2. **Causa identificada**: Falta de `id` en el elemento HTML
+3. **Solución aplicada**: Añadido `id="main-content"` al elemento
+4. **Funcionalidad restaurada**: `document.getElementById('main-content')` ahora funciona correctamente
+5. **Lógica de restauración**: La lógica de restauración del `main-content` ahora puede ejecutarse correctamente
+
+### ✅ **Resultado**
+
+- **Elemento localizable**: `document.getElementById('main-content')` ahora retorna el elemento correcto
+- **Restauración funcional**: El `main-content` se puede mostrar/ocultar correctamente
+- **Transiciones suaves**: Las transiciones entre estados del juego funcionan correctamente
+- **Tests pasando**: Todos los tests unitarios siguen pasando
+- **Funcionalidad completa**: El juego funciona correctamente en todos los estados
+
+Esta solución es simple pero efectiva: **siempre asegúrate de que los elementos que vas a manipular desde JavaScript tengan IDs únicos**. Es una buena práctica de desarrollo web que evita muchos problemas de debugging.
 
 ---
 
