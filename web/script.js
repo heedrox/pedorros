@@ -1058,7 +1058,7 @@ const playIntroAndPedorroSound = async () => {
         // 4. Reproducir sonido del pedorro con fallback
         console.log(`Reproduciendo pedorro-${pedorroValue}.mp3...`);
         try {
-            await playAudio(`pedorro-${pedorroValue}.mp3gst`, 0);
+            await playAudio(`pedorro-${pedorroValue}.mp3`, 0);
         } catch (webAudioError) {
             console.warn('Web Audio API falló para pedorro:', webAudioError);
         }

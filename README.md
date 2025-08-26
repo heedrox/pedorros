@@ -1,6 +1,6 @@
 # PEDORROS - Juego de Fiesta Multijugador
 
-[![Tests](https://img.shields.io/badge/tests-105%20passed-brightgreen)](https://github.com/yourusername/pedorro)
+[![Tests](https://img.shields.io/badge/tests-155%20passed-brightgreen)](https://github.com/yourusername/pedorro)
 [![Node.js](https://img.shields.io/badge/node-20.x-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -102,6 +102,25 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
   - Si eres el pedorro y nadie te acierta: +10 puntos. Si alguien acierta, no hay bonus
 - **Tests unitarios completos** que cubren autopedito, colaboración al acusar pedorro, pedorro oculto/descubierto y casos límite
 
+### 🏆 Sistema de Ranking Global
+- **Ranking persistente** almacenado en Firebase con puntuaciones acumulativas por jugador
+- **Cálculo automático** de puntos de ronda cuando se completa la fase de acusaciones
+- **Pantalla de ranking** con tabla ordenada por puntuación total
+- **Visualización de puntos**: Puntuación total (+Puntos de ronda) con formato diferenciado
+- **Subtítulo de ronda**: Muestra "Ronda X / 5" debajo del título principal
+- **Integración completa** con Firebase para sincronización en tiempo real
+
+### 🔄 Botón SIGUIENTE RONDA
+- **Botón exclusivo** solo visible para el jugador 1 (director del juego)
+- **Funcionalidad completa** para avanzar a la siguiente ronda del juego
+- **Reinicio automático** que limpia campos específicos en Firebase:
+  - `acusations`, `lastRoundScore`, `nextSounds`, `peditos`, `pedorro` → `null`
+  - `state` → `"START"`
+  - `numRound` → `incrementado en 1`
+- **Ocultación automática** de pantallas de ranking y acuse al cambiar a START
+- **Validaciones de seguridad** que solo permiten uso desde estado "RANKING"
+- **Diseño responsive** con emoji ➡️ y estilos consistentes con la temática del juego
+
 ### 🔗 Sistema de URLs Inteligente
 - **Formato de URL**: `index.html?/g/CODIGO/p/NUMERO_JUGADOR/TOTAL_JUGADORES`
 - **Ejemplo**: `index.html?/g/galerna/p/1/5` → Jugador 1 de 5, código "galerna"
@@ -124,6 +143,8 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Actualización de estado** del juego con `updateGameState()`
 - **Carga de estado real** desde Firebase con `getGameState()`
 - **Listener inteligente** que detecta cambios de estado automáticamente
+- **Sistema de ranking** con `updateGameRanking()` para puntuaciones acumulativas
+- **Reinicio de ronda** con `resetGameForNextRound()` para limpiar campos específicos
 
 ### 🧪 Suite de Tests Unitarios
 - **105 tests pasando** con cobertura completa
@@ -333,7 +354,8 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - **Funcionalidad Intro + Pedorro**: 16 tests (secuencia de sonidos, timing, fallbacks)
 - **Funcionalidad de Acusaciones**: 13 tests (validación, estados, cantidades)
 - **Funciones Utilitarias**: 11 tests (manejo de clases CSS)
-- **Total**: 105 tests con cobertura completa
+- **Sistema de Puntuación**: 50 tests (cálculo de puntuación, validaciones, casos edge)
+- **Total**: 155 tests con cobertura completa
 
 ### Casos de Test Cubiertos
 - ✅ URLs con diferentes formatos y códigos
@@ -352,6 +374,14 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - ✅ Estados de botones (verde, naranja, rojo) y cambio cíclico
 - ✅ Funciones utilitarias para manejo de clases CSS
 - ✅ Integración con Firebase para cargar estado real del juego
+- ✅ Sistema de puntuación con cálculo automático de puntos de ronda
+- ✅ Validación de entradas para cálculo de puntuación
+- ✅ Cálculo de aciertos de peditos (incluye autopedito)
+- ✅ Cálculo de aciertos al pedorro con lógica de colaboración
+- ✅ Cálculo de puntuación individual por jugador con todas las reglas
+- ✅ Cálculo de puntuación completa de ronda para todos los jugadores
+- ✅ Sistema de ranking global con puntuaciones acumulativas
+- ✅ Botón SIGUIENTE RONDA con reinicio automático y validaciones
 
 ## 🚧 Próximas Funcionalidades
 
@@ -416,9 +446,18 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - [x] **Posicionamiento inteligente**: Botones sobre grid de jugadores, bajo mensaje del pedorro
 - [x] **Corrección de layout**: #app ahora sigue flujo normal de página con margin-top para header fijo
 
-### Fase 7: Estado RESULTS y Puntuaciones
-- [ ] Estado RESULTS con puntuaciones y ranking
-- [x] Lógica de cálculo de puntos por acusaciones correctas (función `calculateRoundScore` + tests)
+### ✅ **COMPLETADO - Fase 7: Sistema de Ranking y Botón SIGUIENTE RONDA**
+- [x] **Sistema de ranking global** con puntuaciones acumulativas almacenadas en Firebase
+- [x] **Cálculo automático** de puntos de ronda cuando se completan las acusaciones
+- [x] **Pantalla de ranking** con tabla ordenada y visualización de puntos totales (+puntos de ronda)
+- [x] **Subtítulo de ronda** que muestra "Ronda X / 5" debajo del título principal
+- [x] **Botón SIGUIENTE RONDA** exclusivo para jugador 1 con funcionalidad completa
+- [x] **Reinicio automático** que limpia campos específicos y avanza a la siguiente ronda
+- [x] **Ocultación automática** de pantallas de ranking y acuse al cambiar a START
+- [x] **Validaciones de seguridad** que solo permiten uso desde estado "RANKING"
+- [x] **Diseño responsive** con emoji ➡️ y estilos consistentes con la temática del juego
+- [x] **Integración completa** con Firebase para sincronización en tiempo real
+- [x] **Tests unitarios** para todas las funciones de cálculo de puntuación
 
 ### Fase 8: Sincronización Avanzada
 - [ ] Sincronización en tiempo real del estado del juego
