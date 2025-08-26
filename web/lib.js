@@ -677,6 +677,34 @@ export const countPedorroHits = (allAccusations, pedorro) => {
 };
 
 /**
+ * Cuenta cuántos jugadores QUE NO SON EL PEDORRO acertaron al pedorro
+ * @param {Object} allAccusations - Todas las acusaciones de todos los jugadores
+ * @param {number} pedorro - Número del jugador que es el pedorro
+ * @returns {number} Número de aciertos al pedorro por jugadores no-pedorro
+ */
+export const countPedorroHitsByOthers = (allAccusations, pedorro) => {
+    if (!allAccusations || typeof pedorro !== 'number') {
+        return 0;
+    }
+    
+    let hits = 0;
+    
+    for (const [key, accusation] of Object.entries(allAccusations)) {
+        if (!key.startsWith('acusation')) continue;
+        
+        const playerNumber = parseInt(key.replace('acusation', ''));
+        if (isNaN(playerNumber)) continue;
+        
+        // Solo contar aciertos de jugadores que NO son el pedorro
+        if (playerNumber !== pedorro && accusation && accusation[pedorro] === 'pedorro') {
+            hits++;
+        }
+    }
+    
+    return hits;
+};
+
+/**
  * Calcula la puntuación individual de un jugador
  * @param {number} playerNumber - Número del jugador
  * @param {Object} playerAccusations - Acusaciones del jugador específico
@@ -698,17 +726,17 @@ export const calculatePlayerScore = (playerNumber, playerAccusations, peditos, p
     
     // Puntos por pedorro
     if (playerNumber === pedorro) {
-        // Si el jugador ES el pedorro: 10 puntos si nadie lo acusó
-        const pedorroHits = countPedorroHits(allAccusations, pedorro);
-        if (pedorroHits === 0) {
+        // Si el jugador ES el pedorro: 10 puntos si nadie QUE NO SEA ÉL lo acusó
+        const pedorroHitsByOthers = countPedorroHitsByOthers(allAccusations, pedorro);
+        if (pedorroHitsByOthers === 0) {
             score += 10;
         }
         // NOTA: El pedorro SÍ puede obtener puntos por acertar peditos
     } else {
-        // Si el jugador NO es el pedorro: 5 puntos si acertó al pedorro Y otra persona también acertó
+        // Si el jugador NO es el pedorro: 5 puntos si acertó al pedorro Y otra persona QUE NO ES EL PEDORRO también acertó
         if (playerAccusations[pedorro] === 'pedorro') {
-            const totalPedorroHits = countPedorroHits(allAccusations, pedorro);
-            if (totalPedorroHits >= 2) { // Al menos 2 aciertos (incluyendo este jugador)
+            const totalPedorroHitsByOthers = countPedorroHitsByOthers(allAccusations, pedorro);
+            if (totalPedorroHitsByOthers >= 2) { // Al menos 2 aciertos de jugadores no-pedorro (incluyendo este jugador)
                 score += 5;
             }
         }

@@ -140,8 +140,9 @@ START → ACUSE → RANKING → START (nueva ronda)
 - **Función core `calculateRoundScore`**: calcula los puntos de la ronda para cada jugador a partir de las acusaciones y los roles reales
 - **Reglas**:
   - 1 punto por cada pedito acertado (incluye autopedito: si eres pedito y te acusas como pedito sumas 1)
-  - Si NO eres el pedorro y aciertas al pedorro: +5 puntos solo si hay colaboración (al menos otra persona también lo acierta)
-  - Si eres el pedorro y nadie te acierta: +10 puntos. Si alguien acierta, no hay bonus
+  - Si NO eres el pedorro y aciertas al pedorro: +5 puntos solo si hay colaboración (al menos otra persona QUE NO ES EL PEDORRO también lo acierta)
+  - Si eres el pedorro y nadie QUE NO SEA TÚ te acierta: +10 puntos. Si alguien que no sea tú acierta, no hay bonus
+- **✅ CORREGIDO**: Lógica de colaboración mejorada para evitar que el pedorro se acuse a sí mismo cuente como "colaboración"
 - **Tests unitarios completos** que cubren autopedito, colaboración al acusar pedorro, pedorro oculto/descubierto y casos límite
 
 ### 🏆 Sistema de Ranking Global

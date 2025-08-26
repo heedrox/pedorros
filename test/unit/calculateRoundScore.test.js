@@ -6,6 +6,7 @@ import {
     validateScoreInputs,
     countPeditoHits,
     countPedorroHits,
+    countPedorroHitsByOthers,
     calculatePlayerScore,
     calculateRoundScore
 } from '../../web/lib.js';
@@ -242,13 +243,13 @@ describe('Funciones de Cálculo de Puntuación', () => {
             const all = {
                 acusation1: { 1: 'pedorro', 2: 'neutral', 3: 'neutral', 4: 'neutral' },
                 acusation2: { 1: 'pedorro', 2: 'pedito', 3: 'neutral', 4: 'neutral' },
-                acusation3: { 1: 'neutral', 2: 'neutral', 3: 'neutral', 4: 'neutral' },
+                acusation3: { 1: 'pedorro', 2: 'neutral', 3: 'neutral', 4: 'neutral' }, // Jugador 3 también acierta al pedorro
                 acusation4: { 1: 'neutral', 2: 'neutral', 3: 'neutral', 4: 'neutral' }
             };
             const peds = [2, 3];
             const ped = 1;
             const score = calculatePlayerScore(2, all.acusation2, peds, ped, all);
-            expect(score).toBe(6); // 1 por autopedito + 5 por pedorro (otra persona también acierta)
+            expect(score).toBe(6); // 1 por autopedito + 5 por pedorro (otra persona no-pedorro también acierta)
         });
         
         test('debe manejar entradas inválidas', () => {
@@ -341,6 +342,69 @@ describe('Funciones de Cálculo de Puntuación', () => {
                 3: 7,   // 3 peditos + 0 por pedorro (solo él acertó)
                 4: 2    // 2 peditos
             });
+        });
+
+        test('debe manejar escenario real donde el pedorro se acusa a sí mismo', () => {
+            // Escenario: Jugador 1 es pedorro, Jugadores 2 y 3 son peditos
+            // Jugador 1 se acusa a sí mismo como pedorro
+            // Jugador 2 acusa al jugador 1 como pedorro
+            // Jugador 3 acusa al jugador 2 como pedorro (incorrecto)
+            // Jugador 4 acusa al jugador 2 como pedorro (incorrecto)
+            const realScenario = {
+                acusation1: { 1: 'pedorro', 2: 'pedito', 3: 'pedito', 4: 'neutral' }, // Pedorro se acusa a sí mismo
+                acusation2: { 1: 'pedorro', 2: 'pedito', 3: 'pedito', 4: 'neutral' }, // Pedito acierta al pedorro
+                acusation3: { 1: 'neutral', 2: 'pedorro', 3: 'pedito', 4: 'pedito' }, // Pedito se equivoca
+                acusation4: { 1: 'neutral', 2: 'pedorro', 3: 'pedito', 4: 'pedito' }  // Pedito se equivoca
+            };
+            const peditos = [2, 3];
+            const pedorro = 1;
+            
+
+            
+            const result = calculateRoundScore(realScenario, peditos, pedorro);
+            
+            expect(result).toEqual({
+                1: 2,   // Pedorro: 2 peditos + 0 por pedorro (fue descubierto por jugador 2)
+                2: 2,   // Pedito: 1 pedito + 1 por pedorro (acertó, pero no recibe bonus por colaboración)
+                3: 1,   // Pedito: 1 pedito + 0 por pedorro (se equivocó)
+                4: 1    // Pedito: 1 pedito + 0 por pedorro (se equivocó)
+            });
+        });
+
+        test('debe manejar escenario de la pregunta del usuario', () => {
+            // Escenario de la pregunta:
+            // - Jugador 1 es pedorro
+            // - Jugadores 2 y 3 son peditos
+            // - Jugador 1 indica que él es pedorro y que 2 y 3 son peditos
+            // - Jugador 2 indica que el pedorro es el 1 y que 2 y 3 son peditos
+            // - Jugador 3 indica que el pedorro es el 2 y que 3 y 4 son peditos
+            // - Jugador 4 indica que el pedorro es el 2 y que 3 y 4 son peditos
+            const userScenario = {
+                acusation1: { 1: 'pedorro', 2: 'pedito', 3: 'pedito', 4: 'neutral' }, // Pedorro se acusa a sí mismo
+                acusation2: { 1: 'pedorro', 2: 'pedito', 3: 'pedito', 4: 'neutral' }, // Pedito acierta al pedorro
+                acusation3: { 1: 'neutral', 2: 'pedorro', 3: 'pedito', 4: 'pedito' }, // Pedito se equivoca
+                acusation4: { 1: 'neutral', 2: 'pedorro', 3: 'pedito', 4: 'pedito' }  // Pedito se equivoca
+            };
+            const peditos = [2, 3];
+            const pedorro = 1;
+            
+            const result = calculateRoundScore(userScenario, peditos, pedorro);
+            
+            // Con la nueva lógica corregida:
+            // - Jugador 1: 2 puntos por peditos + 0 por pedorro (fue descubierto por jugador 2)
+            // - Jugador 2: 1 punto por pedito + 1 por acertar al pedorro (pero NO recibe 5 puntos extra porque solo él acierta)
+            // - Jugador 3: 1 punto por pedito + 0 por pedorro (se equivocó)
+            // - Jugador 4: 1 punto por pedito + 0 por pedorro (se equivocó)
+            expect(result).toEqual({
+                1: 2,   // Pedorro descubierto: 2 peditos + 0 por pedorro
+                2: 2,   // Pedito: 1 pedito + 1 por pedorro (sin bonus de colaboración)
+                3: 1,   // Pedito: 1 pedito + 0 por pedorro
+                4: 1    // Pedito: 1 pedito + 0 por pedorro
+            });
+            
+            // Verificar que el jugador 2 NO recibe los 5 puntos extra por colaboración
+            // porque solo él (que no es pedorro) acertó al pedorro
+            expect(result[2]).toBe(2); // Solo 2 puntos, no 6
         });
     });
 });
