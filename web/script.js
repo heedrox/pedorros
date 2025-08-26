@@ -209,6 +209,55 @@ const renderStartScreen = (gameState) => {
     
     // Limpiar tracking de acusaciones al volver a la pantalla START
     cleanupAccusationsTracking();
+    
+    // Ocultar capas de disimular e investigar al volver a START
+    const disimularContainer = document.getElementById('disimular-container');
+    const investigarContainer = document.getElementById('investigar-container');
+    const mainContent = document.getElementById('main-content');
+    
+    if (disimularContainer) {
+        disimularContainer.style.display = 'none';
+        console.log('disimular-container ocultado en START');
+    }
+    if (investigarContainer) {
+        investigarContainer.style.display = 'none';
+        console.log('investigar-container ocultado en START');
+    }
+    if (mainContent) {
+        // Forzar la restauración del main-content inmediatamente
+        mainContent.style.display = 'block';
+        console.log('main-content mostrado en START');
+        
+        // Verificar que se haya aplicado correctamente
+        if (mainContent.style.display !== 'block') {
+            console.warn('main-content no se mostró correctamente, forzando...');
+            mainContent.style.display = 'block';
+        }
+        
+        // Verificación adicional después de un breve delay
+        setTimeout(() => {
+            if (mainContent.style.display !== 'block') {
+                console.warn('main-content aún no visible después de 100ms, forzando...');
+                mainContent.style.display = 'block';
+                mainContent.style.visibility = 'visible';
+                mainContent.style.opacity = '1';
+            }
+        }, 100);
+        
+        // Verificación final después de 500ms
+        setTimeout(() => {
+            if (mainContent.style.display !== 'block') {
+                console.error('main-content sigue oculto después de 500ms, forzando...');
+                mainContent.style.display = 'block';
+                mainContent.style.visibility = 'visible';
+                mainContent.style.opacity = '1';
+                mainContent.style.position = 'relative';
+                mainContent.style.zIndex = '1';
+            }
+        }, 500);
+    } else {
+        console.error('main-content no encontrado en START');
+    }
 };
 
 // Función pura para renderizar la pantalla de ranking
@@ -226,6 +275,22 @@ const renderRankingScreen = async (gameState) => {
     
     // Limpiar tracking de acusaciones al cambiar a la pantalla de ranking
     cleanupAccusationsTracking();
+    
+    // Ocultar capas de disimular e investigar al cambiar a RANKING
+    const disimularContainer = document.getElementById('disimular-container');
+    const investigarContainer = document.getElementById('investigar-container');
+    const mainContent = document.getElementById('main-content');
+    
+    if (disimularContainer) {
+        disimularContainer.style.display = 'none';
+    }
+    if (investigarContainer) {
+        investigarContainer.style.display = 'none';
+    }
+    if (mainContent) {
+        mainContent.style.display = 'none';
+        console.log('main-content ocultado en RANKING');
+    }
     
     try {
         // Obtener datos de ranking desde Firebase
@@ -392,6 +457,25 @@ const renderAcuseScreen = async (gameState) => {
     deactivate(startScreen);
     activate(acuseScreen);
     
+    // Limpiar tracking de acusaciones al cambiar a pantalla de acuse
+    cleanupAccusationsTracking();
+    
+    // Ocultar capas de disimular e investigar al cambiar a ACUSE
+    const disimularContainer = document.getElementById('disimular-container');
+    const investigarContainer = document.getElementById('investigar-container');
+    const mainContent = document.getElementById('main-content');
+    
+    if (disimularContainer) {
+        disimularContainer.style.display = 'none';
+    }
+    if (investigarContainer) {
+        investigarContainer.style.display = 'none';
+    }
+    if (mainContent) {
+        mainContent.style.display = 'none';
+        console.log('main-content ocultado en ACUSE');
+    }
+    
     // Mostrar mensaje del pedorro si corresponde
     const pedorroMessage = document.getElementById('pedorro-message');
     if (pedorroMessage) {
@@ -415,8 +499,8 @@ const renderAcuseScreen = async (gameState) => {
     // Generar grid de botones de jugadores
     generatePlayersGrid(totalPlayers);
     
-    // Validar acusaciones y activar/desactivar botón ACUSAR
-    validateAndUpdateAcusarButton();
+    // Verificar estado de acusaciones en Firebase y configurar botón (AL FINAL)
+    await checkAcusationsStatusAndUpdateButton();
     
     // Configurar tracking de acusaciones para jugador 1
     setupAccusationsTracking();
@@ -522,12 +606,6 @@ const generatePlayersGrid = (totalPlayers) => {
         playersGrid.appendChild(playerButton);
     }
     
-    // Inicializar estado de acusaciones con todos en verde (neutral)
-    accusationsState = {};
-    for (let i = 1; i <= totalPlayers; i++) {
-        accusationsState[i] = 'verde';
-    }
-    
     // Inicializar estado de acusaciones con todos en verde (neutrales)
     accusationsState = {};
     for (let i = 1; i <= totalPlayers; i++) {
@@ -595,6 +673,43 @@ const validateAndUpdateAcusarButton = () => {
     // Si no pasa todas las validaciones, deshabilitar botón
     acusarButton.disabled = true;
     acusarButton.classList.add('disabled');
+};
+
+// Función para verificar estado de acusaciones en Firebase y configurar botón
+const checkAcusationsStatusAndUpdateButton = async () => {
+    const acusarButton = document.getElementById('acusar-btn');
+    if (!acusarButton || !gameState) return;
+    
+    try {
+        // Obtener estado actual del juego desde Firebase
+        const currentGameState = await getGameState(gameState.gameCode);
+        const acusations = currentGameState?.acusations || {};
+        
+        // Verificar si el jugador actual ya ha enviado sus acusaciones
+        const playerAccusationKey = `acusation${gameState.playerNumber}`;
+        const hasPlayerAccusation = acusations[playerAccusationKey];
+        
+        if (hasPlayerAccusation) {
+            // El jugador ya envió sus acusaciones
+            acusarButton.textContent = 'ACUSACIONES ENVIADAS';
+            acusarButton.disabled = true;
+            acusarButton.classList.add('disabled');
+            console.log(`Jugador ${gameState.playerNumber} ya envió acusaciones`);
+        } else {
+            // El jugador no ha enviado acusaciones
+            acusarButton.textContent = 'ACUSAR';
+            acusarButton.disabled = false; // Habilitado para que pueda acusar
+            acusarButton.classList.remove('disabled');
+            console.log(`Jugador ${gameState.playerNumber} no ha enviado acusaciones - botón habilitado`);
+        }
+        
+    } catch (error) {
+        console.error('Error al verificar estado de acusaciones:', error);
+        // En caso de error, mantener botón habilitado por defecto
+        acusarButton.textContent = 'ACUSAR';
+        acusarButton.disabled = false;
+        acusarButton.classList.remove('disabled');
+    }
 };
 
 // Función para manejar el login anónimo
@@ -903,6 +1018,30 @@ const handleGameStateChange = async (gameData) => {
         
         // Re-renderizar pantalla con el nuevo estado
         renderScreen(gameState);
+        
+        // Si el nuevo estado es ACUSE, verificar estado de acusaciones para todos los jugadores
+        if (gameData.state === 'ACUSE') {
+            console.log('Estado ACUSE detectado, verificando estado de acusaciones...');
+            // Pequeño delay para asegurar que la pantalla se haya renderizado
+            setTimeout(async () => {
+                await checkAcusationsStatusAndUpdateButton();
+            }, 100);
+        }
+        
+        // Si el nuevo estado es START, forzar restauración del main-content
+        if (gameData.state === 'START') {
+            console.log('Estado START detectado, forzando restauración del main-content...');
+            // Pequeño delay para asegurar que la pantalla se haya renderizado
+            setTimeout(() => {
+                const mainContent = document.getElementById('main-content');
+                if (mainContent && mainContent.style.display !== 'block') {
+                    console.log('Forzando main-content en START desde handleGameStateChange...');
+                    mainContent.style.display = 'block';
+                    mainContent.style.visibility = 'visible';
+                    mainContent.style.opacity = '1';
+                }
+            }, 200);
+        }
         
         console.log('Pantalla actualizada al nuevo estado:', gameData.state);
     }
@@ -1395,6 +1534,9 @@ const cleanupAccusationsTracking = () => {
         accusationsListenerCleanup = null;
     }
     accusationsData = {};
+    
+    // Limpiar estado local de acusaciones
+    accusationsState = {};
     
     // Ocultar contador
     const counterContainer = document.getElementById('accusations-counter');

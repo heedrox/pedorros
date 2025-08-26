@@ -1245,7 +1245,284 @@ Lines added: 2, lines removed: 2
 
 ---
 
+¡Perfecto! Ahora los cambios que he implementado son:
 
+## **Ajustes en la Altura de los Botones:**
+
+1. **Altura Reducida**: Cambié de `min-height: 70px` a `min-height: 50px` en pantallas normales
+2. **Sin Aspect Ratio Cuadrado**: Eliminé `aspect-ratio: 1` para que los botones no sean forzosamente cuadrados
+3. **Padding Ajustado**: Reduje el padding vertical de `20px` a `15px` para que las filas sean más compactas
+4. **Responsive Mejorado**: 
+   - Tablets: `min-height: 45px`
+   - Móviles: `min-height: 40px`
+
+Ahora los botones tendrán una proporción más natural (más anchos que altos) y las filas serán más pequeñas, lo que hará que el grid se vea más compacto y profesional. Los botones seguirán distribuyéndose bien por toda la fila pero sin ocupar tanto espacio vertical.
+
+¿Te parece mejor esta proporción?
+
+---
+
+_**User**_
+
+genial, commit & push @write-features-in-readme-before-commiting.mdc 
+
+---
+
+_**Assistant**_
+
+¡Perfecto! Ahora voy a actualizar el README con las nuevas características antes de hacer el commit y push, siguiendo la regla que me has indicado.
+
+Primero, déjame ver el README actual para entender qué características ya están documentadas:
+
+
+---
+
+Read file: README.md
+
+---
+
+Ahora voy a actualizar el README con las nuevas características de reestructuración del frontend:
+
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 9, lines removed: undefined
+
+```diff
+@@ -110,4 +110,13 @@
+  - **Subtítulo de ronda**: Muestra "Ronda X / 5" debajo del título principal
+  - **Integración completa** con Firebase para sincronización en tiempo real
++ 
++ ### 🎨 Reestructuración del Frontend y Layout Mejorado
++ - **Nueva arquitectura de layout** con contenedor principal `#game` usando flexbox
++ - **Header integrado en el flujo** en lugar de posición fija para mejor coherencia visual
++ - **Grid responsivo de jugadores** que se adapta automáticamente al número de jugadores (3, 4, 5+)
++ - **Botones de jugadores optimizados** con altura reducida y distribución equilibrada por fila
++ - **Layout fluido y coherente** entre header y contenido principal sin elementos "flotantes"
++ - **Diseño responsive mejorado** con breakpoints optimizados para tablets y móviles
++ - **Integración visual perfecta** entre todas las secciones del juego
+  
+  ### 🔄 Botón SIGUIENTE RONDA
+```
+
+</details>
+
+---
+
+Ahora voy a actualizar la sección de "Próximas Funcionalidades" para marcar esta fase como completada:
+
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 9, lines removed: undefined
+
+```diff
+@@ -468,4 +468,13 @@
+  - [x] **Integración completa** con Firebase para sincronización en tiempo real
+  - [x] **Tests unitarios** para todas las funciones de cálculo de puntuación
++ 
++ ### ✅ **COMPLETADO - Fase 8: Reestructuración del Frontend y Layout Mejorado**
++ - [x] **Nueva arquitectura de layout** con contenedor principal `#game` usando flexbox
++ - [x] **Header integrado en el flujo** en lugar de posición fija para mejor coherencia visual
++ - [x] **Grid responsivo de jugadores** que se adapta automáticamente al número de jugadores (3, 4, 5+)
++ - [x] **Botones de jugadores optimizados** con altura reducida y distribución equilibrada por fila
++ - [x] **Layout fluido y coherente** entre header y contenido principal sin elementos "flotantes"
++ - [x] **Diseño responsive mejorado** con breakpoints optimizados para tablets y móviles
++ - [x] **Integración visual perfecta** entre todas las secciones del juego
+  
+  ### Fase 8: Sincronización Avanzada
+```
+
+</details>
+
+---
+
+Ahora voy a actualizar la sección de "Fase 8: Sincronización Avanzada" para que sea la siguiente fase pendiente:
+
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -478,5 +478,5 @@
+  - [x] **Integración visual perfecta** entre todas las secciones del juego
+  
+- ### Fase 8: Sincronización Avanzada
++ ### Fase 9: Sincronización Avanzada
+  - [ ] Sincronización en tiempo real del estado del juego
+  - [ ] Sistema de roles y distribución automática
+```
+
+</details>
+
+---
+
+Ahora voy a actualizar la estructura del proyecto para reflejar los cambios en el HTML:
+
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -199,7 +199,7 @@
+  pedorro/
+  ├── web/                          # Frontend de la aplicación
+- │   ├── index.html               # Pantalla principal START con preload de audio
++ │   ├── index.html               # Pantalla principal con layout mejorado y contenedor #game
+  │   ├── index2.html              # Página de prueba para validar audio en iOS 18
+- │   ├── styles.css               # Estilos con temática marrón
++ │   ├── styles.css               # Estilos con temática marrón y layout flexbox mejorado
+  │   ├── lib.js                   # Core de la aplicación (lógica pura)
+  │   ├── audio.js                 # Módulo de audio optimizado para iOS 18
+```
+
+</details>
+
+---
+
+Ahora voy a hacer el commit y push con los cambios:
+
+
+---
+
+```bash
+cd /Users/jordimarti/Development/pedorro && git add .
+```
+
+```
+(base) ➜  pedorro cd /Users/jordimarti/Development/pedorro && git add .
+(base) ➜  pedorro git:(main) ✗
+```
+
+---
+
+```bash
+git status
+```
+
+```
+
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   ".specstory/history/2025-08-26_14-09Z-crear-funci\303\263n-para-calcular-puntuaci\303\26
+3n-de-ronda.md"
+
+        new file:   ".specstory/history/2025-08-26_15-02Z-reestructuraci\303\263n-del-frontend-del-proyecto.
+md"
+
+        modified:   README.md
+        modified:   web/index.html
+        modified:   web/script.js
+        modified:   web/styles.css
+
+```
+
+---
+
+Perfecto! Ahora voy a hacer el commit con un mensaje descriptivo:
+
+
+---
+
+```bash
+git commit -m "feat: Reestructuración completa del frontend con layout mejorado
+
+- Nueva arquitectura de layout con contenedor principal #game usando flexbox
+- Header integrado en el flujo en lugar de posición fija para mejor coherencia visual
+- Grid responsivo de jugadores que se adapta automáticamente al número de jugadores
+- Botones de jugadores optimizados con altura reducida y distribución equilibrada
+- Layout fluido y coherente entre header y contenido principal sin elementos flotantes
+- Diseño responsive mejorado con breakpoints optimizados
+- Integración visual perfecta entre todas las secciones del juego
+
+Closes: Reestructuración del frontend para mejor flujo visual"
+```
+
+```
+<estructuración del frontend para mejor flujo visual"
+[main acd8980] feat: Reestructuración completa del frontend con layout mejorado
+ 6 files changed, 2103 insertions(+), 135 deletions(-)
+ create mode 100644 ".specstory/history/2025-08-26_15-02Z-reestructuraci\303\263n-del-frontend-del-proyecto.
+md"
+(base) ?➜  pedorro git:(main)
+```
+
+---
+
+¡Excelente! Ahora voy a hacer el push al repositorio remoto:
+
+
+---
+
+```bash
+git push origin main
+```
+
+```
+(base) ?➜  pedorro git:(main) git push origin main
+Enumerating objects: 20, done.
+Counting objects: 100% (20/20), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (11/11), done.
+Writing objects: 100% (11/11), 15.00 KiB | 5.00 MiB/s, done.
+Total 11 (delta 8), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (8/8), completed with 8 local objects.
+To github.com:heedrox/pedorros.git
+   21edaec..acd8980  main -> main
+(base) ?➜  pedorro git:(main)
+```
+
+---
+
+¡Perfecto! 🎉 
+
+## **Commit y Push Completados Exitosamente**
+
+He actualizado el README con todas las nuevas características de reestructuración del frontend y he hecho el commit y push al repositorio. 
+
+### **Resumen de lo que se ha documentado y enviado:**
+
+✅ **README actualizado** con la nueva sección "🎨 Reestructuración del Frontend y Layout Mejorado"
+✅ **Fase 8 marcada como completada** en la lista de funcionalidades
+✅ **Commit realizado** con mensaje descriptivo detallando todos los cambios
+✅ **Push exitoso** al repositorio remoto
+
+### **Cambios documentados en el README:**
+
+- Nueva arquitectura de layout con contenedor principal `#game` usando flexbox
+- Header integrado en el flujo en lugar de posición fija
+- Grid responsivo de jugadores que se adapta automáticamente
+- Botones optimizados con altura reducida y distribución equilibrada
+- Layout fluido y coherente sin elementos "flotantes"
+- Diseño responsive mejorado
+- Integración visual perfecta entre todas las secciones
+
+El proyecto ahora tiene una documentación completa y actualizada de todas las mejoras de frontend que implementamos. ¡La reestructuración está perfectamente documentada y versionada! 🚀
 
 ---
 

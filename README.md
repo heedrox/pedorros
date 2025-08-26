@@ -8,6 +8,48 @@
 
 PEDORROS es una aplicación web de fiesta multijugador que simula un juego de detective social. Los jugadores deben identificar quién ha sido el "pedorro" (el que se ha echado un pedo) y quiénes han sido los "peditos" (pedos menores) basándose únicamente en los sonidos reproducidos por la aplicación.
 
+## 🗄️ ESTADOS DE LA BD
+
+El campo `state` en la base de datos de Firebase puede tener los siguientes valores que controlan el flujo del juego:
+
+### 🚀 **`'START'`** - Estado Inicial del Juego
+- **Cuándo se activa**: Al iniciar una nueva ronda o reiniciar el juego
+- **Funcionalidad disponible**:
+  - Pantalla de inicio con información de ronda actual
+  - Botón "DISIMULAR" prominente y centrado
+  - Información del jugador (Jugador X / Y)
+  - Botón "REINICIAR" (solo para jugador 1)
+- **Campos de BD activos**: `numRound`, `playerNumber`, `totalPlayers`
+
+### 🔍 **`'ACUSE'`** - Estado de Acusaciones
+- **Cuándo se activa**: Después de la secuencia DISIMULAR + INVESTIGAR
+- **Funcionalidad disponible**:
+  - Pantalla de acusaciones con grid de jugadores
+  - Botones de colores para acusar (verde → naranja → rojo)
+  - Botones de sonidos (LIMPIO, PEDITO, PEDORRO)
+  - Botón "ACUSAR" cuando se completan las acusaciones
+- **Campos de BD activos**: `acusations`, `peditos`, `pedorro`, `nextSounds`
+
+### 🏆 **`'RANKING'`** - Estado de Resultados
+- **Cuándo se activa**: Cuando todos los jugadores han enviado sus acusaciones
+- **Funcionalidad disponible**:
+  - Pantalla de ranking con puntuaciones de la ronda
+  - Tabla de puntuaciones totales acumulativas
+  - Botón "SIGUIENTE RONDA" (solo para jugador 1)
+- **Campos de BD activos**: `ranking`, `lastRoundScore`, `acusations`
+
+### 🔄 **Flujo de Estados Típico**
+```
+START → ACUSE → RANKING → START (nueva ronda)
+```
+
+### 📝 **Notas Importantes**
+- El estado se inicializa siempre como `'START'` cuando se crea o reinicia un juego
+- Las transiciones entre estados se manejan a través de `updateGameState()` en Firebase
+- Cada estado tiene su propia pantalla y funcionalidad específica
+- El estado se sincroniza en tiempo real entre todos los jugadores conectados
+- Solo el jugador 1 (director del juego) puede cambiar el estado del juego
+
 ## ✨ Funcionalidades Implementadas
 
 ### 🎯 Pantalla de Estado START
