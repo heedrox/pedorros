@@ -392,3 +392,176 @@ export const validateAccusations = (accusations, totalPlayers) => {
         expected: distribution
     };
 };
+
+// ===== NUEVAS FUNCIONES PARA FUNCIONALIDAD ACUSAR =====
+
+/**
+ * Convierte el estado de acusaciones de colores a roles
+ * @param {Object} accusationsState - Estado de acusaciones con colores (verde/naranja/rojo)
+ * @returns {Object} Objeto con éxito/error y acusaciones convertidas
+ */
+export const convertAccusationColorsToRoles = (accusationsState) => {
+    if (!accusationsState || typeof accusationsState !== 'object') {
+        return {
+            success: false,
+            error: 'Estado de acusaciones inválido'
+        };
+    }
+
+    const convertedAccusations = {};
+    const colorToRoleMap = {
+        'verde': 'neutral',
+        'naranja': 'pedito',
+        'rojo': 'pedorro'
+    };
+
+    // Convertir cada acusación de color a rol
+    for (const [playerNumber, color] of Object.entries(accusationsState)) {
+        if (!colorToRoleMap.hasOwnProperty(color)) {
+            return {
+                success: false,
+                error: `Color inválido '${color}' para jugador ${playerNumber}. Solo se permiten: verde, naranja, rojo`
+            };
+        }
+        convertedAccusations[playerNumber] = colorToRoleMap[color];
+    }
+
+    return {
+        success: true,
+        accusations: convertedAccusations
+    };
+};
+
+/**
+ * Valida el formato de las acusaciones convertidas
+ * @param {Object} accusations - Acusaciones en formato de roles (neutral/pedito/pedorro)
+ * @param {number} totalPlayers - Número total de jugadores
+ * @returns {Object} Objeto con éxito/error y mensaje descriptivo
+ */
+export const validateAccusationFormat = (accusations, totalPlayers) => {
+    // Validar parámetros de entrada
+    if (!accusations || typeof accusations !== 'object' || typeof totalPlayers !== 'number') {
+        return {
+            success: false,
+            error: 'Parámetros inválidos para validación de formato'
+        };
+    }
+
+    // Validar rango de jugadores (4-16 según PRODUCT_BRIEF)
+    if (totalPlayers < 4 || totalPlayers > 16) {
+        return {
+            success: false,
+            error: 'Número de jugadores debe estar entre 4 y 16'
+        };
+    }
+
+    // Validar que el número de acusaciones coincida con totalPlayers
+    const accusationCount = Object.keys(accusations).length;
+    if (accusationCount !== totalPlayers) {
+        return {
+            success: false,
+            error: `Número de acusaciones (${accusationCount}) no coincide con total de jugadores (${totalPlayers})`
+        };
+    }
+
+    // Validar que todas las acusaciones contengan solo valores válidos
+    const validRoles = ['neutral', 'pedito', 'pedorro'];
+    for (const [playerNumber, role] of Object.entries(accusations)) {
+        if (!validRoles.includes(role)) {
+            return {
+                success: false,
+                error: `Rol inválido '${role}' para jugador ${playerNumber}. Solo se permiten: neutral, pedito, pedorro`
+            };
+        }
+    }
+
+    // Validar que los números de jugador sean consecutivos del 1 al totalPlayers
+    for (let i = 1; i <= totalPlayers; i++) {
+        if (!accusations.hasOwnProperty(i.toString())) {
+            return {
+                success: false,
+                error: `Falta acusación para el jugador ${i}`
+            };
+        }
+    }
+
+    return {
+        success: true,
+        message: 'Formato de acusaciones válido'
+    };
+};
+
+/**
+ * Obtiene el progreso de acusaciones enviadas por todos los jugadores
+ * @param {Object} accusationsData - Datos de acusaciones desde Firebase
+ * @param {number} totalPlayers - Número total de jugadores en el juego
+ * @returns {Object} Objeto con éxito/error y progreso de acusaciones
+ */
+export const getAccusationsProgress = (accusationsData, totalPlayers) => {
+    // Validar parámetros de entrada
+    if (!accusationsData || typeof accusationsData !== 'object' || typeof totalPlayers !== 'number') {
+        return {
+            success: false,
+            error: 'Parámetros inválidos para obtener progreso de acusaciones'
+        };
+    }
+
+    // Validar rango de jugadores (4-16 según PRODUCT_BRIEF)
+    if (totalPlayers < 4 || totalPlayers > 16) {
+        return {
+            success: false,
+            error: 'Número de jugadores debe estar entre 4 y 16'
+        };
+    }
+
+    try {
+        const playersWithAccusations = [];
+        
+        // Buscar jugadores que han enviado acusaciones completas
+        for (let playerNumber = 1; playerNumber <= totalPlayers; playerNumber++) {
+            const accusationKey = `acusation${playerNumber}`;
+            
+            if (accusationsData[accusationKey]) {
+                const accusation = accusationsData[accusationKey];
+                
+                // Verificar que la acusación esté completa (tenga acusaciones para todos los jugadores)
+                if (accusation && typeof accusation === 'object') {
+                    const accusationCount = Object.keys(accusation).length;
+                    
+                    // Verificar que tenga exactamente el número correcto de acusaciones
+                    if (accusationCount === totalPlayers) {
+                        // Verificar que todos los valores sean válidos
+                        const validRoles = ['neutral', 'pedito', 'pedorro'];
+                        const hasValidValues = Object.values(accusation).every(role => 
+                            validRoles.includes(role)
+                        );
+                        
+                        if (hasValidValues) {
+                            playersWithAccusations.push(playerNumber);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Ordenar jugadores numéricamente
+        playersWithAccusations.sort((a, b) => a - b);
+        
+        return {
+            success: true,
+            playersWithAccusations,
+            totalSent: playersWithAccusations.length,
+            totalExpected: totalPlayers,
+            progress: `${playersWithAccusations.length}/${totalPlayers}`,
+            message: playersWithAccusations.length > 0 
+                ? `Acusaciones enviadas: ${playersWithAccusations.join(', ')}`
+                : 'Ninguna acusación enviada aún'
+        };
+        
+    } catch (error) {
+        return {
+            success: false,
+            error: `Error al procesar progreso de acusaciones: ${error.message}`
+        };
+    }
+};

@@ -1903,11 +1903,196 @@ Ahora voy a añadir la información sobre la corrección del layout en la secci�
 
 ---
 
+Read file: README.md
+
+---
+
+Ahora voy a añadir la nueva funcionalidad completada en la sección correspondiente:
 
 
 ---
 
+<details><summary>Edit file: README.md</summary>
 
+undefined
+
+**Chunk 1**
+Lines added: 12, lines removed: undefined
+
+```diff
+@@ -379,4 +379,16 @@
+  - [x] Diseño responsive y colores intuitivos
+  - [x] Integración completa con arquitectura existente
++ 
++ ### ✅ **COMPLETADO - Fase 6: Botones de Sonidos en Pantalla ACUSE**
++ - [x] **Tres botones de sonidos** con colores específicos y funcionalidad completa
++ - [x] **Botón LIMPIO** (verde): Reproduce "neutral.mp3" directamente
++ - [x] **Botón PEDITO** (naranja): Obtiene pedito desde Firebase y reproduce sonido correspondiente
++ - [x] **Botón PEDORRO** (rojo): Obtiene pedorro desde Firebase y reproduce sonido correspondiente
++ - [x] **Integración con Firebase**: Usa `getGameRoles()` y `getNextSounds()` para sonidos reales
++ - [x] **Sistema de audio existente**: Integra con `playAudio()` del módulo `web/audio.js`
++ - [x] **Diseño responsive**: Botones adaptados para móviles y tablets
++ - [x] **Colores oficiales**: Verde (#4CAF50), Naranja (#FF9800), Rojo (#F44336)
++ - [x] **Posicionamiento inteligente**: Botones sobre grid de jugadores, bajo mensaje del pedorro
++ - [x] **Corrección de layout**: #app ahora sigue flujo normal de página con margin-top para header fijo
+  
+  ### Fase 6: Estado RESULTS y Puntuaciones
+```
+
+</details>
+
+---
+
+Ahora voy a actualizar la numeración de las fases siguientes:
+
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -392,9 +392,9 @@
+  - [x] **Corrección de layout**: #app ahora sigue flujo normal de página con margin-top para header fijo
+  
+- ### Fase 6: Estado RESULTS y Puntuaciones
++ ### Fase 7: Estado RESULTS y Puntuaciones
+  - [ ] Estado RESULTS con puntuaciones y ranking
+  - [ ] Lógica de cálculo de puntos por acusaciones correctas
+  
+- ### Fase 6: Sincronización Avanzada
++ ### Fase 8: Sincronización Avanzada
+  - [ ] Sincronización en tiempo real del estado del juego
+  - [ ] Sistema de roles y distribución automática
+```
+
+</details>
+
+---
+
+Ahora voy a hacer commit y push de todos los cambios:
+
+
+---
+
+```bash
+cd /Users/jordimarti/Development/pedorro && git add .
+```
+
+```
+(base) ➜  pedorro cd /Users/jordimarti/Development/pedorro && git add .
+(base) ?➜  pedorro
+```
+
+---
+
+```bash
+git status
+```
+
+```
+(base) ?➜  pedorro git:(main) ?✗ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   .specstory/history/2025-08-24_15-46Z-problemas-de-audio-en-ios-18.md
+        new file:   .specstory/history/2025-08-25_18-14Z-agregar-botones-en-la-pantalla-de-acuse.md
+        modified:   README.md
+        new file:   docs/features/0009_PLAN.md
+        modified:   web/index.html
+        modified:   web/script.js
+        modified:   web/styles.css
+
+(base) ➜  pedorro git:(main) ✗
+```
+
+---
+
+```bash
+git commit -m "feat: implementar botones de sonidos en pantalla ACUSE + corrección de layout
+
+- Añadir 3 botones de sonidos (LIMPIO, PEDITO, PEDORRO) en pantalla ACUSE
+- Botón LIMPIO reproduce neutral.mp3 directamente
+- Botón PEDITO obtiene pedito desde Firebase y reproduce pedito-{valor}.mp3
+- Botón PEDORRO obtiene pedorro desde Firebase y reproduce pedorro-{valor}.mp3
+- Integración con sistema de audio existente usando playAudio()
+- Diseño responsive con colores oficiales (verde, naranja, rojo)
+- Posicionamiento inteligente entre mensaje del pedorro y grid de jugadores
+- Corrección de layout: #app ahora sigue flujo normal de página con margin-top para header fijo
+- Estilos responsive para diferentes tamaños de pantalla
+- Actualización completa del README.md con nueva funcionalidad"
+```
+
+```
+<ción completa del README.md con nueva funcionalidad"
+[main cc1c814] feat: implementar botones de sonidos en pantalla ACUSE + corrección de layout
+ 7 files changed, 2429 insertions(+), 5 deletions(-)
+ create mode 100644 .specstory/history/2025-08-25_18-14Z-agregar-botones-en-la-pantalla-de-acuse.md
+ create mode 100644 docs/features/0009_PLAN.md
+```
+
+---
+
+```bash
+git push origin main
+```
+
+```
+(base) ➜  pedorro git:(main) git push origin main
+Enumerating objects: 25, done.
+Counting objects: 100% (25/25), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (14/14), done.
+Writing objects: 100% (14/14), 25.52 KiB | 4.25 MiB/s, done.
+Total 14 (delta 10), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (10/10), completed with 9 local objects.
+To github.com:heedrox/pedorros.git
+   1f9818a..cc1c814  main -> main
+```
+
+---
+
+¡Perfecto! �� He completado exitosamente la implementación y documentación de la nueva funcionalidad.
+
+## ✅ **Resumen de lo Completado:**
+
+### 🎵 **Nueva Funcionalidad Implementada:**
+- **3 botones de sonidos** en la pantalla de ACUSE
+- **LIMPIO** (verde): Reproduce "neutral.mp3"
+- **PEDITO** (naranja): Reproduce sonido del pedito desde Firebase
+- **PEDORRO** (rojo): Reproduce sonido del pedorro desde Firebase
+
+### 🔧 **Corrección de Layout:**
+- **#app** ahora sigue el flujo normal de la página
+- **Margin-top** para compensar el header fijo
+- **Diseño responsive** para diferentes tamaños de pantalla
+
+### 📚 **Documentación Actualizada:**
+- **README.md** actualizado con nueva funcionalidad
+- **Plan técnico** completo en `docs/features/0009_PLAN.md`
+- **Fase 6** marcada como completada
+- **Fases futuras** renumeradas correctamente
+
+### �� **Commit y Push Exitosos:**
+- **Commit**: `cc1c814` con mensaje descriptivo completo
+- **Push**: Enviado a `origin/main` exitosamente
+- **7 archivos** modificados/creados
+- **2,429 inserciones** de código y documentación
+
+### 🎯 **Características Técnicas:**
+- **Integración segura** con Firebase existente
+- **Sistema de audio** compatible con iOS 18
+- **Colores oficiales** del PRODUCT_BRIEF
+- **Arquitectura funcional** e inmutable
+- **Diseño responsive** para móviles y tablets
+
+¡La funcionalidad está completamente implementada, documentada y desplegada en el repositorio! Los usuarios ahora pueden usar los botones de sonidos en la pantalla de ACUSE para escuchar los sonidos correspondientes a cada ronda.
 
 ---
 

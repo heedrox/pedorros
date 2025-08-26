@@ -84,6 +84,16 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Colores oficiales**: Verde (#4CAF50), Naranja (#FF9800), Rojo (#F44336)
 - **Posicionamiento inteligente**: Botones sobre grid de jugadores, bajo mensaje del pedorro
 
+### 🏆 Transición Automática a RANKING
+- **Detección automática** cuando todos los jugadores han enviado sus acusaciones
+- **Transición automática** del estado ACUSE a RANKING solo por el jugador 1 (director)
+- **Sincronización en tiempo real** para todos los jugadores mediante Firebase
+- **Nueva pantalla de ranking** con texto "RANKING" centrado y estilizado
+- **Listener de estado universal** que notifica a todos los jugadores del cambio
+- **Arquitectura inmutable** que mantiene separación entre core y DOM
+- **Validación de permisos** - solo el jugador 1 puede cambiar el estado del juego
+- **Pantalla responsive** con estilos consistentes con la temática marrón del juego
+
 ### 🔗 Sistema de URLs Inteligente
 - **Formato de URL**: `index.html?/g/CODIGO/p/NUMERO_JUGADOR/TOTAL_JUGADORES`
 - **Ejemplo**: `index.html?/g/galerna/p/1/5` → Jugador 1 de 5, código "galerna"

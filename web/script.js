@@ -20,6 +20,9 @@ import {
     getPlayerRole,
     getAccusationState,
     validateAccusations,
+    convertAccusationColorsToRoles,
+    validateAccusationFormat,
+    getAccusationsProgress,
     AUTH_STATES
 } from './lib.js';
 
@@ -36,7 +39,9 @@ import {
     getNextSounds,
     getGameRoles,
     updateGameState,
-    getGameState
+    getGameState,
+    savePlayerAccusations,
+    setupAccusationsListener
 } from './firebase-database.js';
 
 import { playAudio } from './audio.js';
@@ -52,6 +57,10 @@ let gameState = null;
 
 // Estado local de acusaciones (jugador -> 'verde'|'naranja'|'rojo')
 let accusationsState = {};
+
+// Variables para tracking de acusaciones (solo para jugador 1)
+let accusationsListenerCleanup = null;
+let accusationsData = {};
 
 // ===== FUNCIONES UTILITARIAS PARA MANEJO DE CLASES CSS =====
 
@@ -136,6 +145,9 @@ const renderScreen = (gameState) => {
         case 'ACUSE':
             renderAcuseScreen(gameState);
             break;
+        case 'RANKING':
+            renderRankingScreen(gameState);
+            break;
         default:
             console.log('Estado no implementado:', state);
     }
@@ -180,6 +192,28 @@ const renderStartScreen = (gameState) => {
             setVisibility(reiniciarButton, false);
         }
     }
+    
+    // Limpiar tracking de acusaciones al volver a la pantalla START
+    cleanupAccusationsTracking();
+};
+
+// Función pura para renderizar la pantalla de ranking
+const renderRankingScreen = (gameState) => {
+    const { numRound, playerNumber, totalPlayers } = gameState;
+    
+    // Ocultar todas las pantallas del juego
+    const startScreen = document.getElementById('start-screen');
+    const acuseScreen = document.getElementById('acuse-screen');
+    const rankingScreen = document.getElementById('ranking-screen');
+    
+    deactivate(startScreen);
+    deactivate(acuseScreen);
+    activate(rankingScreen);
+    
+    // Limpiar tracking de acusaciones al cambiar a la pantalla de ranking
+    cleanupAccusationsTracking();
+    
+    console.log('Pantalla de ranking mostrada');
 };
 
 // Función pura para renderizar la pantalla de acusación
@@ -218,6 +252,9 @@ const renderAcuseScreen = async (gameState) => {
     
     // Validar acusaciones y activar/desactivar botón ACUSAR
     validateAndUpdateAcusarButton();
+    
+    // Configurar tracking de acusaciones para jugador 1
+    setupAccusationsTracking();
 };
 
 // Función para configurar los botones de sonidos
@@ -374,15 +411,25 @@ const validateAndUpdateAcusarButton = () => {
     const acusarButton = document.getElementById('acusar-btn');
     if (!acusarButton || !gameState) return;
     
+    // Validar que las cantidades de colores coincidan con la distribución esperada
     const validation = validateAccusations(accusationsState, gameState.totalPlayers);
     
     if (validation.success) {
-        acusarButton.disabled = false;
-        acusarButton.classList.remove('disabled');
-    } else {
-        acusarButton.disabled = true;
-        acusarButton.classList.add('disabled');
+        // Validación adicional: verificar que se puedan convertir a roles válidos
+        const conversionResult = convertAccusationColorsToRoles(accusationsState);
+        if (conversionResult.success) {
+            const formatValidation = validateAccusationFormat(conversionResult.accusations, gameState.totalPlayers);
+            if (formatValidation.success) {
+                acusarButton.disabled = false;
+                acusarButton.classList.remove('disabled');
+                return;
+            }
+        }
     }
+    
+    // Si no pasa todas las validaciones, deshabilitar botón
+    acusarButton.disabled = true;
+    acusarButton.classList.add('disabled');
 };
 
 // Función para manejar el login anónimo
@@ -469,22 +516,18 @@ const initializeGame = async () => {
     
     console.log('Código de juego:', gameState.gameCode);
     
-    // Configurar listener de Firebase solo para el jugador 1 (director del juego)
-    if (isPlayerOne(gameState)) {
-        console.log('Configurando listener de Firebase para jugador 1...');
-        
-        // Limpiar listener anterior si existe
-        if (gameStateListenerCleanup) {
-            gameStateListenerCleanup();
-        }
-        
-        // Configurar nuevo listener
-        gameStateListenerCleanup = setupGameStateListener(gameState.gameCode, handleGameStateChange);
-        
-        console.log('Listener de Firebase configurado para jugador 1');
-    } else {
-        console.log('Jugador no es director del juego, no se configura listener');
+    // Configurar listener de Firebase para TODOS los jugadores (para recibir cambios de estado)
+    console.log('Configurando listener de Firebase para todos los jugadores...');
+    
+    // Limpiar listener anterior si existe
+    if (gameStateListenerCleanup) {
+        gameStateListenerCleanup();
     }
+    
+    // Configurar nuevo listener para todos los jugadores
+    gameStateListenerCleanup = setupGameStateListener(gameState.gameCode, handleGameStateChange);
+    
+    console.log('Listener de Firebase configurado para todos los jugadores');
     
     // Esperar un momento para que el estado de autenticación esté completamente establecido
     setTimeout(() => {
@@ -559,10 +602,54 @@ const initializeGame = async () => {
             console.log('Botón ACUSAR clickeado');
             console.log('Estado de acusaciones:', accusationsState);
             
-            // TODO: Implementar lógica de acusación
-            // Por ahora, solo mostrar las acusaciones en consola
-            console.log('Acusaciones realizadas:', accusationsState);
-            alert('¡Acusaciones enviadas! (Funcionalidad en desarrollo)');
+            try {
+                // Validar que el estado del juego esté disponible
+                if (!gameState || !gameState.gameCode || !gameState.playerNumber || !gameState.totalPlayers) {
+                    throw new Error('Estado del juego no disponible');
+                }
+
+                // Convertir colores a roles (verde -> neutral, naranja -> pedito, rojo -> pedorro)
+                const conversionResult = convertAccusationColorsToRoles(accusationsState);
+                if (!conversionResult.success) {
+                    throw new Error(conversionResult.error);
+                }
+
+                // Validar formato de las acusaciones convertidas
+                const formatValidation = validateAccusationFormat(conversionResult.accusations, gameState.totalPlayers);
+                if (!formatValidation.success) {
+                    throw new Error(formatValidation.error);
+                }
+
+                // Validar que las cantidades coincidan con la distribución esperada
+                const validationResult = validateAccusations(accusationsState, gameState.totalPlayers);
+                if (!validationResult.success) {
+                    throw new Error(validationResult.error);
+                }
+
+                // Guardar acusaciones en Firebase
+                const saveResult = await savePlayerAccusations(
+                    gameState.gameCode, 
+                    gameState.playerNumber, 
+                    conversionResult.accusations
+                );
+
+                if (!saveResult.success) {
+                    throw new Error(saveResult.error);
+                }
+
+                // Éxito: mostrar confirmación y deshabilitar botón
+                console.log('Acusaciones guardadas exitosamente:', saveResult);
+                alert('¡Acusaciones enviadas correctamente!');
+                
+                // Deshabilitar botón ACUSAR
+                acusarButton.disabled = true;
+                acusarButton.classList.add('disabled');
+                acusarButton.textContent = 'ACUSACIONES ENVIADAS';
+
+            } catch (error) {
+                console.error('Error al enviar acusaciones:', error);
+                alert(`Error al enviar acusaciones: ${error.message}`);
+            }
         });
     }
     
@@ -588,57 +675,71 @@ const initializeGame = async () => {
     };
 };
 
-// Función para manejar cambios en el estado del juego (solo jugador 1)
+// Función para manejar cambios en el estado del juego (para todos los jugadores)
 const handleGameStateChange = async (gameData) => {
-    // Solo procesar si es el jugador 1 (director del juego)
-    if (!gameState || !isPlayerOne(gameState)) {
+    if (!gameState) {
         return;
     }
     
-    // Solo procesar si el estado es "START"
-    if (gameData.state !== "START") {
-        return;
+    console.log('Cambio de estado detectado:', gameData.state, 'para jugador', gameState.playerNumber);
+    
+    // Lógica especial solo para jugador 1 (director del juego)
+    if (isPlayerOne(gameState)) {
+        // Solo procesar si el estado es "START" para cálculo automático de roles
+        if (gameData.state === "START") {
+            // Verificar si ya existen roles calculados para evitar recalcular
+            if (gameData.peditos && gameData.peditos.length > 0 && gameData.pedorro) {
+                console.log('Roles ya calculados, saltando cálculo automático');
+            } else {
+                console.log('Estado START detectado, calculando roles automáticamente...');
+                
+                try {
+                    // Calcular distribución de roles
+                    const roles = calculateGameRoles(gameState.totalPlayers);
+                    
+                    if (!roles.success) {
+                        console.error('Error al calcular roles:', roles.error);
+                        return;
+                    }
+                    
+                    // Generar sonidos para cada jugador
+                    const nextSounds = generateNextSounds(roles, gameState.totalPlayers);
+                    
+                    if (Object.keys(nextSounds).length === 0) {
+                        console.error('Error al generar sonidos');
+                        return;
+                    }
+                    
+                    console.log('Roles calculados:', roles);
+                    console.log('Sonidos generados:', nextSounds);
+                    
+                    // Actualizar en Firebase Database
+                    const result = await updateGameRoles(gameState.gameCode, roles, nextSounds);
+                    
+                    if (result.success) {
+                        console.log('Roles y sonidos actualizados exitosamente en Firebase');
+                    } else {
+                        console.error('Error al actualizar roles en Firebase:', result.error);
+                    }
+                    
+                } catch (error) {
+                    console.error('Error inesperado al calcular roles:', error);
+                }
+            }
+        }
     }
     
-    // Verificar si ya existen roles calculados para evitar recalcular
-    if (gameData.peditos && gameData.peditos.length > 0 && gameData.pedorro) {
-        console.log('Roles ya calculados, saltando cálculo automático');
-        return;
-    }
-    
-    console.log('Estado START detectado, calculando roles automáticamente...');
-    
-    try {
-        // Calcular distribución de roles
-        const roles = calculateGameRoles(gameState.totalPlayers);
+    // Lógica para TODOS los jugadores: actualizar estado local y re-renderizar
+    if (gameData.state && gameData.state !== gameState.state) {
+        console.log(`Estado del juego cambiado de '${gameState.state}' a '${gameData.state}'`);
         
-        if (!roles.success) {
-            console.error('Error al calcular roles:', roles.error);
-            return;
-        }
+        // Actualizar estado local del juego
+        gameState = changeGameState(gameState, gameData.state);
         
-        // Generar sonidos para cada jugador
-        const nextSounds = generateNextSounds(roles, gameState.totalPlayers);
+        // Re-renderizar pantalla con el nuevo estado
+        renderScreen(gameState);
         
-        if (Object.keys(nextSounds).length === 0) {
-            console.error('Error al generar sonidos');
-            return;
-        }
-        
-        console.log('Roles calculados:', roles);
-        console.log('Sonidos generados:', nextSounds);
-        
-        // Actualizar en Firebase Database
-        const result = await updateGameRoles(gameState.gameCode, roles, nextSounds);
-        
-        if (result.success) {
-            console.log('Roles y sonidos actualizados exitosamente en Firebase');
-        } else {
-            console.error('Error al actualizar roles en Firebase:', result.error);
-        }
-        
-    } catch (error) {
-        console.error('Error inesperado al calcular roles:', error);
+        console.log('Pantalla actualizada al nuevo estado:', gameData.state);
     }
 };
 
@@ -945,3 +1046,123 @@ const __unlockOnce = () => {
 window.addEventListener('pointerdown', __unlockOnce, { once: true });
 window.addEventListener('touchend', __unlockOnce, { once: true });
 window.addEventListener('click', __unlockOnce, { once: true });
+
+// ===== FUNCIONES PARA TRACKING DE ACUSACIONES (SOLO JUGADOR 1) =====
+
+/**
+ * Configura el tracking de acusaciones para el jugador 1
+ */
+const setupAccusationsTracking = () => {
+    if (!gameState || !isPlayerOne(gameState)) {
+        return; // Solo para jugador 1
+    }
+
+    console.log('Configurando tracking de acusaciones para jugador 1...');
+
+    try {
+        // Limpiar listener anterior si existe
+        if (accusationsListenerCleanup) {
+            accusationsListenerCleanup();
+        }
+
+        // Configurar nuevo listener
+        accusationsListenerCleanup = setupAccusationsListener(
+            gameState.gameCode,
+            (newAccusationsData) => {
+                console.log('Datos de acusaciones actualizados:', newAccusationsData);
+                accusationsData = newAccusationsData;
+                updateAccusationsCounter(newAccusationsData);
+            }
+        );
+
+        console.log('Tracking de acusaciones configurado exitosamente');
+    } catch (error) {
+        console.error('Error al configurar tracking de acusaciones:', error);
+    }
+};
+
+/**
+ * Actualiza el contador visual de acusaciones enviadas
+ */
+const updateAccusationsCounter = async (accusationsData) => {
+    if (!gameState || !isPlayerOne(gameState)) {
+        return; // Solo para jugador 1
+    }
+
+    const counterContainer = document.getElementById('accusations-counter');
+    const progressElement = document.getElementById('accusations-progress');
+    const listElement = document.getElementById('accusations-list');
+
+    if (!counterContainer || !progressElement || !listElement) {
+        console.error('Elementos del contador de acusaciones no encontrados');
+        return;
+    }
+
+    try {
+        // Obtener progreso de acusaciones
+        const progress = getAccusationsProgress(accusationsData, gameState.totalPlayers);
+
+        if (progress.success) {
+            // Mostrar contenedor
+            counterContainer.style.display = 'block';
+
+            // Actualizar progreso numérico
+            progressElement.textContent = `Acusaciones enviadas: ${progress.progress}`;
+
+            // Actualizar lista de jugadores
+            listElement.textContent = progress.message;
+
+            console.log('Contador de acusaciones actualizado:', progress);
+
+            // Verificar si todos han enviado acusaciones para transición automática
+            if (progress.totalSent === progress.totalExpected && gameState.state === 'ACUSE') {
+                console.log('Todos los jugadores han enviado acusaciones. Transicionando a RANKING...');
+                
+                try {
+                    // Cambiar estado en Firebase
+                    const result = await updateGameState(gameState.gameCode, 'RANKING');
+                    
+                    if (result.success) {
+                        console.log('Estado del juego actualizado a RANKING:', result);
+                        
+                        // Actualizar estado local del juego
+                        gameState = changeGameState(gameState, 'RANKING');
+                        
+                        // Re-renderizar pantalla
+                        renderScreen(gameState);
+                        
+                        console.log('Transición a estado RANKING completada');
+                    } else {
+                        console.error('Error al actualizar estado del juego:', result.error);
+                    }
+                } catch (error) {
+                    console.error('Error al manejar transición automática:', error);
+                }
+            }
+        } else {
+            console.error('Error al obtener progreso de acusaciones:', progress.error);
+            // Ocultar contenedor en caso de error
+            counterContainer.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error al actualizar contador de acusaciones:', error);
+        counterContainer.style.display = 'none';
+    }
+};
+
+/**
+ * Limpia el tracking de acusaciones
+ */
+const cleanupAccusationsTracking = () => {
+    if (accusationsListenerCleanup) {
+        accusationsListenerCleanup();
+        accusationsListenerCleanup = null;
+    }
+    accusationsData = {};
+    
+    // Ocultar contador
+    const counterContainer = document.getElementById('accusations-counter');
+    if (counterContainer) {
+        counterContainer.style.display = 'none';
+    }
+};

@@ -262,3 +262,89 @@ export const updateGameState = async (gameCode, newState) => {
         };
     }
 };
+
+/**
+ * Guarda las acusaciones de un jugador específico en Firebase Database
+ * @param {string} gameCode - Código del juego (ej: "galerna")
+ * @param {number} playerNumber - Número del jugador que hace la acusación
+ * @param {Object} accusations - Acusaciones en formato de roles (neutral/pedito/pedorro)
+ * @returns {Promise<Object>} Resultado de la operación
+ */
+export const savePlayerAccusations = async (gameCode, playerNumber, accusations) => {
+    try {
+        if (!gameCode || typeof gameCode !== 'string') {
+            throw new Error('Código de juego inválido');
+        }
+
+        if (!playerNumber || typeof playerNumber !== 'number' || playerNumber < 1) {
+            throw new Error('Número de jugador inválido');
+        }
+
+        if (!accusations || typeof accusations !== 'object') {
+            throw new Error('Acusaciones inválidas');
+        }
+
+        // Crear la estructura de datos para las acusaciones
+        const accusationData = {
+            [`acusations/acusation${playerNumber}`]: accusations,
+            lastUpdated: serverTimestamp()
+        };
+
+        // Usar update() para modificar solo el campo específico sin sobrescribir el documento completo
+        const gameRef = ref(database, `pedorros-game/${gameCode}`);
+        await update(gameRef, accusationData);
+        
+        return {
+            success: true,
+            message: `Acusaciones del jugador ${playerNumber} guardadas exitosamente`,
+            gameCode,
+            playerNumber,
+            accusations,
+            timestamp: new Date().toISOString()
+        };
+    } catch (error) {
+        console.error('Error al guardar acusaciones del jugador:', error);
+        return {
+            success: false,
+            error: error.message,
+            gameCode,
+            playerNumber
+        };
+    }
+};
+
+/**
+ * Configura un listener para cambios en las acusaciones del juego
+ * @param {string} gameCode - Código del juego (ej: "galerna")
+ * @param {Function} callback - Función a ejecutar cuando cambien las acusaciones
+ * @returns {Function} Función de cleanup para desconectar el listener
+ */
+export const setupAccusationsListener = (gameCode, callback) => {
+    try {
+        if (!gameCode || typeof gameCode !== 'string') {
+            throw new Error('Código de juego inválido');
+        }
+
+        if (typeof callback !== 'function') {
+            throw new Error('Callback debe ser una función');
+        }
+
+        const accusationsRef = ref(database, `pedorros-game/${gameCode}/acusations`);
+        
+        // Configurar listener
+        onValue(accusationsRef, (snapshot) => {
+            const accusationsData = snapshot.val();
+            if (callback) {
+                callback(accusationsData || {});
+            }
+        });
+        
+        // Retornar función de cleanup
+        return () => {
+            off(accusationsRef);
+        };
+    } catch (error) {
+        console.error('Error al configurar listener de acusaciones:', error);
+        return () => {}; // Función de cleanup vacía en caso de error
+    }
+};

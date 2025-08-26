@@ -13,14 +13,22 @@ describe('shuffleArray', () => {
         const original = [1, 2, 3, 4, 5];
         const shuffled = shuffleArray(original);
         
-        expect(shuffled).not.toEqual(original);
-        expect(original).toEqual([1, 2, 3, 4, 5]); // Original no modificado
+        // Verificar que el original no se modificó
+        expect(original).toEqual([1, 2, 3, 4, 5]);
         expect(shuffled).toHaveLength(5);
+        
+        // Verificar que contiene todos los elementos originales
         expect(shuffled).toContain(1);
         expect(shuffled).toContain(2);
         expect(shuffled).toContain(3);
         expect(shuffled).toContain(4);
         expect(shuffled).toContain(5);
+        
+        // Verificar que es una nueva referencia (inmutabilidad)
+        expect(shuffled).not.toBe(original);
+        
+        // Nota: shuffleArray puede retornar el mismo orden por casualidad
+        // pero esto es válido y no rompe la funcionalidad
     });
     
     test('debe retornar array vacío para input inválido', () => {
