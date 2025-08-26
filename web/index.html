@@ -21,124 +21,127 @@
     <audio id="game-audio-pedorro-5" src="sounds/pedorro-5.mp3" preload="auto" playsinline=""></audio>
     <audio id="game-audio-intro" src="sounds/intro/intro.mp3" preload="auto" playsinline=""></audio>
 
-
-    <!-- Header del juego (fuera de #app para estar completamente arriba) -->
-    <div id="game-header" class="game-header" style="display: none;">
-        <div class="header">
-            <h1 class="game-title">PEDORROS</h1>
-            <p class="game-subtitle">♪ Quién se ha echado un pedo... ♪</p>
-            <button id="reiniciar-btn" class="reiniciar-button" style="display: none;">
-                REINICIAR
-            </button>
-        </div>
-    </div>
-
-    <div id="app">
-        <!-- Pantalla de Login (visible por defecto) -->
-        <div id="login-screen" class="screen active">
-            <div class="login-container">
+    <!-- Contenedor principal del juego -->
+    <div id="game" class="game-container">
+        <!-- Header del juego -->
+        <div id="game-header" class="game-header" style="display: none;">
+            <div class="header">
                 <h1 class="game-title">PEDORROS</h1>
-                <button id="acceder-btn" class="acceder-button">
-                    ACCEDER
+                <p class="game-subtitle">♪ Quién se ha echado un pedo... ♪</p>
+                <button id="reiniciar-btn" class="reiniciar-button" style="display: none;">
+                    REINICIAR
                 </button>
             </div>
         </div>
 
-        <!-- Pantalla del Juego (oculta por defecto) -->
-        <div id="game-screen" class="screen">
-            <div id="start-screen" class="screen active">
-                <!-- Contenedor para contador y estado DISIMULANDO (fuera del main-content) -->
-                <div id="disimular-container" class="disimular-container" style="display: none;">
-                    <div id="countdown-display" class="countdown-display"></div>
-                    <div id="disimulando-display" class="disimulando-display" style="display: none;">
-                        DISIMULANDO
-                    </div>
+        <!-- Contenido principal de la aplicación -->
+        <div id="app" class="app-content">
+            <!-- Pantalla de Login (visible por defecto) -->
+            <div id="login-screen" class="screen active">
+                <div class="login-container">
+                    <h1 class="game-title">PEDORROS</h1>
+                    <button id="acceder-btn" class="acceder-button">
+                        ACCEDER
+                    </button>
                 </div>
-                
-                <!-- Contenedor para botón/texto de investigar -->
-                <div id="investigar-container" class="investigar-container" style="display: none;">
-                    <div id="investigar-content">
-                        <!-- Para jugador 1: botón clicable -->
-                        <button id="investigar-btn" class="investigar-button" style="display: none;">
-                            👃 INVESTIGAR
-                        </button>
-                        <!-- Para otros jugadores: solo texto -->
-                        <div id="investigar-text" class="investigar-text" style="display: none;">
-                            👃
+            </div>
+
+            <!-- Pantalla del Juego (oculta por defecto) -->
+            <div id="game-screen" class="screen">
+                <div id="start-screen" class="screen active">
+                    <!-- Contenedor para contador y estado DISIMULANDO (fuera del main-content) -->
+                    <div id="disimular-container" class="disimular-container" style="display: none;">
+                        <div id="countdown-display" class="countdown-display"></div>
+                        <div id="disimulando-display" class="disimulando-display" style="display: none;">
+                            DISIMULANDO
                         </div>
                     </div>
-                </div>
-                
-                <div class="main-content">
-                    <div class="game-info">
-                        <p class="round-info">Ronda <span id="current-round">1</span> de 5</p>
-                        <p id="player-info" class="player-info">Jugador: 1 / 4</p>
+                    
+                    <!-- Contenedor para botón/texto de investigar -->
+                    <div id="investigar-container" class="investigar-container" style="display: none;">
+                        <div id="investigar-content">
+                            <!-- Para jugador 1: botón clicable -->
+                            <button id="investigar-btn" class="investigar-button" style="display: none;">
+                                👃 INVESTIGAR
+                            </button>
+                            <!-- Para otros jugadores: solo texto -->
+                            <div id="investigar-text" class="investigar-text" style="display: none;">
+                                👃
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="action-area">
-                        <button id="disimular-btn" class="disimular-button">
-                            DISIMULAR
+                    <div class="main-content">
+                        <div class="game-info">
+                            <p class="round-info">Ronda <span id="current-round">1</span> de 5</p>
+                            <p id="player-info" class="player-info">Jugador: 1 / 4</p>
+                        </div>
+                        
+                        <div class="action-area">
+                            <button id="disimular-btn" class="disimular-button">
+                                DISIMULAR
+                            </button>
+                        </div>
+                        
+                        <div class="game-description">
+                            <p>Identifica quién ha sido el pedorro y quiénes los peditos</p>
+                            <p>¡Basándote solo en los sonidos!</p>
+                        </div>
+                    </div>
+                    
+
+                </div>
+                
+                <!-- Pantalla de Acusación (oculta por defecto) -->
+                <div id="acuse-screen" class="screen inactive">
+                    <!-- Mensaje especial para el pedorro -->
+                    <div id="pedorro-message" class="pedorro-message" style="display: none;">
+                        <h2>💩 ¡ERES EL PEDORRO!</h2>
+                    </div>
+                    
+                    <!-- Botones de sonidos -->
+                    <div class="sound-buttons-container">
+                        <button id="limpiar-btn" class="sound-button limpiar-btn">
+                            LIMPIO
+                        </button>
+                        <button id="pedito-btn" class="sound-button pedito-btn">
+                            PEDITO
+                        </button>
+                        <button id="pedorro-btn" class="sound-button pedorro-btn">
+                            PEDORRO
                         </button>
                     </div>
                     
-                    <div class="game-description">
-                        <p>Identifica quién ha sido el pedorro y quiénes los peditos</p>
-                        <p>¡Basándote solo en los sonidos!</p>
+                    <!-- Grid de botones de jugadores -->
+                    <div class="players-grid-container">
+                        <div id="players-grid" class="players-grid">
+                            <!-- Los botones se generarán dinámicamente -->
+                        </div>
+                    </div>
+                    
+                    <!-- Botón ACUSAR -->
+                    <div class="action-area">
+                        <button id="acusar-btn" class="acusar-button" disabled>
+                            ACUSAR
+                        </button>
+                    </div>
+                    
+                    <!-- Contador de acusaciones enviadas (solo visible para jugador 1) -->
+                    <div id="accusations-counter" class="accusations-counter" style="display: none;">
+                        <p id="accusations-progress" class="accusations-progress">
+                            Acusaciones enviadas: 0/0
+                        </p>
+                        <p id="accusations-list" class="accusations-list">
+                            Ninguna acusación enviada aún
+                        </p>
                     </div>
                 </div>
                 
-
-            </div>
-            
-            <!-- Pantalla de Acusación (oculta por defecto) -->
-            <div id="acuse-screen" class="screen inactive">
-                <!-- Mensaje especial para el pedorro -->
-                <div id="pedorro-message" class="pedorro-message" style="display: none;">
-                    <h2>💩 ¡ERES EL PEDORRO!</h2>
-                </div>
-                
-                <!-- Botones de sonidos -->
-                <div class="sound-buttons-container">
-                    <button id="limpiar-btn" class="sound-button limpiar-btn">
-                        LIMPIO
-                    </button>
-                    <button id="pedito-btn" class="sound-button pedito-btn">
-                        PEDITO
-                    </button>
-                    <button id="pedorro-btn" class="sound-button pedorro-btn">
-                        PEDORRO
-                    </button>
-                </div>
-                
-                <!-- Grid de botones de jugadores -->
-                <div class="players-grid-container">
-                    <div id="players-grid" class="players-grid">
-                        <!-- Los botones se generarán dinámicamente -->
+                <!-- Pantalla de Ranking (oculta por defecto) -->
+                <div id="ranking-screen" class="screen inactive">
+                    <div id="ranking-container" class="ranking-container">
+                        <!-- La tabla de ranking se generará dinámicamente -->
                     </div>
-                </div>
-                
-                <!-- Botón ACUSAR -->
-                <div class="action-area">
-                    <button id="acusar-btn" class="acusar-button" disabled>
-                        ACUSAR
-                    </button>
-                </div>
-                
-                <!-- Contador de acusaciones enviadas (solo visible para jugador 1) -->
-                <div id="accusations-counter" class="accusations-counter" style="display: none;">
-                    <p id="accusations-progress" class="accusations-progress">
-                        Acusaciones enviadas: 0/0
-                    </p>
-                    <p id="accusations-list" class="accusations-list">
-                        Ninguna acusación enviada aún
-                    </p>
-                </div>
-            </div>
-            
-            <!-- Pantalla de Ranking (oculta por defecto) -->
-            <div id="ranking-screen" class="screen inactive">
-                <div id="ranking-container" class="ranking-container">
-                    <!-- La tabla de ranking se generará dinámicamente -->
                 </div>
             </div>
         </div>

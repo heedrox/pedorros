@@ -804,7 +804,7 @@ const initializeGame = async () => {
 
                 // Éxito: mostrar confirmación y deshabilitar botón
                 console.log('Acusaciones guardadas exitosamente:', saveResult);
-                alert('¡Acusaciones enviadas correctamente!');
+                // alert('¡Acusaciones enviadas correctamente!');
                 
                 // Deshabilitar botón ACUSAR
                 acusarButton.disabled = true;

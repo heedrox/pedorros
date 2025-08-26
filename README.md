@@ -110,6 +110,15 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Subtítulo de ronda**: Muestra "Ronda X / 5" debajo del título principal
 - **Integración completa** con Firebase para sincronización en tiempo real
 
+### 🎨 Reestructuración del Frontend y Layout Mejorado
+- **Nueva arquitectura de layout** con contenedor principal `#game` usando flexbox
+- **Header integrado en el flujo** en lugar de posición fija para mejor coherencia visual
+- **Grid responsivo de jugadores** que se adapta automáticamente al número de jugadores (3, 4, 5+)
+- **Botones de jugadores optimizados** con altura reducida y distribución equilibrada por fila
+- **Layout fluido y coherente** entre header y contenido principal sin elementos "flotantes"
+- **Diseño responsive mejorado** con breakpoints optimizados para tablets y móviles
+- **Integración visual perfecta** entre todas las secciones del juego
+
 ### 🔄 Botón SIGUIENTE RONDA
 - **Botón exclusivo** solo visible para el jugador 1 (director del juego)
 - **Funcionalidad completa** para avanzar a la siguiente ronda del juego
@@ -189,9 +198,9 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 ```
 pedorro/
 ├── web/                          # Frontend de la aplicación
-│   ├── index.html               # Pantalla principal START con preload de audio
+│   ├── index.html               # Pantalla principal con layout mejorado y contenedor #game
 │   ├── index2.html              # Página de prueba para validar audio en iOS 18
-│   ├── styles.css               # Estilos con temática marrón
+│   ├── styles.css               # Estilos con temática marrón y layout flexbox mejorado
 │   ├── lib.js                   # Core de la aplicación (lógica pura)
 │   ├── audio.js                 # Módulo de audio optimizado para iOS 18
 │   └── script.js                # Lógica de DOM e integración con audio
@@ -459,7 +468,16 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - [x] **Integración completa** con Firebase para sincronización en tiempo real
 - [x] **Tests unitarios** para todas las funciones de cálculo de puntuación
 
-### Fase 8: Sincronización Avanzada
+### ✅ **COMPLETADO - Fase 8: Reestructuración del Frontend y Layout Mejorado**
+- [x] **Nueva arquitectura de layout** con contenedor principal `#game` usando flexbox
+- [x] **Header integrado en el flujo** en lugar de posición fija para mejor coherencia visual
+- [x] **Grid responsivo de jugadores** que se adapta automáticamente al número de jugadores (3, 4, 5+)
+- [x] **Botones de jugadores optimizados** con altura reducida y distribución equilibrada por fila
+- [x] **Layout fluido y coherente** entre header y contenido principal sin elementos "flotantes"
+- [x] **Diseño responsive mejorado** con breakpoints optimizados para tablets y móviles
+- [x] **Integración visual perfecta** entre todas las secciones del juego
+
+### Fase 9: Sincronización Avanzada
 - [ ] Sincronización en tiempo real del estado del juego
 - [ ] Sistema de roles y distribución automática
 - [ ] Persistencia de ranking entre sesiones
