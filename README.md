@@ -94,6 +94,14 @@ PEDORROS es una aplicación web de fiesta multijugador que simula un juego de de
 - **Validación de permisos** - solo el jugador 1 puede cambiar el estado del juego
 - **Pantalla responsive** con estilos consistentes con la temática marrón del juego
 
+### 🏅 Sistema de Puntuación de Ronda
+- **Función core `calculateRoundScore`**: calcula los puntos de la ronda para cada jugador a partir de las acusaciones y los roles reales
+- **Reglas**:
+  - 1 punto por cada pedito acertado (incluye autopedito: si eres pedito y te acusas como pedito sumas 1)
+  - Si NO eres el pedorro y aciertas al pedorro: +5 puntos solo si hay colaboración (al menos otra persona también lo acierta)
+  - Si eres el pedorro y nadie te acierta: +10 puntos. Si alguien acierta, no hay bonus
+- **Tests unitarios completos** que cubren autopedito, colaboración al acusar pedorro, pedorro oculto/descubierto y casos límite
+
 ### 🔗 Sistema de URLs Inteligente
 - **Formato de URL**: `index.html?/g/CODIGO/p/NUMERO_JUGADOR/TOTAL_JUGADORES`
 - **Ejemplo**: `index.html?/g/galerna/p/1/5` → Jugador 1 de 5, código "galerna"
@@ -286,6 +294,13 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 - `generateNextSounds(roles, totalPlayers)` - Genera diccionario de sonidos para cada jugador
 - `shuffleArray(array)` - Mezcla array usando algoritmo Fisher-Yates (inmutable)
 
+### Puntuación de Ronda
+- `validateScoreInputs(acusations, peditos, pedorro)` - Valida entradas para el cálculo de puntuación
+- `countPeditoHits(playerAccusations, peditos)` - Cuenta aciertos de peditos (incluye autopedito)
+- `countPedorroHits(allAccusations, pedorro)` - Cuenta cuántxs acertaron al pedorro
+- `calculatePlayerScore(playerNumber, playerAccusations, peditos, pedorro, allAccusations)` - Calcula la puntuación individual
+- `calculateRoundScore(acusations, peditos, pedorro)` - Calcula puntuación de toda la ronda
+
 ### Funcionalidad DISIMULAR
 - `getPlayerRole(peditos, pedorro, playerNumber)` - Determina rol del jugador (pedito, pedorro, neutral)
 - `determineSoundForPlayer(nextSounds, peditos, pedorro, playerNumber)` - Lógica de selección de sonido
@@ -403,7 +418,7 @@ npm run test:e2e:headed # Tests E2E con navegador visible
 
 ### Fase 7: Estado RESULTS y Puntuaciones
 - [ ] Estado RESULTS con puntuaciones y ranking
-- [ ] Lógica de cálculo de puntos por acusaciones correctas
+- [x] Lógica de cálculo de puntos por acusaciones correctas (función `calculateRoundScore` + tests)
 
 ### Fase 8: Sincronización Avanzada
 - [ ] Sincronización en tiempo real del estado del juego

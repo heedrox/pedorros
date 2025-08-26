@@ -565,3 +565,184 @@ export const getAccusationsProgress = (accusationsData, totalPlayers) => {
         };
     }
 };
+
+/**
+ * Valida las entradas para el cálculo de puntuación
+ * @param {Object} acusations - Objeto con acusaciones de todos los jugadores
+ * @param {Array<number>} peditos - Array de números de jugadores que son peditos
+ * @param {number} pedorro - Número del jugador que es el pedorro
+ * @returns {Object} Objeto con validación y posibles errores
+ */
+export const validateScoreInputs = (acusations, peditos, pedorro) => {
+    const errors = [];
+    
+    // Validar acusations
+    if (!acusations || typeof acusations !== 'object') {
+        errors.push('acusations debe ser un objeto válido');
+    }
+    
+    // Validar peditos
+    if (!Array.isArray(peditos)) {
+        errors.push('peditos debe ser un array');
+    } else if (peditos.length === 0) {
+        errors.push('peditos no puede estar vacío');
+    } else if (!peditos.every(p => typeof p === 'number' && p > 0)) {
+        errors.push('peditos debe contener solo números positivos');
+    }
+    
+    // Validar pedorro
+    if (typeof pedorro !== 'number' || pedorro <= 0) {
+        errors.push('pedorro debe ser un número positivo');
+    }
+    
+    // Validar que no haya conflictos entre peditos y pedorro
+    if (peditos.includes(pedorro)) {
+        errors.push('pedorro no puede ser también un pedito');
+    }
+    
+    // Validar que las acusaciones tengan el formato correcto
+    if (acusations && typeof acusations === 'object') {
+        for (const [key, accusation] of Object.entries(acusations)) {
+            if (!key.startsWith('acusation')) {
+                errors.push(`Clave inválida en acusations: ${key}`);
+                continue;
+            }
+            
+            if (!accusation || typeof accusation !== 'object') {
+                errors.push(`Acusación inválida para ${key}`);
+                continue;
+            }
+            
+            // Verificar que los valores sean válidos
+            const validRoles = ['neutral', 'pedito', 'pedorro'];
+            for (const [playerNum, role] of Object.entries(accusation)) {
+                if (!validRoles.includes(role)) {
+                    errors.push(`Rol inválido '${role}' en ${key} para jugador ${playerNum}`);
+                }
+            }
+        }
+    }
+    
+    return {
+        valid: errors.length === 0,
+        errors
+    };
+};
+
+/**
+ * Cuenta cuántos peditos acertó un jugador
+ * @param {Object} playerAccusations - Acusaciones del jugador específico
+ * @param {Array<number>} peditos - Array de números de jugadores que son peditos
+ * @returns {number} Número de peditos acertados
+ */
+export const countPeditoHits = (playerAccusations, peditos) => {
+    if (!playerAccusations || !Array.isArray(peditos)) {
+        return 0;
+    }
+    
+    let hits = 0;
+    
+    // Para cada jugador que es realmente un pedito, verificar si el jugador lo acusó correctamente
+    for (const peditoNumber of peditos) {
+        if (playerAccusations[peditoNumber] === 'pedito') {
+            hits++;
+        }
+    }
+    
+    return hits;
+};
+
+/**
+ * Cuenta cuántos jugadores acertaron al pedorro
+ * @param {Object} allAccusations - Todas las acusaciones de todos los jugadores
+ * @param {number} pedorro - Número del jugador que es el pedorro
+ * @returns {number} Número de aciertos al pedorro
+ */
+export const countPedorroHits = (allAccusations, pedorro) => {
+    if (!allAccusations || typeof pedorro !== 'number') {
+        return 0;
+    }
+    
+    let hits = 0;
+    
+    for (const [key, accusation] of Object.entries(allAccusations)) {
+        if (!key.startsWith('acusation')) continue;
+        
+        if (accusation && accusation[pedorro] === 'pedorro') {
+            hits++;
+        }
+    }
+    
+    return hits;
+};
+
+/**
+ * Calcula la puntuación individual de un jugador
+ * @param {number} playerNumber - Número del jugador
+ * @param {Object} playerAccusations - Acusaciones del jugador específico
+ * @param {Array<number>} peditos - Array de números de jugadores que son peditos
+ * @param {number} pedorro - Número del jugador que es el pedorro
+ * @param {Object} allAccusations - Todas las acusaciones de todos los jugadores
+ * @returns {number} Puntuación total del jugador
+ */
+export const calculatePlayerScore = (playerNumber, playerAccusations, peditos, pedorro, allAccusations) => {
+    if (!playerAccusations || !Array.isArray(peditos) || typeof pedorro !== 'number') {
+        return 0;
+    }
+    
+    let score = 0;
+    
+    // Puntos por peditos acertados (1 punto por cada acierto)
+    const peditoHits = countPeditoHits(playerAccusations, peditos);
+    score += peditoHits;
+    
+    // Puntos por pedorro
+    if (playerNumber === pedorro) {
+        // Si el jugador ES el pedorro: 10 puntos si nadie lo acusó
+        const pedorroHits = countPedorroHits(allAccusations, pedorro);
+        if (pedorroHits === 0) {
+            score += 10;
+        }
+        // NOTA: El pedorro SÍ puede obtener puntos por acertar peditos
+    } else {
+        // Si el jugador NO es el pedorro: 5 puntos si acertó al pedorro Y otra persona también acertó
+        if (playerAccusations[pedorro] === 'pedorro') {
+            const totalPedorroHits = countPedorroHits(allAccusations, pedorro);
+            if (totalPedorroHits >= 2) { // Al menos 2 aciertos (incluyendo este jugador)
+                score += 5;
+            }
+        }
+    }
+    
+    return score;
+};
+
+/**
+ * Calcula la puntuación de la ronda para todos los jugadores
+ * @param {Object} acusations - Objeto con acusaciones de todos los jugadores
+ * @param {Array<number>} peditos - Array de números de jugadores que son peditos
+ * @param {number} pedorro - Número del jugador que es el pedorro
+ * @returns {Object} Objeto con puntuación de cada jugador { 1: 12, 2: 8, ... }
+ */
+export const calculateRoundScore = (acusations, peditos, pedorro) => {
+    // Validar entradas
+    const validation = validateScoreInputs(acusations, peditos, pedorro);
+    if (!validation.valid) {
+        throw new Error(`Entradas inválidas para cálculo de puntuación: ${validation.errors.join(', ')}`);
+    }
+    
+    const scores = {};
+    
+    // Calcular puntuación para cada jugador
+    for (const [key, accusation] of Object.entries(acusations)) {
+        if (!key.startsWith('acusation')) continue;
+        
+        const playerNumber = parseInt(key.replace('acusation', ''));
+        if (isNaN(playerNumber)) continue;
+        
+        const playerScore = calculatePlayerScore(playerNumber, accusation, peditos, pedorro, acusations);
+        scores[playerNumber] = playerScore;
+    }
+    
+    return scores;
+};
