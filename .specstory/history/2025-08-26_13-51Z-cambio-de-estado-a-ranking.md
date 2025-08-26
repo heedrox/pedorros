@@ -2005,3 +2005,353 @@ Navigated to http://127.0.0.1:3000/?/g/galerna/p/1/5
 
 ---
 
+_**User**_
+
+@write-features-in-readme-before-commiting.mdc commit + push
+
+---
+
+_**Assistant**_
+
+Perfecto! Voy a actualizar el README.md con la nueva funcionalidad implementada y luego hacer commit + push. Primero voy a leer el README actual para ver qué hay que actualizar:
+
+
+---
+
+Read file: README.md
+
+---
+
+Ahora voy a leer más del README para ver la sección de funcionalidades recientes:
+
+
+---
+
+Read file: README.md
+
+---
+
+Ahora voy a agregar la nueva funcionalidad de transición automática a RANKING en el README:
+
+
+---
+
+<details><summary>Edit file: README.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 10, lines removed: undefined
+
+```diff
+@@ -84,4 +84,14 @@
+  - **Colores oficiales**: Verde (#4CAF50), Naranja (#FF9800), Rojo (#F44336)
+  - **Posicionamiento inteligente**: Botones sobre grid de jugadores, bajo mensaje del pedorro
++ 
++ ### 🏆 Transición Automática a RANKING
++ - **Detección automática** cuando todos los jugadores han enviado sus acusaciones
++ - **Transición automática** del estado ACUSE a RANKING solo por el jugador 1 (director)
++ - **Sincronización en tiempo real** para todos los jugadores mediante Firebase
++ - **Nueva pantalla de ranking** con texto "RANKING" centrado y estilizado
++ - **Listener de estado universal** que notifica a todos los jugadores del cambio
++ - **Arquitectura inmutable** que mantiene separación entre core y DOM
++ - **Validación de permisos** - solo el jugador 1 puede cambiar el estado del juego
++ - **Pantalla responsive** con estilos consistentes con la temática marrón del juego
+  
+  ### 🔗 Sistema de URLs Inteligente
+```
+
+</details>
+
+---
+
+Ahora voy a verificar si necesito actualizar el PRODUCT_BRIEF.md. Primero voy a leerlo para ver si hay información relevante sobre la funcionalidad de ranking:
+
+
+---
+
+<details>
+            <summary>Grep search for "RANKING" • **28** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///Users/jordimarti/Development/pedorro/README.md` | L87 | `### 🏆 Transición Automática a RANKING` |
+| `file:///Users/jordimarti/Development/pedorro/README.md` | L89 | `- **Transición automática** del estado ACUSE a RANKING solo por el jugador 1 (director)` |
+| `file:///Users/jordimarti/Development/pedorro/README.md` | L91 | `- **Nueva pantalla de ranking** con texto "RANKING" centrado y estilizado` |
+| `file:///Users/jordimarti/Development/pedorro/README.md` | L405 | `- [ ] Estado RESULTS con puntuaciones y ranking` |
+| `file:///Users/jordimarti/Development/pedorro/README.md` | L411 | `- [ ] Persistencia de ranking entre sesiones` |
+| `file:///Users/jordimarti/Development/pedorro/scripts/quick-test.cjs` | L109 | `ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0003_PLAN.md` | L7 | `⟪ 456 characters skipped ⟫documento a guardar de reinicio será: { ranking: {}, lastResult: null, numRound: 1, state: 'START', nextSounds: {}, pedorroSound: null }"` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0003_PLAN.md` | L46 | `ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0004_PLAN.md` | L112 | `"ranking": {},` |
+| `file:///Users/jordimarti/Development/pedorro/docs/PRODUCT_BRIEF.md` | L36 | `- Ranking visible entre rondas` |
+| `file:///Users/jordimarti/Development/pedorro/docs/PRODUCT_BRIEF.md` | L57 | `3. **RESULTS**: Puntuaciones y ranking` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L1 | `# PLAN TÉCNICO - Transición Automática de ACUSE a RANKING` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L5 | `⟪ 225 characters skipped ⟫á automáticamente el estado del juego a RANKING. Cuando se detecte ese nuevo estado, se mostrará una nueva pantalla con el texto "RANKING" en el centro, que será la base para futuras evoluciones de la funcionalidad.` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L7 | `⟪ 143 characters skipped ⟫= ACUSE), entonces se cambie el state = RANKING. Cuando se detecte ese state, se mostrará la página ahora un texto en el centro que pone "RANKING" y que luego seguiremos evolucionando."` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L14 | `- **Función existente**: Modificar `renderScreen()` para manejar estado 'RANKING'` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L15 | `- **Nueva función**: `renderRankingScreen()` para renderizar la pantalla de ranking` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L16 | `- **Función existente**: Modificar `cleanupAccusationsTracking()` para limpiar listeners de ranking` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L19 | `- **Función existente**: Usar `updateGameState()` para cambiar a estado 'RANKING'` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L22 | `- **Nueva pantalla**: Agregar pantalla de ranking con texto "RANKING" centrado` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L25 | `- **Nuevos estilos**: Para la pantalla de ranking y el texto centrado` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L38 | `5. **Cambiar estado**: Llamar a `updateGameState(gameCode, 'RANKING')`` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L39 | `6. **Actualizar estado local**: Usar `changeGameState(gameState, 'RANKING')`` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L42 | `### Función `renderRankingScreen()`` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L46 | `3. **Mostrar ranking**: Activar la pantalla de ranking` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L52 | `2. **Switch statement**: Agregar caso 'RANKING' que llame a `renderRankingScreen()`` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L63 | `### Fase 2: Pantalla de Ranking` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L64 | `- Crear nueva pantalla en HTML con texto "RANKING" centrado` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L65 | `- Implementar `renderRankingScreen()` en script.js` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L66 | `- Modificar `renderScreen()` para manejar estado 'RANKING'` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0011_PLAN.md` | L70 | `- Modificar `cleanupAccusationsTracking()` para limpiar listeners de ranking` |
+| `file:///Users/jordimarti/Development/pedorro/web/firebase-database.js` | L22 | `ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/web/firebase-database.js` | L46 | `ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/web/styles.css` | L704 | `/* Estilos para la pantalla de ranking */` |
+| `file:///Users/jordimarti/Development/pedorro/web/styles.css` | L705 | `.ranking-container {` |
+| `file:///Users/jordimarti/Development/pedorro/web/styles.css` | L714 | `.ranking-title {` |
+| `file:///Users/jordimarti/Development/pedorro/web/styles.css` | L765 | `.ranking-title {` |
+| `file:///Users/jordimarti/Development/pedorro/web/styles.css` | L804 | `.ranking-title {` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_15-26Z-fix-gamestate-variable-and-update-tests.md` | L145 | `| `file:///Users/jordimarti/Development/pedorro/docs/features/0003_PLAN.md` | L7 | `⟪ 487 characters skipped ⟫ será: { ranking: {}, lastResult: null, numRound: 1, state: 'START', nextSounds: {}, pedorroSound: null }"` |` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_15-26Z-fix-gamestate-variable-and-update-tests.md` | L156 | `⟪ 140 characters skipped ⟫6 | `⟪ 489 characters skipped ⟫ será: { ranking: {}, lastResult: null, numRound: 1, state: 'START', nextSounds: {}, pedorroSound: null }"` |` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_15-26Z-fix-gamestate-variable-and-update-tests.md` | L199 | `+     ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_15-26Z-fix-gamestate-variable-and-update-tests.md` | L456 | `+             ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/web/index.html` | L138 | `<!-- Pantalla de Ranking (oculta por defecto) -->` |
+| `file:///Users/jordimarti/Development/pedorro/web/index.html` | L139 | `<div id="ranking-screen" class="screen inactive">` |
+| `file:///Users/jordimarti/Development/pedorro/web/index.html` | L140 | `<div class="ranking-container">` |
+| `file:///Users/jordimarti/Development/pedorro/web/index.html` | L141 | `<h1 class="ranking-title">RANKING</h1>` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L148 | `case 'RANKING':` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L149 | `renderRankingScreen(gameState);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L200 | `// Función pura para renderizar la pantalla de ranking` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L201 | `const renderRankingScreen = (gameState) => {` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L207 | `const rankingScreen = document.getElementById('ranking-screen');` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L211 | `activate(rankingScreen);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L213 | `// Limpiar tracking de acusaciones al cambiar a la pantalla de ranking` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L216 | `console.log('Pantalla de ranking mostrada');` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L1119 | `console.log('Todos los jugadores han enviado acusaciones. Transicionando a RANKING...');` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L1123 | `const result = await updateGameState(gameState.gameCode, 'RANKING');` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L1126 | `console.log('Estado del juego actualizado a RANKING:', result);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L1129 | `gameState = changeGameState(gameState, 'RANKING');` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L1134 | `console.log('Transición a estado RANKING completada');` |
+| `file:///Users/jordimarti/Development/pedorro/web/lib.js` | L20 | `ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/web/lib.js` | L143 | `ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_12-56Z-implementar-l%C3%B3gica-de-juego-para-peditos-y-pedorros.md` | L209 | `+       "ranking": {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_12-56Z-implementar-l%C3%B3gica-de-juego-para-peditos-y-pedorros.md` | L494 | `"ranking": {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_12-56Z-implementar-l%C3%B3gica-de-juego-para-peditos-y-pedorros.md` | L2220 | `"ranking": {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_08-52Z-creaci%C3%B3n-de-la-app-pedorros.md` | L17 | `Así se jugará hasta 5 rondas. Los jugadores verán el ranking entre ronda y ronda, y su puntuación de la ronda actual.` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_08-52Z-creaci%C3%B3n-de-la-app-pedorros.md` | L25 | `- Al pulsar terminar, pasamos al state = "RESULTS", donde se ven los resultados actuales, y el ranking de todas las rondas.` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_08-52Z-creaci%C3%B3n-de-la-app-pedorros.md` | L155 | `+ - Ranking visible entre rondas` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_08-52Z-creaci%C3%B3n-de-la-app-pedorros.md` | L175 | `+ 4. **RESULTS**: Puntuaciones y ranking` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_08-52Z-creaci%C3%B3n-de-la-app-pedorros.md` | L328 | `4. **RESULTS**: Puntuaciones y ranking` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_08-52Z-creaci%C3%B3n-de-la-app-pedorros.md` | L501 | `- 4. **RESULTS**: Puntuaciones y ranking` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_08-52Z-creaci%C3%B3n-de-la-app-pedorros.md` | L504 | `+ 3. **RESULTS**: Puntuaciones y ranking` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_13-51Z-agregar-bot%C3%B3n-investigar-para-jugador-1.md` | L1373 | `- - [ ] Persistencia de ranking entre sesiones` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_13-51Z-agregar-bot%C3%B3n-investigar-para-jugador-1.md` | L1418 | `+ - [ ] Persistencia de ranking entre sesiones` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_13-15Z-implementar-contador-y-sonidos-en-el-juego.md` | L2219 | `+             ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_13-15Z-implementar-contador-y-sonidos-en-el-juego.md` | L2573 | `+             ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_13-15Z-implementar-contador-y-sonidos-en-el-juego.md` | L2753 | `+             ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_13-15Z-implementar-contador-y-sonidos-en-el-juego.md` | L3163 | `+             ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_14-35Z-implementar-funcionalidad-de-acusaci%C3%B3n.md` | L2661 | `+                 ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_14-35Z-implementar-funcionalidad-de-acusaci%C3%B3n.md` | L5124 | `2. **Transición al estado RESULTS** (puntuaciones y ranking)` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_14-35Z-implementar-funcionalidad-de-acusaci%C3%B3n.md` | L5361 | `+ - [ ] Estado RESULTS con puntuaciones y ranking` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_11-04Z-implementar-bot%C3%B3n-de-reinicio-en-el-juego.md` | L17 | `{ ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_11-04Z-implementar-bot%C3%B3n-de-reinicio-en-el-juego.md` | L96 | `⟪ 458 characters skipped ⟫documento a guardar de reinicio será: { ranking: {}, lastResult: null, numRound: 1, state: 'START', nextSounds: {}, pedorroSound: null }"` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_11-04Z-implementar-bot%C3%B3n-de-reinicio-en-el-juego.md` | L135 | `+     ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_11-04Z-implementar-bot%C3%B3n-de-reinicio-en-el-juego.md` | L247 | `- **Estructura de datos**: Documento de reinicio con ranking vacío, ronda 1, estado START, etc.` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_11-04Z-implementar-bot%C3%B3n-de-reinicio-en-el-juego.md` | L410 | `+     ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_11-04Z-implementar-bot%C3%B3n-de-reinicio-en-el-juego.md` | L484 | `+     ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_11-04Z-implementar-bot%C3%B3n-de-reinicio-en-el-juego.md` | L950 | `ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_11-04Z-implementar-bot%C3%B3n-de-reinicio-en-el-juego.md` | L2575 | `+ - [ ] Persistencia de ranking entre sesiones` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_15-17Z-condiciones-para-mostrar-reiniciar-en-m%C3%B3viles.md` | L987 | `ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_15-17Z-condiciones-para-mostrar-reiniciar-en-m%C3%B3viles.md` | L1069 | `ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-24_15-17Z-condiciones-para-mostrar-reiniciar-en-m%C3%B3viles.md` | L1162 | `ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/.specstory/history/2025-08-25_18-14Z-agregar-botones-en-la-pantalla-de-acuse.md` | L1964 | `- [ ] Estado RESULTS con puntuaciones y ranking` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L148 | `case 'RANKING':` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L149 | `renderRankingScreen(gameState);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L200 | `// Función pura para renderizar la pantalla de ranking` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L201 | `const renderRankingScreen = (gameState) => {` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L207 | `const rankingScreen = document.getElementById('ranking-screen');` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L211 | `activate(rankingScreen);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L213 | `// Limpiar tracking de acusaciones al cambiar a la pantalla de ranking` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L216 | `console.log('Pantalla de ranking mostrada');` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L1119 | `console.log('Todos los jugadores han enviado acusaciones. Transicionando a RANKING...');` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L1123 | `const result = await updateGameState(gameState.gameCode, 'RANKING');` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L1126 | `console.log('Estado del juego actualizado a RANKING:', result);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L1129 | `gameState = changeGameState(gameState, 'RANKING');` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L1134 | `console.log('Transición a estado RANKING completada');` |
+| `file:///Users/jordimarti/Development/pedorro/web/styles.css` | L704 | `/* Estilos para la pantalla de ranking */` |
+| `file:///Users/jordimarti/Development/pedorro/web/styles.css` | L705 | `.ranking-container {` |
+| `file:///Users/jordimarti/Development/pedorro/web/styles.css` | L714 | `.ranking-title {` |
+| `file:///Users/jordimarti/Development/pedorro/web/styles.css` | L765 | `.ranking-title {` |
+| `file:///Users/jordimarti/Development/pedorro/web/styles.css` | L804 | `.ranking-title {` |
+| `file:///Users/jordimarti/Development/pedorro/web/index.html` | L138 | `<!-- Pantalla de Ranking (oculta por defecto) -->` |
+| `file:///Users/jordimarti/Development/pedorro/web/index.html` | L139 | `<div id="ranking-screen" class="screen inactive">` |
+| `file:///Users/jordimarti/Development/pedorro/web/index.html` | L140 | `<div class="ranking-container">` |
+| `file:///Users/jordimarti/Development/pedorro/web/index.html` | L141 | `<h1 class="ranking-title">RANKING</h1>` |
+| `file:///Users/jordimarti/Development/pedorro/docs/features/0004_PLAN.md` | L112 | `"ranking": {},` |
+| `file:///Users/jordimarti/Development/pedorro/scripts/quick-test.cjs` | L109 | `ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/README.md` | L87 | `### 🏆 Transición Automática a RANKING` |
+| `file:///Users/jordimarti/Development/pedorro/README.md` | L89 | `- **Transición automática** del estado ACUSE a RANKING solo por el jugador 1 (director)` |
+| `file:///Users/jordimarti/Development/pedorro/README.md` | L91 | `- **Nueva pantalla de ranking** con texto "RANKING" centrado y estilizado` |
+| `file:///Users/jordimarti/Development/pedorro/README.md` | L405 | `- [ ] Estado RESULTS con puntuaciones y ranking` |
+| `file:///Users/jordimarti/Development/pedorro/README.md` | L411 | `- [ ] Persistencia de ranking entre sesiones` |
+| `file:///Users/jordimarti/Development/pedorro/web/lib.js` | L20 | `ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/web/lib.js` | L143 | `ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/web/firebase-database.js` | L22 | `ranking: {},` |
+| `file:///Users/jordimarti/Development/pedorro/web/firebase-database.js` | L46 | `ranking: {},` |
+
+</details>
+
+---
+
+Veo que el PRODUCT_BRIEF.md ya menciona el estado RANKING. Voy a leer esa sección para ver si necesito actualizarla:
+
+
+---
+
+Read file: docs/PRODUCT_BRIEF.md
+
+---
+
+Perfecto! El PRODUCT_BRIEF.md ya menciona el estado RANKING en la línea 56. Ahora voy a hacer commit y push de la nueva funcionalidad. Primero voy a verificar el estado del repositorio:
+
+
+---
+
+```bash
+git status
+```
+
+```
+(base) ➜  pedorro git:(main) ✗ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   .specstory/history/2025-08-25_18-14Z-agregar-botones-en-la-pantalla-de-acuse.md
+        modified:   README.md
+        modified:   test/unit/acusaciones.test.js
+        modified:   test/unit/gameRoles.test.js
+        modified:   web/firebase-database.js
+        modified:   web/index.html
+        modified:   web/lib.js
+        modified:   web/script.js
+        modified:   web/styles.css
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        .specstory/history/2025-08-25_18-33Z-implementar-funcionalidad-de-acusaciones.md
+        .specstory/history/2025-08-26_13-51Z-cambio-de-estado-a-ranking.md
+        docs/features/0010_PLAN.md
+        docs/features/0011_PLAN.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+---
+
+Ahora voy a agregar todos los archivos modificados y nuevos al staging area:
+
+
+---
+
+```bash
+git add .
+```
+
+```
+(base) ?➜  pedorro git:(main) ?✗ git add .
+```
+
+---
+
+Ahora voy a hacer commit con un mensaje descriptivo de la nueva funcionalidad:
+
+
+---
+
+```bash
+git commit -m "feat: implementar transición automática de ACUSE a RANKING
+
+- Agregar detección automática cuando todos los jugadores envían acusaciones
+- Implementar transición automática solo por jugador 1 (director del juego)
+- Crear nueva pantalla de ranking con texto centrado y estilos responsive
+- Modificar listener de estado para notificar a todos los jugadores
+- Mantener separación de responsabilidades entre core y DOM
+- Actualizar README.md con nueva funcionalidad
+- Seguir filosofía Small Safe Steps con implementación incremental"
+```
+
+```
+<fía Small Safe Steps con implementación incremental"
+[main df17c2a] feat: implementar transición automática de ACUSE a RANKING
+ 13 files changed, 8375 insertions(+), 70 deletions(-)
+ create mode 100644 .specstory/history/2025-08-25_18-33Z-implementar-funcionalidad-de-acusaciones.md
+ create mode 100644 .specstory/history/2025-08-26_13-51Z-cambio-de-estado-a-ranking.md
+ create mode 100644 docs/features/0010_PLAN.md
+ create mode 100644 docs/features/0011_PLAN.md
+```
+
+---
+
+Excelente! Ahora voy a hacer push de los cambios al repositorio remoto:
+
+
+---
+
+```bash
+git push origin main
+```
+
+```
+(base) ?➜  pedorro git:(main) ?✗ git push origin main
+Enumerating objects: 39, done.
+Counting objects: 100% (39/39), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (22/22), done.
+Writing objects: 100% (22/22), 53.39 KiB | 4.45 MiB/s, done.
+Total 22 (delta 16), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (16/16), completed with 14 local objects.
+To github.com:heedrox/pedorros.git
+   83b96f8..df17c2a  main -> main
+```
+
+---
+
+¡Perfecto! He completado exitosamente la implementación y el commit + push de la nueva funcionalidad. 
+
+## Resumen de lo implementado:
+
+### �� **Transición Automática de ACUSE a RANKING**
+
+**Funcionalidad principal:**
+- **Detección automática** cuando todos los jugadores han enviado sus acusaciones
+- **Transición automática** del estado ACUSE a RANKING solo por el jugador 1 (director)
+- **Sincronización en tiempo real** para todos los jugadores mediante Firebase
+
+**Componentes implementados:**
+1. **Lógica de detección** en `updateAccusationsCounter()` - detecta cuando `progress.totalSent === progress.totalExpected`
+2. **Transición de estado** usando `updateGameState()` y `changeGameState()`
+3. **Nueva pantalla de ranking** con texto "RANKING" centrado y estilos responsive
+4. **Listener de estado universal** que notifica a todos los jugadores del cambio
+5. **Función `renderRankingScreen()`** para manejar la nueva pantalla
+6. **Modificación de `renderScreen()`** para incluir caso 'RANKING'
+
+**Arquitectura mantenida:**
+- ✅ **Separación de responsabilidades** entre core (lib.js) y DOM (script.js)
+- ✅ **Inmutabilidad** del código sin side effects
+- ✅ **Filosofía Small Safe Steps** con implementación incremental
+- ✅ **Validación de permisos** - solo el jugador 1 puede cambiar el estado
+
+**Archivos modificados:**
+- `web/script.js` - Lógica principal de transición y renderizado
+- `web/index.html` - Nueva pantalla de ranking
+- `web/styles.css` - Estilos para la nueva pantalla
+- `README.md` - Documentación de la nueva funcionalidad
+
+La funcionalidad está lista y funcionando. Ahora cuando todos los jugadores envíen sus acusaciones, el jugador 1 automáticamente cambiará el estado a RANKING y todos los jugadores verán la nueva pantalla sincronizada en tiempo real.
+
+---
+

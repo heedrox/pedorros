@@ -23,6 +23,7 @@ import {
     convertAccusationColorsToRoles,
     validateAccusationFormat,
     getAccusationsProgress,
+    calculateRoundScore,
     AUTH_STATES
 } from './lib.js';
 
@@ -41,7 +42,8 @@ import {
     updateGameState,
     getGameState,
     savePlayerAccusations,
-    setupAccusationsListener
+    setupAccusationsListener,
+    updateGameRanking
 } from './firebase-database.js';
 
 import { playAudio } from './audio.js';
@@ -198,7 +200,7 @@ const renderStartScreen = (gameState) => {
 };
 
 // Función pura para renderizar la pantalla de ranking
-const renderRankingScreen = (gameState) => {
+const renderRankingScreen = async (gameState) => {
     const { numRound, playerNumber, totalPlayers } = gameState;
     
     // Ocultar todas las pantallas del juego
@@ -213,7 +215,93 @@ const renderRankingScreen = (gameState) => {
     // Limpiar tracking de acusaciones al cambiar a la pantalla de ranking
     cleanupAccusationsTracking();
     
+    try {
+        // Obtener datos de ranking desde Firebase
+        const currentGameState = await getGameState(gameState.gameCode);
+        const ranking = currentGameState?.ranking || {};
+        const lastRoundScore = currentGameState?.lastRoundScore || {};
+        
+        console.log('Datos de ranking obtenidos:', { ranking, lastRoundScore });
+        
+        // Renderizar tabla de ranking
+        renderRankingTable(ranking, lastRoundScore, totalPlayers, numRound);
+        
+    } catch (error) {
+        console.error('Error al obtener datos de ranking:', error);
+        // Mostrar mensaje de error o ranking vacío
+        renderRankingTable({}, {}, totalPlayers, numRound);
+    }
+    
     console.log('Pantalla de ranking mostrada');
+};
+
+/**
+ * Renderiza la tabla de ranking con puntuaciones totales y puntos de ronda
+ * @param {Object} ranking - Objeto con puntuaciones totales por jugador
+ * @param {Object} lastRoundScore - Objeto con puntos de la ronda actual
+ * @param {number} totalPlayers - Número total de jugadores
+ * @param {number} numRound - Número de la ronda actual
+ */
+const renderRankingTable = (ranking, lastRoundScore, totalPlayers, numRound) => {
+    const rankingContainer = document.getElementById('ranking-container');
+    if (!rankingContainer) {
+        console.error('Contenedor de ranking no encontrado');
+        return;
+    }
+    
+    try {
+        // Crear array de jugadores con sus puntuaciones para ordenar
+        const playersWithScores = [];
+        for (let playerNumber = 1; playerNumber <= totalPlayers; playerNumber++) {
+            const totalScore = ranking[playerNumber] || 0;
+            const roundPoints = lastRoundScore[playerNumber] || 0;
+            
+            playersWithScores.push({
+                playerNumber,
+                totalScore,
+                roundPoints
+            });
+        }
+        
+        // Ordenar por puntuación total descendente
+        playersWithScores.sort((a, b) => b.totalScore - a.totalScore);
+        
+        // Generar HTML de la tabla
+        let rankingHTML = '<div class="ranking-table">';
+        rankingHTML += '<h2 class="ranking-title">🏆 RANKING GLOBAL</h2>';
+        rankingHTML += `<h3 class="ranking-subtitle">Ronda ${numRound} / 5</h3>`;
+        
+        playersWithScores.forEach((player, index) => {
+            const position = index + 1;
+            const { playerNumber, totalScore, roundPoints } = player;
+            
+            // Determinar clase CSS para la posición
+            let positionClass = 'ranking-position';
+            if (position === 1) positionClass += ' first-place';
+            else if (position === 2) positionClass += ' second-place';
+            else if (position === 3) positionClass += ' third-place';
+            
+            rankingHTML += `
+                <div class="ranking-row ${positionClass}">
+                    <div class="position">${position}º</div>
+                    <div class="player">Jug. ${playerNumber}</div>
+                    <div class="total-score">${totalScore}</div>
+                    <div class="round-points">(+${roundPoints})</div>
+                </div>
+            `;
+        });
+        
+        rankingHTML += '</div>';
+        
+        // Insertar en el DOM
+        rankingContainer.innerHTML = rankingHTML;
+        
+        console.log('Tabla de ranking renderizada:', playersWithScores);
+        
+    } catch (error) {
+        console.error('Error al renderizar tabla de ranking:', error);
+        rankingContainer.innerHTML = '<div class="ranking-error">Error al cargar el ranking</div>';
+    }
 };
 
 // Función pura para renderizar la pantalla de acusación
@@ -1082,6 +1170,68 @@ const setupAccusationsTracking = () => {
 };
 
 /**
+ * Calcula la puntuación de la ronda y actualiza el ranking global
+ * @param {Object} accusationsData - Datos de acusaciones desde Firebase
+ * @param {Object} gameState - Estado actual del juego
+ * @returns {Promise<Object>} Resultado de la operación
+ */
+const calculateAndUpdateRanking = async (accusationsData, gameState) => {
+    try {
+        console.log('Calculando puntuación de la ronda...');
+        console.log('Datos de acusaciones recibidos:', accusationsData);
+        
+        // Obtener roles del juego desde Firebase
+        const gameRoles = await getGameRoles(gameState.gameCode);
+        if (!gameRoles || !gameRoles.peditos || !gameRoles.pedorro) {
+            throw new Error('No se pudieron obtener los roles del juego');
+        }
+        
+        const { peditos, pedorro } = gameRoles;
+        console.log('Roles obtenidos:', { peditos, pedorro });
+        
+        // Calcular puntuación de la ronda usando la función del core
+        const roundScore = calculateRoundScore(accusationsData, peditos, pedorro);
+        console.log('Puntuación de la ronda calculada:', roundScore);
+        
+        // Obtener ranking actual desde Firebase (o usar objeto vacío si no existe)
+        const currentGameState = await getGameState(gameState.gameCode);
+        const currentRanking = currentGameState?.ranking || {};
+        console.log('Ranking actual:', currentRanking);
+        
+        // Actualizar puntuaciones totales sumando puntos anteriores + puntos de ronda
+        const updatedRanking = {};
+        for (let playerNumber = 1; playerNumber <= gameState.totalPlayers; playerNumber++) {
+            const previousScore = currentRanking[playerNumber] || 0;
+            const roundPoints = roundScore[playerNumber] || 0;
+            updatedRanking[playerNumber] = previousScore + roundPoints;
+        }
+        
+        console.log('Ranking actualizado:', updatedRanking);
+        
+        // Guardar ranking actualizado y puntuación de ronda en Firebase
+        const result = await updateGameRanking(gameState.gameCode, updatedRanking, roundScore);
+        
+        if (result.success) {
+            console.log('Ranking actualizado exitosamente en Firebase');
+            return {
+                success: true,
+                ranking: updatedRanking,
+                lastRoundScore: roundScore
+            };
+        } else {
+            throw new Error(`Error al actualizar ranking: ${result.error}`);
+        }
+        
+    } catch (error) {
+        console.error('Error al calcular y actualizar ranking:', error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+};
+
+/**
  * Actualiza el contador visual de acusaciones enviadas
  */
 const updateAccusationsCounter = async (accusationsData) => {
@@ -1116,24 +1266,33 @@ const updateAccusationsCounter = async (accusationsData) => {
 
             // Verificar si todos han enviado acusaciones para transición automática
             if (progress.totalSent === progress.totalExpected && gameState.state === 'ACUSE') {
-                console.log('Todos los jugadores han enviado acusaciones. Transicionando a RANKING...');
+                console.log('Todos los jugadores han enviado acusaciones. Calculando puntuación...');
                 
                 try {
-                    // Cambiar estado en Firebase
-                    const result = await updateGameState(gameState.gameCode, 'RANKING');
+                    // Primero calcular puntuación y actualizar ranking
+                    const rankingResult = await calculateAndUpdateRanking(accusationsData, gameState);
                     
-                    if (result.success) {
-                        console.log('Estado del juego actualizado a RANKING:', result);
+                    if (rankingResult.success) {
+                        console.log('Ranking calculado y actualizado:', rankingResult);
                         
-                        // Actualizar estado local del juego
-                        gameState = changeGameState(gameState, 'RANKING');
+                        // Ahora cambiar estado en Firebase
+                        const result = await updateGameState(gameState.gameCode, 'RANKING');
                         
-                        // Re-renderizar pantalla
-                        renderScreen(gameState);
-                        
-                        console.log('Transición a estado RANKING completada');
+                        if (result.success) {
+                            console.log('Estado del juego actualizado a RANKING:', result);
+                            
+                            // Actualizar estado local del juego
+                            gameState = changeGameState(gameState, 'RANKING');
+                            
+                            // Re-renderizar pantalla
+                            renderScreen(gameState);
+                            
+                            console.log('Transición a estado RANKING completada');
+                        } else {
+                            console.error('Error al actualizar estado del juego:', result.error);
+                        }
                     } else {
-                        console.error('Error al actualizar estado del juego:', result.error);
+                        console.error('Error al calcular ranking:', rankingResult.error);
                     }
                 } catch (error) {
                     console.error('Error al manejar transición automática:', error);

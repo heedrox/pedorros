@@ -348,3 +348,53 @@ export const setupAccusationsListener = (gameCode, callback) => {
         return () => {}; // Función de cleanup vacía en caso de error
     }
 };
+
+/**
+ * Actualiza el ranking del juego y la puntuación de la última ronda en Firebase Database
+ * @param {string} gameCode - Código del juego (ej: "galerna")
+ * @param {Object} ranking - Objeto con puntuaciones totales de todos los jugadores
+ * @param {Object} lastRoundScore - Objeto con puntuaciones de la ronda actual
+ * @returns {Promise<Object>} Resultado de la operación
+ */
+export const updateGameRanking = async (gameCode, ranking, lastRoundScore) => {
+    try {
+        if (!gameCode || typeof gameCode !== 'string') {
+            throw new Error('Código de juego inválido');
+        }
+
+        if (!ranking || typeof ranking !== 'object') {
+            throw new Error('Ranking inválido');
+        }
+
+        if (!lastRoundScore || typeof lastRoundScore !== 'object') {
+            throw new Error('Puntuación de ronda inválida');
+        }
+
+        // Crear la estructura de datos para el ranking
+        const rankingData = {
+            ranking,
+            lastRoundScore,
+            lastUpdated: serverTimestamp()
+        };
+
+        // Usar update() para modificar solo los campos de ranking sin sobrescribir el documento completo
+        const gameRef = ref(database, `pedorros-game/${gameCode}`);
+        await update(gameRef, rankingData);
+        
+        return {
+            success: true,
+            message: `Ranking del juego actualizado exitosamente`,
+            gameCode,
+            ranking,
+            lastRoundScore,
+            timestamp: new Date().toISOString()
+        };
+    } catch (error) {
+        console.error('Error al actualizar ranking del juego:', error);
+        return {
+            success: false,
+            error: error.message,
+            gameCode
+        };
+    }
+};
