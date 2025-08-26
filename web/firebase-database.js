@@ -398,3 +398,53 @@ export const updateGameRanking = async (gameCode, ranking, lastRoundScore) => {
         };
     }
 };
+
+/**
+ * Reinicia el juego para la siguiente ronda, limpiando campos específicos y actualizando el estado
+ * @param {string} gameCode - Código del juego (ej: "galerna")
+ * @param {number} newNumRound - Nuevo número de ronda
+ * @returns {Promise<Object>} Resultado de la operación
+ */
+export const resetGameForNextRound = async (gameCode, newNumRound) => {
+    try {
+        if (!gameCode || typeof gameCode !== 'string') {
+            throw new Error('Código de juego inválido');
+        }
+
+        if (typeof newNumRound !== 'number' || newNumRound < 1) {
+            throw new Error('Número de ronda inválido');
+        }
+
+        // Crear la estructura de datos para el reinicio
+        const resetData = {
+            state: 'START',
+            numRound: newNumRound,
+            acusations: null,
+            lastRoundScore: null,
+            nextSounds: null,
+            peditos: null,
+            pedorro: null,
+            lastUpdated: serverTimestamp()
+        };
+
+        // Usar update() para modificar solo los campos específicos sin sobrescribir el documento completo
+        const gameRef = ref(database, `pedorros-game/${gameCode}`);
+        await update(gameRef, resetData);
+        
+        return {
+            success: true,
+            message: `Juego reiniciado para la ronda ${newNumRound}`,
+            gameCode,
+            newNumRound,
+            resetData,
+            timestamp: new Date().toISOString()
+        };
+    } catch (error) {
+        console.error('Error al reiniciar juego para siguiente ronda:', error);
+        return {
+            success: false,
+            error: error.message,
+            gameCode
+        };
+    }
+};

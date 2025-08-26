@@ -996,3 +996,71 @@ body {
         min-width: 45px;
     }
 }
+
+/* Estilos para el botón SIGUIENTE RONDA */
+.next-round-container {
+    text-align: center;
+    margin-top: 30px;
+    padding: 20px;
+}
+
+.next-round-button {
+    background: linear-gradient(135deg, #8B4513, #A0522D);
+    color: white;
+    border: none;
+    padding: 18px 35px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
+    min-width: 250px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.next-round-button:hover {
+    background: linear-gradient(135deg, #A0522D, #CD853F);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
+}
+
+.next-round-button:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
+}
+
+.next-round-button:disabled {
+    background: linear-gradient(135deg, #A9A9A9, #C0C0C0);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 4px 15px rgba(169, 169, 169, 0.3);
+}
+
+/* Responsive para botón SIGUIENTE RONDA */
+@media (max-width: 600px) {
+    .next-round-container {
+        margin-top: 20px;
+        padding: 15px;
+    }
+    
+    .next-round-button {
+        padding: 15px 30px;
+        font-size: 1.1rem;
+        min-width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .next-round-container {
+        margin-top: 15px;
+        padding: 10px;
+    }
+    
+    .next-round-button {
+        padding: 12px 25px;
+        font-size: 1rem;
+        min-width: 180px;
+    }
+}

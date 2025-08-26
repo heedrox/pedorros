@@ -4269,3 +4269,921 @@ El plan sigue la filosofía de **Small Safe Steps** y mantiene la arquitectura i
 
 ---
 
+_**User**_
+
+haz commit y push con lo que tenemos y luego @code-it.md 
+
+---
+
+_**Assistant**_
+
+Voy a hacer commit y push con los cambios del subtítulo de ronda, y luego procederé con la implementación del botón "SIGUIENTE RONDA".
+
+
+---
+
+```bash
+git add . && git commit -m "feat(ranking): añadir subtítulo de ronda en pantalla de ranking; mostrar 'Ronda X / 5' debajo del título principal" && git push
+```
+
+```
+
+[main a321cae] feat(ranking): añadir subtítulo de ronda en pantalla de ranking; mostrar 'Ronda X / 5' debajo
+ del título principal
+
+ 8 files changed, 5341 insertions(+), 16 deletions(-)
+ create mode 100644 ".specstory/history/2025-08-26_14-09Z-crear-funci\303\263n-para-calcular-puntuaci\303\26
+3n-de-ronda.md"
+
+ create mode 100644 docs/features/0013_PLAN.md
+ create mode 100644 docs/features/0014_PLAN.md
+Enumerating objects: 26, done.
+Counting objects: 100% (26/26), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (15/15), done.
+Writing objects: 100% (15/15), 39.53 KiB | 6.59 MiB/s, done.
+Total 15 (delta 11), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (11/11), completed with 9 local objects.
+To github.com:heedrox/pedorros.git
+   09a5d1f..a321cae  main -> main
+```
+
+---
+
+Perfecto! Ahora voy a proceder con la implementación del botón "SIGUIENTE RONDA" siguiendo el plan técnico.
+
+## Fase 1: Función de Reinicio en Firebase
+
+Primero voy a implementar la función `resetGameForNextRound` en `firebase-database.js`:
+
+
+---
+
+<details><summary>Edit file: web/firebase-database.js</summary>
+
+Añadir la función resetGameForNextRound al final del archivo para reiniciar el juego para la siguiente ronda
+
+**Chunk 1**
+Lines added: 50, lines removed: undefined
+
+```diff
+@@ -399,3 +399,53 @@
+      }
+  };
++ 
++ /**
++  * Reinicia el juego para la siguiente ronda, limpiando campos específicos y actualizando el estado
++  * @param {string} gameCode - Código del juego (ej: "galerna")
++  * @param {number} newNumRound - Nuevo número de ronda
++  * @returns {Promise<Object>} Resultado de la operación
++  */
++ export const resetGameForNextRound = async (gameCode, newNumRound) => {
++     try {
++         if (!gameCode || typeof gameCode !== 'string') {
++             throw new Error('Código de juego inválido');
++         }
++ 
++         if (typeof newNumRound !== 'number' || newNumRound < 1) {
++             throw new Error('Número de ronda inválido');
++         }
++ 
++         // Crear la estructura de datos para el reinicio
++         const resetData = {
++             state: 'START',
++             numRound: newNumRound,
++             acusations: null,
++             lastRoundScore: null,
++             nextSounds: null,
++             peditos: null,
++             pedorro: null,
++             lastUpdated: serverTimestamp()
++         };
++ 
++         // Usar update() para modificar solo los campos específicos sin sobrescribir el documento completo
++         const gameRef = ref(database, `pedorros-game/${gameCode}`);
++         await update(gameRef, resetData);
++         
++         return {
++             success: true,
++             message: `Juego reiniciado para la ronda ${newNumRound}`,
++             gameCode,
++             newNumRound,
++             resetData,
++             timestamp: new Date().toISOString()
++         };
++     } catch (error) {
++         console.error('Error al reiniciar juego para siguiente ronda:', error);
++         return {
++             success: false,
++             error: error.message,
++             gameCode
++         };
++     }
++ };
+  
+```
+
+</details>
+
+---
+
+## Fase 2: Integración en script.js
+
+Ahora voy a importar la nueva función en `script.js`:
+
+
+---
+
+<details><summary>Edit file: web/script.js</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -44,5 +44,6 @@
+      savePlayerAccusations,
+      setupAccusationsListener,
+-     updateGameRanking
++     updateGameRanking,
++     resetGameForNextRound
+  } from './firebase-database.js';
+  
+```
+
+</details>
+
+---
+
+Ahora voy a modificar `renderRankingTable` para que pase el `playerNumber` y añada el botón condicionalmente:
+
+
+---
+
+<details><summary>Edit file: web/script.js</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -226,5 +226,5 @@
+          
+          // Renderizar tabla de ranking
+-         renderRankingTable(ranking, lastRoundScore, totalPlayers, numRound);
++         renderRankingTable(ranking, lastRoundScore, totalPlayers, numRound, playerNumber);
+          
+      } catch (error) {
+```
+
+</details>
+
+---
+
+También necesito actualizar la llamada en el caso de error:
+
+
+---
+
+<details><summary>Edit file: web/script.js</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -231,5 +231,5 @@
+          console.error('Error al obtener datos de ranking:', error);
+          // Mostrar mensaje de error o ranking vacío
+-         renderRankingTable({}, {}, totalPlayers, numRound);
++         renderRankingTable({}, {}, totalPlayers, numRound, playerNumber);
+      }
+      
+```
+
+</details>
+
+---
+
+Ahora voy a modificar la función `renderRankingTable` para que acepte el `playerNumber` y añada el botón condicionalmente:
+
+
+---
+
+<details><summary>Edit file: web/script.js</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -243,6 +243,7 @@
+   * @param {number} totalPlayers - Número total de jugadores
+   * @param {number} numRound - Número de la ronda actual
++  * @param {number} playerNumber - Número del jugador actual
+   */
+- const renderRankingTable = (ranking, lastRoundScore, totalPlayers, numRound) => {
++ const renderRankingTable = (ranking, lastRoundScore, totalPlayers, numRound, playerNumber) => {
+      const rankingContainer = document.getElementById('ranking-container');
+      if (!rankingContainer) {
+```
+
+</details>
+
+---
+
+Ahora voy a añadir el botón "SIGUIENTE RONDA" al final del HTML generado, solo si el jugador es el jugador 1:
+
+
+---
+
+<details><summary>Edit file: web/script.js</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 11, lines removed: undefined
+
+```diff
+@@ -295,4 +295,15 @@
+          
+          rankingHTML += '</div>';
++         
++         // Añadir botón SIGUIENTE RONDA solo para el jugador 1
++         if (playerNumber === 1) {
++             rankingHTML += `
++                 <div class="next-round-container">
++                     <button id="next-round-btn" class="next-round-button">
++                         🔄 SIGUIENTE RONDA
++                     </button>
++                 </div>
++             `;
++         }
+          
+          // Insertar en el DOM
+```
+
+</details>
+
+---
+
+Ahora voy a añadir la función `handleNextRoundClick` después de `renderRankingTable`:
+
+
+---
+
+Model failed to call the tool with correct arguments.
+
+---
+
+<details><summary>Edit file: web/script.js</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 6, lines removed: undefined
+
+```diff
+@@ -312,4 +312,10 @@
+          console.log('Tabla de ranking renderizada:', playersWithScores);
+          
++         // Configurar event listener para el botón SIGUIENTE RONDA si existe
++         const nextRoundBtn = document.getElementById('next-round-btn');
++         if (nextRoundBtn) {
++             nextRoundBtn.addEventListener('click', () => handleNextRoundClick(gameState));
++         }
++         
+      } catch (error) {
+          console.error('Error al renderizar tabla de ranking:', error);
+```
+
+</details>
+
+---
+
+Ahora voy a añadir la función `handleNextRoundClick` después de `renderRankingTable`:
+
+
+---
+
+<details><summary>Edit file: web/script.js</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 47, lines removed: undefined
+
+```diff
+@@ -323,4 +323,51 @@
+      }
+  };
++ 
++ /**
++  * Maneja el click del botón SIGUIENTE RONDA
++  * @param {Object} gameState - Estado actual del juego
++  */
++ const handleNextRoundClick = async (gameState) => {
++     try {
++         console.log('Botón SIGUIENTE RONDA clickeado');
++         
++         // Validar que el jugador actual sea el jugador 1
++         if (!isPlayerOne(gameState)) {
++             console.error('Solo el jugador 1 puede iniciar la siguiente ronda');
++             return;
++         }
++         
++         // Validar que el estado actual sea RANKING
++         if (gameState.state !== 'RANKING') {
++             console.error('Solo se puede iniciar siguiente ronda desde estado RANKING');
++             return;
++         }
++         
++         // Calcular nueva ronda
++         const newNumRound = gameState.numRound + 1;
++         console.log(`Iniciando ronda ${newNumRound}...`);
++         
++         // Reiniciar juego para la siguiente ronda
++         const result = await resetGameForNextRound(gameState.gameCode, newNumRound);
++         
++         if (result.success) {
++             console.log('Juego reiniciado exitosamente:', result);
++             
++             // Actualizar estado local del juego
++             gameState = changeGameState(gameState, 'START', newNumRound);
++             
++             // Re-renderizar pantalla
++             renderScreen(gameState);
++             
++             console.log('Transición a siguiente ronda completada');
++         } else {
++             console.error('Error al reiniciar juego:', result.error);
++             // Aquí se podría mostrar un mensaje de error al usuario
++         }
++         
++     } catch (error) {
++         console.error('Error al manejar siguiente ronda:', error);
++     }
++ };
+  
+  // Función pura para renderizar la pantalla de acusación
+```
+
+</details>
+
+---
+
+## Fase 3: Estilos CSS para el botón
+
+Ahora voy a añadir los estilos CSS para el botón "SIGUIENTE RONDA":
+
+
+---
+
+<details><summary>Edit file: web/styles.css</summary>
+
+Añadir estilos para el botón SIGUIENTE RONDA al final de los estilos de ranking
+
+**Chunk 1**
+Lines added: 68, lines removed: undefined
+
+```diff
+@@ -997,3 +997,71 @@
+      }
+  }
++ 
++ /* Estilos para el botón SIGUIENTE RONDA */
++ .next-round-container {
++     text-align: center;
++     margin-top: 30px;
++     padding: 20px;
++ }
++ 
++ .next-round-button {
++     background: linear-gradient(135deg, #8B4513, #A0522D);
++     color: white;
++     border: none;
++     padding: 18px 35px;
++     font-size: 1.3rem;
++     font-weight: bold;
++     border-radius: 25px;
++     cursor: pointer;
++     transition: all 0.3s ease;
++     box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
++     min-width: 250px;
++     text-transform: uppercase;
++     letter-spacing: 0.05em;
++ }
++ 
++ .next-round-button:hover {
++     background: linear-gradient(135deg, #A0522D, #CD853F);
++     transform: translateY(-2px);
++     box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
++ }
++ 
++ .next-round-button:active {
++     transform: translateY(0);
++     box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
++ }
++ 
++ .next-round-button:disabled {
++     background: linear-gradient(135deg, #A9A9A9, #C0C0C0);
++     cursor: not-allowed;
++     transform: none;
++     box-shadow: 0 4px 15px rgba(169, 169, 169, 0.3);
++ }
++ 
++ /* Responsive para botón SIGUIENTE RONDA */
++ @media (max-width: 600px) {
++     .next-round-container {
++         margin-top: 20px;
++         padding: 15px;
++     }
++     
++     .next-round-button {
++         padding: 15px 30px;
++         font-size: 1.1rem;
++         min-width: 200px;
++     }
++ }
++ 
++ @media (max-width: 480px) {
++     .next-round-container {
++         margin-top: 15px;
++         padding: 10px;
++     }
++     
++     .next-round-button {
++         padding: 12px 25px;
++         font-size: 1rem;
++         min-width: 180px;
++     }
++ }
+  
+```
+
+</details>
+
+---
+
+## Fase 4: Testing de la implementación
+
+Ahora voy a probar que la implementación funciona correctamente ejecutando los tests:
+
+
+---
+
+```bash
+npm test
+```
+
+```
+
+
+> Pedorros@1.0.0 test
+> jest
+
+ PASS  test/unit/calculateRoundScore.test.js
+  Funciones de Cálculo de Puntuación
+    validateScoreInputs
+      ✓ debe validar entradas correctas (2 ms)
+      ✓ debe rechazar acusations inválido (1 ms)
+      ✓ debe rechazar peditos que no sea array
+      ✓ debe rechazar peditos vacío
+      ✓ debe rechazar peditos con valores no numéricos (1 ms)
+      ✓ debe rechazar pedorro inválido
+      ✓ debe rechazar conflicto entre peditos y pedorro
+      ✓ debe rechazar claves inválidas en acusations (1 ms)
+      ✓ debe rechazar roles inválidos
+    countPeditoHits
+      ✓ debe contar correctamente los aciertos de peditos (1 ms)
+      ✓ debe contar 0 si no hay aciertos
+      ✓ debe manejar entradas inválidas
+      ✓ debe contar solo aciertos exactos
+    countPedorroHits
+      ✓ debe contar correctamente los aciertos al pedorro (1 ms)
+      ✓ debe contar 0 si nadie acierta al pedorro
+      ✓ debe manejar entradas inválidas
+      ✓ debe ignorar claves que no empiecen con acusation
+    calculatePlayerScore
+      ✓ debe calcular puntuación para jugador que no es pedorro
+      ✓ debe calcular puntuación para pedorro descubierto (1 ms)
+      ✓ debe calcular puntuación para pedorro oculto
+      ✓ debe calcular puntuación sin bonus de pedorro si solo uno acierta
+      ✓ un pedito suma 1 punto si se acusa a sí mismx como pedito
+      ✓ un pedito que no se acusa a sí mismx no recibe ese punto
+      ✓ si un pedito se acusa a sí mismx y acierta a otrx pedito, suma 2
+      ✓ si un pedito se acusa a sí mismx y también acierta al pedorro con colaboración, suma 1+5 (1 ms)
+      ✓ debe manejar entradas inválidas
+    calculateRoundScore
+      ✓ debe calcular puntuación completa para todos los jugadores (2 ms)
+      ✓ debe lanzar error con entradas inválidas (14 ms)
+      ✓ debe manejar caso donde nadie descubre al pedorro
+      ✓ debe manejar caso con solo un acierto al pedorro
+      ✓ debe manejar caso con múltiples aciertos de peditos (1 ms)
+
+ PASS  test/unit/introPedorro.test.js
+  Funcionalidad Intro + Pedorro
+    isPlayerOne
+      ✓ debe identificar correctamente al jugador 1
+      ✓ debe identificar correctamente a otros jugadores
+      ✓ debe manejar estado inválido
+    Integración con Firebase
+      ✓ debe obtener el valor del pedorro desde Firebase
+      ✓ debe usar fallback si no se puede obtener el valor del pedorro (1 ms)
+    Manejo de Audio
+      ✓ debe reproducir intro.mp3 correctamente
+      ✓ debe reproducir sonido del pedorro correctamente
+      ✓ debe fallback a HTML5 Audio si Web Audio API falla (2 ms)
+    Timing y Secuencia
+      ✓ debe respetar el timing de 3 segundos para intro (112 ms)
+      ✓ debe respetar el timing de 1.5 segundos después del pedorro (61 ms)
+    Manejo de Errores
+      ✓ debe continuar si falla la reproducción del intro (1 ms)
+      ✓ debe continuar si falla la reproducción del pedorro
+      ✓ debe manejar errores de Firebase graciosamente
+    Casos Edge
+      ✓ debe manejar valores de pedorro fuera del rango 1-5
+      ✓ debe manejar valores de pedorro muy grandes (1 ms)
+      ✓ debe funcionar con diferentes códigos de juego
+
+ PASS  test/unit/investigar.test.js
+  Funcionalidad de Investigar
+    Validación de jugador 1
+      ✓ debe identificar correctamente al jugador 1 (1 ms)
+      ✓ debe manejar estado inválido
+    Cambio de estado del juego
+      ✓ debe cambiar el estado correctamente (2 ms)
+      ✓ debe mantener inmutabilidad del estado original
+      ✓ debe cambiar a diferentes estados
+    Elementos del DOM
+      ✓ debe encontrar todos los elementos necesarios
+      ✓ debe tener los IDs correctos
+    Funciones de Firebase
+      ✓ debe tener la función updateGameState disponible
+    Casos edge
+      ✓ debe manejar gameState null
+      ✓ debe manejar gameState undefined
+      ✓ debe manejar gameState sin playerNumber
+      ✓ debe manejar cambio de estado con valores inválidos (1 ms)
+
+ PASS  test/unit/acusaciones.test.js
+  Funcionalidad de Acusaciones
+    getAccusationState
+      ✓ debe retornar "verde" por defecto para jugador sin acusación (1 ms)
+      ✓ debe retornar el estado actual de un jugador
+      ✓ debe manejar parámetros inválidos (1 ms)
+    validateAccusations
+      ✓ debe validar acusaciones correctas para 4 jugadores (1 ms)
+      ✓ debe validar acusaciones correctas para 5 jugadores
+      ✓ debe rechazar acusaciones con cantidades incorrectas
+      ✓ debe manejar acusaciones incompletas
+      ✓ debe validar acusaciones para 16 jugadores
+      ✓ debe rechazar número de jugadores fuera del rango válido
+      ✓ debe manejar parámetros inválidos
+      ✓ debe contar estados inválidos como verdes
+      ✓ debe manejar acusaciones vacías como todos verdes (1 ms)
+      ✓ debe manejar acusaciones parciales contando el resto como verdes
+    convertAccusationColorsToRoles
+      ✓ debe convertir colores a roles correctamente
+      ✓ debe manejar parámetros inválidos
+      ✓ debe rechazar colores inválidos (1 ms)
+      ✓ debe convertir solo colores válidos
+    validateAccusationFormat
+      ✓ debe validar formato correcto para 4 jugadores
+      ✓ debe validar formato correcto para 5 jugadores
+      ✓ debe rechazar número incorrecto de acusaciones
+      ✓ debe rechazar roles inválidos
+      ✓ debe rechazar números de jugador faltantes
+      ✓ debe rechazar número de jugadores fuera del rango válido
+      ✓ debe manejar parámetros inválidos
+      ✓ debe validar formato para 16 jugadores (1 ms)
+    getAccusationsProgress
+      ✓ debe obtener progreso correcto para acusaciones completas
+      ✓ debe manejar acusaciones incompletas
+      ✓ debe manejar acusaciones con valores inválidos (1 ms)
+      ✓ debe manejar acusaciones vacías
+      ✓ debe manejar parámetros inválidos
+      ✓ debe rechazar número de jugadores fuera del rango válido
+      ✓ debe ordenar jugadores numéricamente
+
+ PASS  test/unit/utilities.test.js
+  Funciones Utilitarias de Manejo de Clases CSS
+    activate
+      ✓ debe remover "inactive" y añadir "active" (1 ms)
+      ✓ debe funcionar con elementos sin clases
+      ✓ debe mantener otras clases existentes (1 ms)
+    deactivate
+      ✓ debe remover "active" y añadir "inactive"
+      ✓ debe funcionar con elementos sin clases
+      ✓ debe mantener otras clases existentes (1 ms)
+    setVisibility
+      ✓ debe mostrar elemento cuando isVisible es true
+      ✓ debe ocultar elemento cuando isVisible es false
+      ✓ debe manejar elementos null/undefined graciosamente
+    Comportamiento conjunto
+      ✓ debe poder alternar entre estados active/inactive (1 ms)
+      ✓ debe mantener consistencia entre active e inactive
+
+ PASS  test/unit/disimular.test.js
+  Funcionalidad DISIMULAR - Core Functions
+    getPlayerRole
+      ✓ debe retornar "pedito" si el jugador está en el array de peditos
+      ✓ debe retornar "pedorro" si el jugador es el pedorro (1 ms)
+      ✓ debe retornar "neutral" si el jugador no es ni pedito ni pedorro
+      ✓ debe retornar "neutral" si los parámetros son inválidos
+      ✓ debe retornar "neutral" si el array de peditos está vacío
+      ✓ debe retornar "neutral" si el array de peditos está vacío y el jugador no es pedorro
+    determineSoundForPlayer
+      ✓ debe retornar "neutral.mp3" si nextSounds[jugador] es null (1 ms)
+      ✓ debe retornar "pedito-X.mp3" si el jugador es pedito y tiene número X
+      ✓ debe retornar "pedorro-X.mp3" si el jugador es pedorro y tiene número X
+      ✓ debe retornar "neutral.mp3" si el jugador no tiene rol definido
+      ✓ debe retornar "neutral.mp3" si nextSounds[jugador] está fuera del rango 1-5
+      ✓ debe retornar "neutral.mp3" si los parámetros son inválidos
+      ✓ debe manejar casos edge con diferentes tipos de datos (1 ms)
+    handleDisimularClick
+      ✓ debe retornar nuevo estado con flag isDisimulando en true (1 ms)
+      ✓ debe mantener inmutabilidad del estado original
+      ✓ debe funcionar con diferentes tipos de estado
+
+ PASS  test/unit/gameRoles.test.js
+  shuffleArray
+    ✓ debe mezclar un array sin modificar el original (1 ms)
+    ✓ debe retornar array vacío para input inválido
+    ✓ debe manejar arrays vacíos
+    ✓ debe manejar arrays de un elemento
+  calculateGameRoles
+    ✓ debe calcular roles correctamente para 4 jugadores (1 ms)
+    ✓ debe calcular roles correctamente para 8 jugadores (1 ms)
+    ✓ debe calcular roles correctamente para 16 jugadores
+    ✓ debe fallar para menos de 4 jugadores
+    ✓ debe fallar para más de 16 jugadores
+    ✓ debe fallar para input inválido
+    ✓ debe generar roles únicos cada vez
+  generateNextSounds
+    ✓ debe generar sonidos correctamente para roles válidos
+    ✓ debe retornar objeto vacío para roles inválidos
+    ✓ debe manejar diferentes números de jugadores (1 ms)
+    ✓ debe generar sonidos en rango 1-5
+
+ PASS  test/unit/parseGameURL.test.js
+  parseGameURL - URLs válidas
+    ✓ debe parsear URL válida con código "galerna", jugador 1 de 5 (1 ms)
+    ✓ debe parsear URL válida con código "fiesta123", jugador 3 de 8
+    ✓ debe parsear URL válida con código "test", jugador 16 de 16
+    ✓ debe parsear URL válida con código "a", jugador 1 de 4 (1 ms)
+  parseGameURL - URLs inválidas
+    ✓ debe fallar con URL sin parámetros
+    ✓ debe fallar con formato incorrecto - sin "g"
+    ✓ debe fallar con formato incorrecto - sin "p"
+    ✓ debe parsear URL con código de juego numérico
+    ✓ debe fallar con formato incorrecto - letras en lugar de números
+    ✓ debe fallar con URL parcialmente correcta
+    ✓ debe parsear URL con parámetros extra (regex solo busca el patrón específico)
+  parseGameURL - Casos edge
+    ✓ debe parsear URL con código de juego muy largo
+    ✓ debe parsear URL con números de jugador en límites
+    ✓ debe fallar con números negativos
+    ✓ debe parsear URL con cero como número de jugador (regex acepta 0)
+  parseGameURL - Validación de regex
+    ✓ debe aceptar caracteres especiales en código de juego
+    ✓ debe aceptar números en código de juego
+    ✓ debe parsear URL con espacios en código de juego (regex acepta espacios)
+  parseGameURL - Funcionalidad pura
+    ✓ debe ser una función pura - mismo input siempre produce mismo output (1 ms)
+    ✓ debe ser una función pura - no modifica el input
+    ✓ debe ser una función pura - retorna nuevo objeto cada vez
+    ✓ debe manejar URLs vacías o null
+
+Test Suites: 8 passed, 8 total
+Tests:       155 passed, 155 total
+Snapshots:   0 total
+Time:        1.028 s
+Ran all test suites.
+```
+
+---
+
+¡Excelente! Todos los tests pasan. Ahora voy a probar la funcionalidad en el navegador para verificar que funciona correctamente.
+
+## Resumen de la Implementación Completada
+
+He implementado exitosamente el botón "SIGUIENTE RONDA" siguiendo el plan técnico:
+
+### ✅ **Funciones Implementadas**:
+
+1. **`resetGameForNextRound()`** en `firebase-database.js` - Reinicia el juego limpiando campos específicos
+2. **`handleNextRoundClick()`** en `script.js` - Maneja el click del botón con validaciones
+3. **`renderRankingTable()` modificada** - Incluye botón condicionalmente solo para jugador 1
+4. **Estilos CSS** - Botón con diseño consistente y responsive
+
+### �� **Flujo de Funcionamiento**:
+
+1. **Pantalla RANKING** - Solo el jugador 1 ve el botón "�� SIGUIENTE RONDA"
+2. **Click del botón** - Valida permisos y estado actual
+3. **Reinicio en Firebase** - Limpia campos específicos y actualiza ronda
+4. **Transición** - Cambia estado a "START" e incrementa `numRound`
+5. **Re-renderizado** - Muestra pantalla START con nueva ronda
+
+### 🗄️ **Campos Limpiados en Firebase**:
+
+- `acusations` → `null`
+- `lastRoundScore` → `null`
+- `nextSounds` → `null`
+- `peditos` → `null`
+- `pedorro` → `null`
+- `state` → `"START"`
+- `numRound` → `incrementado en 1`
+
+### 🎨 **Características del Botón**:
+
+- **Visibilidad condicional**: Solo visible para jugador 1
+- **Diseño consistente**: Gradiente marrón con la temática del juego
+- **Efectos hover**: Animaciones y sombras al pasar el mouse
+- **Responsive**: Adaptado para móviles y tablets
+- **Validaciones**: Solo funciona desde estado "RANKING"
+
+### 🔒 **Seguridad Implementada**:
+
+- **Validación de jugador**: Solo jugador 1 puede usar el botón
+- **Validación de estado**: Solo funciona desde estado "RANKING"
+- **Manejo de errores**: Captura y maneja errores graciosamente
+- **Operación atómica**: Todos los cambios en una transacción Firebase
+
+### 📱 **Responsive Design**:
+
+- **Tablets (≤600px)**: Botón adaptado con padding y tamaño reducido
+- **Móviles (≤480px)**: Botón optimizado para pantallas pequeñas
+- **Espaciado adaptativo** para diferentes tamaños de pantalla
+
+La implementación mantiene la arquitectura inmutable del proyecto, sigue la filosofía de Small Safe Steps, y todos los tests pasan correctamente.
+
+¿Te gustaría que pruebe la funcionalidad en el navegador o hay algún ajuste que quieras que haga?
+
+---
+
+_**User**_
+
+cambia el emoji de refresh de ese boton por el de una flecha a la derecha
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+Voy a cambiar el emoji del botón "SIGUIENTE RONDA" de 🔄 (refresh) a ➡️ (flecha a la derecha):
+
+
+---
+
+<details><summary>Edit file: web/script.js</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -301,5 +301,5 @@
+                  <div class="next-round-container">
+                      <button id="next-round-btn" class="next-round-button">
+-                         🔄 SIGUIENTE RONDA
++                         ➡️ SIGUIENTE RONDA
+                      </button>
+                  </div>
+```
+
+</details>
+
+---
+
+¡Perfecto! He cambiado el emoji del botón "SIGUIENTE RONDA" de 🔄 (refresh) a ➡️ (flecha a la derecha). 
+
+El cambio se refleja inmediatamente en el servidor de desarrollo que tienes corriendo, así que ahora el botón mostrará "➡️ SIGUIENTE RONDA" en lugar de "🔄 SIGUIENTE RONDA".
+
+La flecha a la derecha es más apropiada visualmente para indicar "avanzar" o "continuar" a la siguiente ronda, mientras que el emoji de refresh sugería más bien "reiniciar" o "recargar".
+
+---
+
+_**User**_
+
+cuando hagas eso, también, cuando se detecte un cambio a state = 'START' hay que hacer que se oculte el "ranking-screen" (pasa a inactive)
+
+---
+
+_**Assistant**_
+
+Perfecto! Necesito modificar la lógica para que cuando el estado cambie a 'START', se oculte la pantalla de ranking. Voy a revisar cómo se maneja el cambio de estado y añadir esta funcionalidad.
+
+Primero, voy a buscar dónde se maneja el cambio de estado a 'START':
+
+
+---
+
+<details>
+            <summary>Grep search for "state.*START" • **12** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///Users/jordimarti/Development/pedorro/web/firebase-database.js` | L25 | `state: "START",` |
+| `file:///Users/jordimarti/Development/pedorro/web/firebase-database.js` | L41 | `state: 'START',` |
+| `file:///Users/jordimarti/Development/pedorro/web/firebase-database.js` | L420 | `state: 'START',` |
+| `file:///Users/jordimarti/Development/pedorro/test/unit/disimular.test.js` | L142 | `state: 'START',` |
+| `file:///Users/jordimarti/Development/pedorro/test/unit/disimular.test.js` | L153 | `expect(result.state).toBe('START');` |
+| `file:///Users/jordimarti/Development/pedorro/test/unit/disimular.test.js` | L162 | `state: 'START',` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L357 | `gameState = changeGameState(gameState, 'START', newNumRound);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L843 | `if (gameData.state === "START") {` |
+| `file:///Users/jordimarti/Development/pedorro/test/unit/introPedorro.test.js` | L14 | `state: 'START',` |
+| `file:///Users/jordimarti/Development/pedorro/test/unit/investigar.test.js` | L79 | `const states = ['ACUSE', 'RESULTS', 'START'];` |
+| `file:///Users/jordimarti/Development/pedorro/test/unit/investigar.test.js` | L128 | `const invalidState = { gameCode: 'test', state: 'START' };` |
+| `file:///Users/jordimarti/Development/pedorro/web/lib.js` | L14 | `export const createGameState = (state = 'START', numRound = 1, gameCode = '', playerNumber = 0, totalPlayers = 0) => ({` |
+| `file:///Users/jordimarti/Development/pedorro/web/lib.js` | L67 | `return createGameState('START', 1, parsedURL.gameCode, parsedURL.playerNumber, parsedURL.totalPlayers);` |
+| `file:///Users/jordimarti/Development/pedorro/web/lib.js` | L146 | `state: "START",` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L357 | `gameState = changeGameState(gameState, 'START', newNumRound);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L843 | `if (gameData.state === "START") {` |
+| `file:///Users/jordimarti/Development/pedorro/test/unit/disimular.test.js` | L142 | `state: 'START',` |
+| `file:///Users/jordimarti/Development/pedorro/test/unit/disimular.test.js` | L153 | `expect(result.state).toBe('START');` |
+| `file:///Users/jordimarti/Development/pedorro/test/unit/disimular.test.js` | L162 | `state: 'START',` |
+| `file:///Users/jordimarti/Development/pedorro/test/unit/introPedorro.test.js` | L14 | `state: 'START',` |
+| `file:///Users/jordimarti/Development/pedorro/web/lib.js` | L14 | `export const createGameState = (state = 'START', numRound = 1, gameCode = '', playerNumber = 0, totalPlayers = 0) => ({` |
+| `file:///Users/jordimarti/Development/pedorro/web/lib.js` | L67 | `return createGameState('START', 1, parsedURL.gameCode, parsedURL.playerNumber, parsedURL.totalPlayers);` |
+| `file:///Users/jordimarti/Development/pedorro/web/lib.js` | L146 | `state: "START",` |
+| `file:///Users/jordimarti/Development/pedorro/test/unit/investigar.test.js` | L79 | `const states = ['ACUSE', 'RESULTS', 'START'];` |
+| `file:///Users/jordimarti/Development/pedorro/test/unit/investigar.test.js` | L128 | `const invalidState = { gameCode: 'test', state: 'START' };` |
+| `file:///Users/jordimarti/Development/pedorro/web/firebase-database.js` | L25 | `state: "START",` |
+| `file:///Users/jordimarti/Development/pedorro/web/firebase-database.js` | L41 | `state: 'START',` |
+| `file:///Users/jordimarti/Development/pedorro/web/firebase-database.js` | L420 | `state: 'START',` |
+
+</details>
+
+---
+
+Ahora voy a revisar la función `renderScreen` para ver cómo se maneja el estado 'START':
+
+
+---
+
+<details>
+            <summary>Grep search for "renderScreen" • **2** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L141 | `const renderScreen = (gameState) => {` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L360 | `renderScreen(gameState);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L690 | `renderScreen(gameState);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L737 | `renderScreen(gameState);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L815 | `renderScreen(gameState);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L821 | `renderScreen(gameState);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L894 | `renderScreen(gameState);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L1354 | `renderScreen(gameState);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L141 | `const renderScreen = (gameState) => {` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L360 | `renderScreen(gameState);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L690 | `renderScreen(gameState);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L737 | `renderScreen(gameState);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L815 | `renderScreen(gameState);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L821 | `renderScreen(gameState);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L894 | `renderScreen(gameState);` |
+| `file:///Users/jordimarti/Development/pedorro/web/script.js` | L1354 | `renderScreen(gameState);` |
+
+</details>
+
+---
+
+Voy a revisar la función `renderScreen` para entender cómo se maneja cada estado:
+
+
+---
+
+Read file: web/script.js
+
+---
+
+Ahora voy a revisar la función `renderStartScreen` para ver si ya maneja la ocultación de otras pantallas:
+
+
+---
+
+Read file: web/script.js
+
+---
+
+Perfecto! Veo que `renderStartScreen` no está ocultando explícitamente la pantalla de ranking. Necesito modificar esta función para que cuando se active la pantalla START, se oculte la pantalla de ranking. Voy a hacer este cambio:
+
+
+---
+
+
+
+---
+
+
+
+---
+

@@ -43,7 +43,8 @@ import {
     getGameState,
     savePlayerAccusations,
     setupAccusationsListener,
-    updateGameRanking
+    updateGameRanking,
+    resetGameForNextRound
 } from './firebase-database.js';
 
 import { playAudio } from './audio.js';
@@ -175,6 +176,17 @@ const renderStartScreen = (gameState) => {
         // Solo activar start-screen si el juego está activo Y el login está inactivo
         if (isGameActive && !isLoginActive) {
             activate(startScreen);
+            
+            // Ocultar otras pantallas del juego cuando se activa START
+            const rankingScreen = document.getElementById('ranking-screen');
+            const acuseScreen = document.getElementById('acuse-screen');
+            
+            if (rankingScreen) {
+                deactivate(rankingScreen);
+            }
+            if (acuseScreen) {
+                deactivate(acuseScreen);
+            }
         } else {
             deactivate(startScreen);
         }
@@ -224,12 +236,12 @@ const renderRankingScreen = async (gameState) => {
         console.log('Datos de ranking obtenidos:', { ranking, lastRoundScore });
         
         // Renderizar tabla de ranking
-        renderRankingTable(ranking, lastRoundScore, totalPlayers, numRound);
+        renderRankingTable(ranking, lastRoundScore, totalPlayers, numRound, playerNumber);
         
     } catch (error) {
         console.error('Error al obtener datos de ranking:', error);
         // Mostrar mensaje de error o ranking vacío
-        renderRankingTable({}, {}, totalPlayers, numRound);
+        renderRankingTable({}, {}, totalPlayers, numRound, playerNumber);
     }
     
     console.log('Pantalla de ranking mostrada');
@@ -241,8 +253,9 @@ const renderRankingScreen = async (gameState) => {
  * @param {Object} lastRoundScore - Objeto con puntos de la ronda actual
  * @param {number} totalPlayers - Número total de jugadores
  * @param {number} numRound - Número de la ronda actual
+ * @param {number} playerNumber - Número del jugador actual
  */
-const renderRankingTable = (ranking, lastRoundScore, totalPlayers, numRound) => {
+const renderRankingTable = (ranking, lastRoundScore, totalPlayers, numRound, playerNumber) => {
     const rankingContainer = document.getElementById('ranking-container');
     if (!rankingContainer) {
         console.error('Contenedor de ranking no encontrado');
@@ -293,14 +306,78 @@ const renderRankingTable = (ranking, lastRoundScore, totalPlayers, numRound) => 
         
         rankingHTML += '</div>';
         
+        // Añadir botón SIGUIENTE RONDA solo para el jugador 1
+        if (playerNumber === 1) {
+            rankingHTML += `
+                <div class="next-round-container">
+                    <button id="next-round-btn" class="next-round-button">
+                        ➡️ SIGUIENTE RONDA
+                    </button>
+                </div>
+            `;
+        }
+        
         // Insertar en el DOM
         rankingContainer.innerHTML = rankingHTML;
         
         console.log('Tabla de ranking renderizada:', playersWithScores);
         
+        // Configurar event listener para el botón SIGUIENTE RONDA si existe
+        const nextRoundBtn = document.getElementById('next-round-btn');
+        if (nextRoundBtn) {
+            nextRoundBtn.addEventListener('click', () => handleNextRoundClick(gameState));
+        }
+        
     } catch (error) {
         console.error('Error al renderizar tabla de ranking:', error);
         rankingContainer.innerHTML = '<div class="ranking-error">Error al cargar el ranking</div>';
+    }
+};
+
+/**
+ * Maneja el click del botón SIGUIENTE RONDA
+ * @param {Object} gameState - Estado actual del juego
+ */
+const handleNextRoundClick = async (gameState) => {
+    try {
+        console.log('Botón SIGUIENTE RONDA clickeado');
+        
+        // Validar que el jugador actual sea el jugador 1
+        if (!isPlayerOne(gameState)) {
+            console.error('Solo el jugador 1 puede iniciar la siguiente ronda');
+            return;
+        }
+        
+        // Validar que el estado actual sea RANKING
+        if (gameState.state !== 'RANKING') {
+            console.error('Solo se puede iniciar siguiente ronda desde estado RANKING');
+            return;
+        }
+        
+        // Calcular nueva ronda
+        const newNumRound = gameState.numRound + 1;
+        console.log(`Iniciando ronda ${newNumRound}...`);
+        
+        // Reiniciar juego para la siguiente ronda
+        const result = await resetGameForNextRound(gameState.gameCode, newNumRound);
+        
+        if (result.success) {
+            console.log('Juego reiniciado exitosamente:', result);
+            
+            // Actualizar estado local del juego
+            gameState = changeGameState(gameState, 'START', newNumRound);
+            
+            // Re-renderizar pantalla
+            renderScreen(gameState);
+            
+            console.log('Transición a siguiente ronda completada');
+        } else {
+            console.error('Error al reiniciar juego:', result.error);
+            // Aquí se podría mostrar un mensaje de error al usuario
+        }
+        
+    } catch (error) {
+        console.error('Error al manejar siguiente ronda:', error);
     }
 };
 
