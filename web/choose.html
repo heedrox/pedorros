@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PEDORROS - Elegir Jugador</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .choose-container { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+        .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; width: 100%; max-width: 720px; }
+        .player-button { padding: 14px 18px; font-size: 16px; border-radius: 10px; border: none; cursor: pointer; background: var(--button-bg, #2b2b2b); color: #fff; box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+    </style>
+    <script type="module">
+        import { parseGameURL } from './lib.js';
+
+        const parseChooseURL = (url) => {
+            if (!url || typeof url !== 'string') {
+                return { success: false, gameCode: '', totalPlayers: 0 };
+            }
+            // Acepta ...?/g/{code}/p/x/{N}
+            const regex = /\/g\/([^\/]+)\/p\/x\/(\d+)/;
+            const match = url.match(regex);
+            if (!match) return { success: false, gameCode: '', totalPlayers: 0 };
+            return { success: true, gameCode: match[1], totalPlayers: parseInt(match[2]) };
+        };
+
+        const buildIndexURL = (origin, code, player, total) => {
+            const base = origin.replace(/\/?$/, '');
+            return `${base}/index.html?/g/${encodeURIComponent(code)}/p/${player}/${total}`;
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const header = document.getElementById('game-header');
+            if (header) header.style.display = '';
+
+            const { success, gameCode, totalPlayers } = parseChooseURL(window.location.href);
+            if (!success || totalPlayers <= 0) {
+                alert('URL inválida. Usa formato: choose.html?/g/CODIGO/p/x/N');
+                return;
+            }
+
+            // Mostrar título principal consistente
+            const info = document.getElementById('choose-info');
+            info.textContent = `Selecciona tu número de jugador (1-${totalPlayers})`;
+
+            const grid = document.getElementById('players-grid');
+            for (let i = 1; i <= totalPlayers; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'player-button';
+                btn.textContent = `Jug. ${i}`;
+                btn.addEventListener('click', () => {
+                    const url = buildIndexURL(window.location.origin, gameCode, i, totalPlayers);
+                    window.location.href = url;
+                });
+                grid.appendChild(btn);
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="game" class="game-container">
+        <div id="game-header" class="game-header">
+            <div class="header">
+                <h1 class="game-title">PEDORROS</h1>
+                <p class="game-subtitle">♪ Quién se ha echado un pedo... ♪</p>
+            </div>
+        </div>
+
+        <div id="app" class="app-content">
+            <div class="screen active">
+                <div class="choose-container">
+                    <h2 id="choose-info" class="player-info"></h2>
+                    <div class="players-grid" id="players-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
