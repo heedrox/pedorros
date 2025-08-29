@@ -317,6 +317,29 @@ npm run test:e2e     # Tests end-to-end
 npm run test:e2e:headed # Tests E2E con navegador visible
 ```
 
+### 🏗️ Sistema de Build con Cache-Busting
+
+El proyecto incluye un sistema de build automatizado que genera versiones únicas para todos los archivos estáticos, evitando problemas de caché del navegador.
+
+#### Comandos de Build
+```bash
+# Build básico (genera archivos en web-built/)
+npm run build
+
+# Build con watch para desarrollo
+npm run build:watch
+
+# Build + servidor de desarrollo (puerto 3001)
+npm run build:dev
+```
+
+#### Flujo de Trabajo Recomendado
+1. **Desarrollo**: Trabajar en archivos de `web/`
+2. **Testing**: Usar `npm run build:dev` para testing sin caché
+3. **Producción**: Ejecutar `npm run build` y subir contenido de `web-built/`
+
+**📖 Ver [BUILD_README.md](BUILD_README.md) para documentación completa del sistema de build.**
+
 ## 🎨 Características de la UI
 
 ### 🎨 GUÍA DE ESTILOS OFICIAL - NO MODIFICAR

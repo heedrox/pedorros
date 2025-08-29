@@ -1,7 +1,7 @@
 {
   "hosting": {
     "site": "pedorros",
-    "public": "web",
+    "public": "web-built",
     "ignore": [
       "firebase.json",
       "**/.*",

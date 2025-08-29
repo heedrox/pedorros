@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "live-server web --port=3000 --open=/index.html",
     "start": "live-server web --port=3000",
-    "build": "echo 'Build completed'",
+    "build": "node build.js",
+    "build:watch": "node build.js --watch",
+    "build:dev": "node build.js && live-server web-built --port=3001 --open=/index.html",
     "prepare-test": "node scripts/quick-test.cjs",
     "test": "jest",
     "test:watch": "jest --watch",
