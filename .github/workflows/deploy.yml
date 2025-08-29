@@ -20,6 +20,9 @@ jobs:
       - name: Create service account key file
         run: echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}' > service-account-key.json
 
+      - name: Build
+        run: npm run build
+
       - name: Deploy to Firebase
         run: firebase deploy --only hosting:pedorros --non-interactive
         env:
