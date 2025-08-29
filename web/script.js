@@ -1188,18 +1188,31 @@ const playIntroAndPedorroSound = async () => {
         console.log('Esperando 3 segundos (duración del intro)...');
         await new Promise(resolve => setTimeout(resolve, 3000));
         
-        // 3. Obtener valor del pedorro desde Firebase
-        console.log('Obteniendo valor del pedorro desde Firebase...');
-        const gameRoles = await getGameRoles(gameState.gameCode);
+        // 3. Obtener valor del pedorro y nextSounds desde Firebase
+        console.log('Obteniendo valor del pedorro y nextSounds desde Firebase...');
+        const [gameRoles, nextSounds] = await Promise.all([
+            getGameRoles(gameState.gameCode),
+            getNextSounds(gameState.gameCode)
+        ]);
         const pedorroValue = gameRoles?.pedorro || 1; // fallback a 1
         console.log(`Valor del pedorro obtenido: ${pedorroValue}`);
         
-        // 4. Reproducir sonido del pedorro con fallback
-        console.log(`Reproduciendo pedorro-${pedorroValue}.mp3...`);
-        try {
-            await playAudio(`pedorro-${pedorroValue}.mp3`, 0);
-        } catch (webAudioError) {
-            console.warn('Web Audio API falló para pedorro:', webAudioError);
+        // 4. Reproducir el sonido asignado al pedorro (no pedorro-X.mp3)
+        const pedorroSoundValue = nextSounds[pedorroValue];
+        if (pedorroSoundValue !== null && pedorroSoundValue !== undefined) {
+            console.log(`Reproduciendo pedorro-${pedorroSoundValue}.mp3 (sonido asignado al jugador ${pedorroValue})...`);
+            try {
+                await playAudio(`pedorro-${pedorroSoundValue}.mp3`, 0);
+            } catch (webAudioError) {
+                console.warn('Web Audio API falló para pedorro:', webAudioError);
+            }
+        } else {
+            console.warn(`No hay sonido asignado al pedorro (jugador ${pedorroValue}), usando fallback`);
+            try {
+                // await playAudio('pedorro-1.mp3', 0);
+            } catch (webAudioError) {
+                console.warn('Web Audio API falló para pedorro fallback:', webAudioError);
+            }
         }
         
         // 5. Esperar 1.5 segundos adicionales
