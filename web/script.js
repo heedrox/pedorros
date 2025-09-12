@@ -45,7 +45,8 @@ import {
     savePlayerAccusations,
     setupAccusationsListener,
     updateGameRanking,
-    resetGameForNextRound
+    resetGameForNextRound,
+    initializeNewGame
 } from './firebase-database.js';
 
 import { playAudio } from './audio.js';
@@ -436,44 +437,41 @@ const renderRankingTable = (ranking, lastRoundScore, totalPlayers, numRound, pla
  */
 const handleNextRoundClick = async (gameState) => {
     try {
-        console.log('Botón SIGUIENTE RONDA clickeado');
+        console.log('➡️ Botón SIGUIENTE RONDA clickeado');
         
         // Validar que el jugador actual sea el jugador 1
         if (!isPlayerOne(gameState)) {
-            console.error('Solo el jugador 1 puede iniciar la siguiente ronda');
+            console.error('❌ Solo el jugador 1 puede iniciar la siguiente ronda');
             return;
         }
         
         // Validar que el estado actual sea RANKING
         if (gameState.state !== 'RANKING') {
-            console.error('Solo se puede iniciar siguiente ronda desde estado RANKING');
+            console.error('❌ Solo se puede iniciar siguiente ronda desde estado RANKING');
             return;
         }
         
-        // Calcular nueva ronda
         const newNumRound = gameState.numRound + 1;
-        console.log(`Iniciando ronda ${newNumRound}...`);
+        console.log(`🚀 Iniciando ronda ${newNumRound} con roles frescos...`);
         
-        // Reiniciar juego para la siguiente ronda
-        const result = await resetGameForNextRound(gameState.gameCode, newNumRound);
+        // 🎯 UNA SOLA LLAMADA QUE HACE TODO: limpiar + calcular + guardar
+        const result = await resetGameForNextRound(gameState.gameCode, newNumRound, gameState.totalPlayers);
         
         if (result.success) {
-            console.log('Juego reiniciado exitosamente:', result);
+            console.log('✅ Nueva ronda iniciada exitosamente:', result);
             
             // Actualizar estado local del juego
             gameState = changeGameState(gameState, 'START', newNumRound);
             
-            // Re-renderizar pantalla
-            renderScreen(gameState);
-            
-            console.log('Transición a siguiente ronda completada');
+            console.log('🎉 Transición a siguiente ronda completada con roles nuevos');
         } else {
-            console.error('Error al reiniciar juego:', result.error);
-            // Aquí se podría mostrar un mensaje de error al usuario
+            console.error('❌ Error al iniciar nueva ronda:', result.error);
+            alert(`Error al iniciar ronda ${newNumRound}: ${result.error}`);
         }
         
     } catch (error) {
-        console.error('Error al manejar siguiente ronda:', error);
+        console.error('💥 Error inesperado al manejar siguiente ronda:', error);
+        alert('Error inesperado al iniciar nueva ronda');
     }
 };
 
@@ -827,6 +825,31 @@ const initializeGame = async () => {
     
     console.log('Código de juego:', gameState.gameCode);
     
+    // 🆕 LÓGICA DE PRIMER INICIO - Solo para jugador 1 si no existe el juego
+    if (!firebaseGameState && isPlayerOne(gameState)) {
+        console.log('🆕 Primer inicio del juego detectado - Jugador 1 inicializa...');
+        
+        try {
+            const result = await initializeNewGame(gameState.gameCode, gameState.totalPlayers);
+            
+            if (result.success) {
+                console.log('✅ Juego inicializado exitosamente en primer inicio:', result);
+                
+                // Actualizar estado local con los datos inicializados
+                gameState = {
+                    ...gameState,
+                    state: 'START',
+                    numRound: 1,
+                    // Los roles vienen calculados desde initializeNewGame
+                };
+            } else {
+                console.error('❌ Error al inicializar juego en primer inicio:', result.error);
+            }
+        } catch (error) {
+            console.error('💥 Error inesperado al inicializar primer juego:', error);
+        }
+    }
+    
     // Configurar listener de Firebase para TODOS los jugadores (para recibir cambios de estado)
     console.log('Configurando listener de Firebase para todos los jugadores...');
     
@@ -871,37 +894,32 @@ const initializeGame = async () => {
     const reiniciarButton = document.getElementById('reiniciar-btn');
     if (reiniciarButton) {
         reiniciarButton.addEventListener('click', async () => {
-            console.log('Botón REINICIAR clickeado');
-            console.log('Código de juego:', gameState.gameCode);
-            console.log('Jugador:', gameState.playerNumber, 'de', gameState.totalPlayers);
+            console.log('🔄 Botón REINICIAR clickeado');
             
             // Confirmar acción de reinicio
             const confirmar = confirm('¿Estás seguro de que quieres reiniciar el juego? Esta acción no se puede deshacer.');
             
             if (confirmar) {
                 try {
-                    console.log('Reiniciando juego...');
-                    const result = await resetGameState(gameState.gameCode);
+                    console.log('🚀 Reiniciando juego completo con roles frescos...');
+                    const result = await resetGameState(gameState.gameCode, gameState.totalPlayers);
                     
                     if (result.success) {
-                        console.log('Juego reiniciado exitosamente:', result);
-                        alert('¡Juego reiniciado exitosamente!');
+                        console.log('✅ Juego reiniciado exitosamente:', result);
+                        alert('¡Juego reiniciado exitosamente con roles nuevos!');
                         
                         // Reinicializar estado local de acusaciones
                         accusationsState = {};
-                        
-                        // Volver a la pantalla START
-                        renderScreen(gameState);
                     } else {
-                        console.error('Error al reiniciar:', result.error);
+                        console.error('❌ Error al reiniciar:', result.error);
                         alert(`Error al reiniciar: ${result.error}`);
                     }
                 } catch (error) {
-                    console.error('Error inesperado al reiniciar:', error);
+                    console.error('💥 Error inesperado al reiniciar:', error);
                     alert('Error inesperado al reiniciar el juego');
                 }
             } else {
-                console.log('Reinicio cancelado por el usuario');
+                console.log('❌ Reinicio cancelado por el usuario');
             }
         });
     }
@@ -986,66 +1004,22 @@ const initializeGame = async () => {
     };
 };
 
-// Función para manejar cambios en el estado del juego (para todos los jugadores)
+// Función SIMPLIFICADA para manejar cambios en el estado del juego desde Firebase
 const handleGameStateChange = async (gameData) => {
     if (!gameState) {
         return;
     }
     
-    console.log('Cambio de estado detectado:', gameData.state, 'para jugador', gameState.playerNumber);
+    console.log('📡 Estado recibido:', gameData.state, 'para jugador', gameState.playerNumber);
     
-    // Lógica especial solo para jugador 1 (director del juego)
-    if (isPlayerOne(gameState)) {
-        // Solo procesar si el estado es "START" para cálculo automático de roles
-        if (gameData.state === "START") {
-            // Verificar si ya existen roles calculados para evitar recalcular
-            if (gameData.peditos && gameData.peditos.length > 0 && gameData.pedorro) {
-                console.log('Roles ya calculados, saltando cálculo automático');
-            } else {
-                console.log('Estado START detectado, calculando roles automáticamente...');
-                
-                try {
-                    // Calcular distribución de roles
-                    const roles = calculateGameRoles(gameState.totalPlayers);
-                    
-                    if (!roles.success) {
-                        console.error('Error al calcular roles:', roles.error);
-                        return;
-                    }
-                    
-                    // Generar sonidos para cada jugador
-                    const nextSounds = generateNextSounds(roles, gameState.totalPlayers);
-                    
-                    if (Object.keys(nextSounds).length === 0) {
-                        console.error('Error al generar sonidos');
-                        return;
-                    }
-                    
-                    console.log('Roles calculados:', roles);
-                    console.log('Sonidos generados:', nextSounds);
-                    
-                    // Actualizar en Firebase Database
-                    const result = await updateGameRoles(gameState.gameCode, roles, nextSounds);
-                    
-                    if (result.success) {
-                        console.log('Roles y sonidos actualizados exitosamente en Firebase');
-                    } else {
-                        console.error('Error al actualizar roles en Firebase:', result.error);
-                    }
-                    
-                } catch (error) {
-                    console.error('Error inesperado al calcular roles:', error);
-                }
-            }
-        }
-    }
+    // 🎯 SOLO actualizar estado local y renderizar
+    // Los roles SIEMPRE vienen calculados desde las funciones de inicio/reset
     
-    // Lógica para TODOS los jugadores: actualizar estado local y re-renderizar
     if (gameData.state && gameData.state !== gameState.state) {
-        console.log(`Estado del juego cambiado de '${gameState.state}' a '${gameData.state}'`);
+        console.log(`🔄 Actualizando estado local: ${gameState.state} → ${gameData.state}`);
         
         // Actualizar estado local del juego
-        gameState = changeGameState(gameState, gameData.state);
+        gameState = changeGameState(gameState, gameData.state, gameData.numRound);
         
         // Re-renderizar pantalla con el nuevo estado
         renderScreen(gameState);
@@ -1053,20 +1027,17 @@ const handleGameStateChange = async (gameData) => {
         // Si el nuevo estado es ACUSE, verificar estado de acusaciones para todos los jugadores
         if (gameData.state === 'ACUSE') {
             console.log('Estado ACUSE detectado, verificando estado de acusaciones...');
-            // Pequeño delay para asegurar que la pantalla se haya renderizado
             setTimeout(async () => {
                 await checkAcusationsStatusAndUpdateButton();
             }, 100);
         }
         
-        // Si el nuevo estado es START, forzar restauración del main-content
+        // Si el nuevo estado es START, asegurar que main-content esté visible
         if (gameData.state === 'START') {
-            console.log('Estado START detectado, forzando restauración del main-content...');
-            // Pequeño delay para asegurar que la pantalla se haya renderizado
             setTimeout(() => {
                 const mainContent = document.getElementById('main-content');
                 if (mainContent && mainContent.style.display !== 'block') {
-                    console.log('Forzando main-content en START desde handleGameStateChange...');
+                    console.log('🔧 Restaurando main-content en START...');
                     mainContent.style.display = 'block';
                     mainContent.style.visibility = 'visible';
                     mainContent.style.opacity = '1';
@@ -1074,7 +1045,7 @@ const handleGameStateChange = async (gameData) => {
             }, 200);
         }
         
-        console.log('Pantalla actualizada al nuevo estado:', gameData.state);
+        console.log('✅ Re-renderizado completado para estado:', gameData.state);
     }
 };
 

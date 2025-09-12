@@ -5,6 +5,7 @@
 
 import { database } from './firebase-config.js';
 import { ref, set, onValue, update, off, get, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { calculateGameRoles, generateNextSounds } from './lib.js';
 
 /**
  * Obtiene la referencia a la base de datos
@@ -29,34 +30,17 @@ export const getResetGameState = () => ({
 });
 
 /**
- * Reinicia el estado del juego en Firebase Database
+ * Reinicia el estado del juego en Firebase Database usando la función unificada
  * @param {string} gameCode - Código del juego (ej: "galerna")
+ * @param {number} totalPlayers - Número total de jugadores
  * @returns {Promise<Object>} Resultado de la operación
  */
-export const resetGameState = async (gameCode) => {
-    try {
-        const gameRef = ref(database, `pedorros-game/${gameCode}`);
-        
-        const resetData = {
-            state: 'START',
-            numRound: 1,
-            gameCode: gameCode,
-            playerNumber: 0,
-            totalPlayers: 0,
-            ranking: {},
-            lastResult: null,
-            nextSounds: {},
-            pedorroSound: null,
-            resetTimestamp: serverTimestamp()
-        };
-        
-        await set(gameRef, resetData);
-        
-        return { success: true, gameState: resetData };
-    } catch (error) {
-        console.error('Error al reiniciar el juego:', error);
-        return { success: false, error: error.message };
-    }
+export const resetGameState = async (gameCode, totalPlayers) => {
+    return await initializeOrResetGame(gameCode, totalPlayers, {
+        numRound: 1,
+        preserveRanking: false,
+        reason: 'reset'
+    });
 };
 
 /**
@@ -400,51 +384,140 @@ export const updateGameRanking = async (gameCode, ranking, lastRoundScore) => {
 };
 
 /**
- * Reinicia el juego para la siguiente ronda, limpiando campos específicos y actualizando el estado
+ * Reinicia el juego para la siguiente ronda usando la función unificada
  * @param {string} gameCode - Código del juego (ej: "galerna")
  * @param {number} newNumRound - Nuevo número de ronda
+ * @param {number} totalPlayers - Número total de jugadores
  * @returns {Promise<Object>} Resultado de la operación
  */
-export const resetGameForNextRound = async (gameCode, newNumRound) => {
+export const resetGameForNextRound = async (gameCode, newNumRound, totalPlayers) => {
+    return await initializeOrResetGame(gameCode, totalPlayers, {
+        numRound: newNumRound,
+        preserveRanking: true,
+        reason: 'nextRound'
+    });
+};
+
+/**
+ * Función unificada para inicializar o reiniciar el juego con roles frescos
+ * @param {string} gameCode - Código del juego (ej: "galerna")
+ * @param {number} totalPlayers - Número total de jugadores
+ * @param {Object} options - Opciones de configuración
+ * @returns {Promise<Object>} Resultado de la operación
+ */
+export const initializeOrResetGame = async (gameCode, totalPlayers, options = {}) => {
     try {
         if (!gameCode || typeof gameCode !== 'string') {
             throw new Error('Código de juego inválido');
         }
 
-        if (typeof newNumRound !== 'number' || newNumRound < 1) {
-            throw new Error('Número de ronda inválido');
+        if (typeof totalPlayers !== 'number' || totalPlayers < 4 || totalPlayers > 16) {
+            throw new Error('Número de jugadores inválido');
         }
 
-        // Crear la estructura de datos para el reinicio
-        const resetData = {
+        const {
+            numRound = 1,           // Ronda (1 para nuevo juego/reinicio, >1 para siguiente ronda)
+            preserveRanking = false, // Si preservar ranking (true para siguiente ronda)
+            reason = 'initialize'    // Razón: 'initialize', 'reset', 'nextRound'
+        } = options;
+
+        console.log(`🎯 ${reason.toUpperCase()}: Inicializando juego con roles frescos...`);
+
+        // 1. CALCULAR NUEVOS ROLES SIEMPRE
+        const roles = calculateGameRoles(totalPlayers);
+        
+        if (!roles.success) {
+            throw new Error(`Error al calcular roles: ${roles.error}`);
+        }
+
+        // 2. GENERAR NUEVOS SONIDOS SIEMPRE
+        const nextSounds = generateNextSounds(roles, totalPlayers);
+        
+        if (Object.keys(nextSounds).length === 0) {
+            throw new Error('Error al generar sonidos');
+        }
+
+        console.log(`✅ Roles calculados para ${reason}:`, roles);
+        console.log(`🎵 Sonidos generados:`, nextSounds);
+
+        // 3. OBTENER RANKING ACTUAL SI ES NECESARIO
+        let currentRanking = {};
+        if (preserveRanking) {
+            const gameRef = ref(database, `pedorros-game/${gameCode}`);
+            const gameSnapshot = await get(gameRef);
+            const currentData = gameSnapshot.val() || {};
+            currentRanking = currentData.ranking || {};
+        }
+
+        // 4. CREAR ESTADO COMPLETO
+        const newGameState = {
+            // Datos básicos
             state: 'START',
-            numRound: newNumRound,
+            numRound: numRound,
+            gameCode: gameCode,
+            totalPlayers: totalPlayers,
+            
+            // Roles NUEVOS (siempre calculados)
+            peditos: roles.peditos,
+            pedorro: roles.pedorro,
+            nextSounds: nextSounds,
+            
+            // Limpiar datos de ronda/acusaciones
             acusations: null,
             lastRoundScore: null,
-            nextSounds: null,
-            peditos: null,
-            pedorro: null,
-            lastUpdated: serverTimestamp()
+            
+            // Ranking (preservar o limpiar según caso)
+            ranking: currentRanking,
+            
+            // Metadata
+            lastUpdated: serverTimestamp(),
+            rolesCalculatedAt: new Date().toISOString(),
+            initializedBy: reason,
+            calculatedBy: 'initializeOrResetGame'
         };
 
-        // Usar update() para modificar solo los campos específicos sin sobrescribir el documento completo
+        // 5. GUARDAR ESTADO COMPLETO - OPERACIÓN ATÓMICA
         const gameRef = ref(database, `pedorros-game/${gameCode}`);
-        await update(gameRef, resetData);
-        
+        await set(gameRef, newGameState);
+
+        console.log(`🎉 Juego ${reason} completado con roles frescos!`);
+
         return {
             success: true,
-            message: `Juego reiniciado para la ronda ${newNumRound}`,
+            message: `Juego ${reason} con roles calculados`,
             gameCode,
-            newNumRound,
-            resetData,
+            numRound,
+            roles: {
+                peditos: roles.peditos,
+                pedorro: roles.pedorro
+            },
+            nextSounds,
+            newGameState,
+            reason,
             timestamp: new Date().toISOString()
         };
+
     } catch (error) {
-        console.error('Error al reiniciar juego para siguiente ronda:', error);
+        console.error(`❌ Error en ${options.reason || 'initialize'}:`, error);
         return {
             success: false,
             error: error.message,
-            gameCode
+            gameCode,
+            reason: options.reason || 'initialize'
         };
     }
+};
+
+/**
+ * NUEVA función para primer inicio del juego
+ * @param {string} gameCode - Código del juego
+ * @param {number} totalPlayers - Número total de jugadores
+ * @returns {Promise<Object>} Resultado de la operación
+ */
+export const initializeNewGame = async (gameCode, totalPlayers) => {
+    return await initializeOrResetGame(gameCode, totalPlayers, {
+        numRound: 1,
+        preserveRanking: false,
+        reason: 'initialize'
+    });
 };
