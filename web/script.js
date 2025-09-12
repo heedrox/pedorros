@@ -24,6 +24,7 @@ import {
     validateAccusationFormat,
     getAccusationsProgress,
     calculateRoundScore,
+    getRolesDistribution,
     AUTH_STATES
 } from './lib.js';
 
@@ -66,6 +67,31 @@ let accusationsListenerCleanup = null;
 let accusationsData = {};
 
 // ===== FUNCIONES UTILITARIAS PARA MANEJO DE CLASES CSS =====
+
+/**
+ * Renderiza la distribución de roles en la pantalla START
+ * @param {number} totalPlayers - Número total de jugadores
+ */
+const renderRolesDistribution = (totalPlayers) => {
+    const rolesDistributionElement = document.getElementById('roles-distribution');
+    if (!rolesDistributionElement) {
+        return;
+    }
+    
+    // Obtener la distribución de roles
+    const distribution = getRolesDistribution(totalPlayers);
+    
+    if (!distribution.success) {
+        rolesDistributionElement.innerHTML = '';
+        return;
+    }
+    
+    // Crear el texto de distribución
+    const pedorroText = distribution.pedorros === 1 ? '1 pedorro' : `${distribution.pedorros} pedorros`;
+    const peditoText = distribution.peditos === 1 ? '1 pedito' : `${distribution.peditos} peditos`;
+    
+    rolesDistributionElement.innerHTML = `<p>${pedorroText}, ${peditoText}</p>`;
+};
 
 /**
  * Activa un elemento removiendo 'inactive' y añadiendo 'active'
@@ -196,6 +222,11 @@ const renderStartScreen = (gameState) => {
     if (playerInfoElement && playerNumber > 0 && totalPlayers > 0) {
         playerInfoElement.textContent = `Jugador: ${playerNumber} / ${totalPlayers}`;
         playerInfoElement.style.display = 'block';
+    }
+    
+    // Renderizar distribución de roles
+    if (totalPlayers > 0) {
+        renderRolesDistribution(totalPlayers);
     }
     
     // Controlar visibilidad del botón REINICIAR solo para jugador 1

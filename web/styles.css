@@ -240,6 +240,20 @@ body {
     margin: 10px 0;
 }
 
+/* Distribución de roles */
+.roles-distribution {
+    text-align: center;
+    color: #FFF;
+    opacity: 0.7;
+    font-size: 0.8rem;
+    margin-top: 15px;
+    line-height: 1.4;
+}
+
+.roles-distribution p {
+    margin: 5px 0;
+}
+
 /* Responsive design */
 @media (max-width: 600px) {
     .game-title {

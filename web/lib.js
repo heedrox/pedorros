@@ -224,6 +224,51 @@ export const calculateGameRoles = (totalPlayers) => {
     };
 };
 
+// Función pura para obtener la distribución de roles para mostrar al usuario
+export const getRolesDistribution = (totalPlayers) => {
+    // Validar que totalPlayers sea un número
+    if (typeof totalPlayers !== 'number' || !Number.isInteger(totalPlayers)) {
+        return {
+            success: false,
+            error: 'Número de jugadores debe ser un número entero'
+        };
+    }
+    
+    // Validar rango de jugadores (4-16 según PRODUCT_BRIEF)
+    if (totalPlayers < 4 || totalPlayers > 16) {
+        return {
+            success: false,
+            error: 'Número de jugadores debe estar entre 4 y 16'
+        };
+    }
+    
+    // Tabla de distribución según PRODUCT_BRIEF
+    const roleDistribution = {
+        4: { peditos: 2, pedorros: 1, neutrales: 1 },
+        5: { peditos: 2, pedorros: 1, neutrales: 2 },
+        6: { peditos: 3, pedorros: 1, neutrales: 2 },
+        7: { peditos: 4, pedorros: 1, neutrales: 2 },
+        8: { peditos: 4, pedorros: 1, neutrales: 3 },
+        9: { peditos: 5, pedorros: 1, neutrales: 3 },
+        10: { peditos: 6, pedorros: 1, neutrales: 3 },
+        11: { peditos: 6, pedorros: 1, neutrales: 4 },
+        12: { peditos: 7, pedorros: 1, neutrales: 4 },
+        13: { peditos: 8, pedorros: 1, neutrales: 4 },
+        14: { peditos: 8, pedorros: 1, neutrales: 5 },
+        15: { peditos: 9, pedorros: 1, neutrales: 5 },
+        16: { peditos: 10, pedorros: 1, neutrales: 5 }
+    };
+    
+    const distribution = roleDistribution[totalPlayers];
+    
+    return {
+        success: true,
+        peditos: distribution.peditos,
+        pedorros: distribution.pedorros,
+        neutrales: distribution.neutrales
+    };
+};
+
 // Función pura para generar el diccionario de sonidos para cada jugador
 export const generateNextSounds = (roles, totalPlayers) => {
     if (!roles || !roles.success || !roles.peditos || !roles.pedorro) {
