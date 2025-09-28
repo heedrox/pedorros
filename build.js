@@ -13,6 +13,7 @@ const SOURCE_DIR = './web';
 const BUILD_DIR = './web-built';
 const FILES_TO_PROCESS = [
     'index.html',
+    'choose.html',
     'script.js',
     'firebase-database.js'
 ];
